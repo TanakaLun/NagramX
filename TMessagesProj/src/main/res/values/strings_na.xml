@@ -29,6 +29,7 @@
     <string name="AppIconBlue">Blue</string>
     <string name="AppIconDarkBlue">Dark Blue</string>
     <string name="AppIconBlurBlue">Blur Blue</string>
+    <string name="AppIconYukino">ゆきの</string>
     <string name="InputMessageId">Enter Message ID</string>
     <string name="ToTheMessage">Go To</string>
     <string name="ZalgoFilter">Filter \"Zalgo\" Symbols</string>
