@@ -1,5 +1,6 @@
 # Nagram X Yukino Ver
 A variant of [NagramX](https://github.com/risin42/NagramX) without additional features.
+This repository exists only for the needs of Custom API and FCM
 
 ## Acknowledgments
 
