@@ -273,6 +273,7 @@
             android:name="org.telegram.messenger.YukinoIcon"
             android:targetActivity="org.telegram.ui.LaunchActivity"
             android:icon="@mipmap/ic_launcher_yukino"
+            android:roundIcon="@mipmap/ic_launcher_nagram_blue_round"
             android:exported="true">
 
         <activity-alias

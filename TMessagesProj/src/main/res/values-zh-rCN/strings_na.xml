@@ -28,6 +28,7 @@
     <string name="AppIconBlue">几何</string>
     <string name="AppIconDarkBlue">几何蓝</string>
     <string name="AppIconBlurBlue">轻盈</string>
+    <string name="AppIconYukino">ゆきの</string>
     <string name="InputMessageId">输入消息 ID</string>
     <string name="ToTheMessage">前往消息</string>
     <string name="ZalgoFilter">过滤 \"Zalgo\" 符号</string>
