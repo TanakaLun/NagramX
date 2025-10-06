@@ -112,12 +112,14 @@ public class AndroidUtil {
         if (fcm) {
             NaConfig.INSTANCE.getPushServiceType().setConfigInt(1);
             NaConfig.INSTANCE.getPushServiceTypeInAppDialog().setConfigBool(false);
-        } else if (Build.VERSION.SDK_INT < Build.VERSION_CODES.VANILLA_ICE_CREAM) {
-            NaConfig.INSTANCE.getPushServiceType().setConfigInt(0);
-            NaConfig.INSTANCE.getPushServiceTypeInAppDialog().setConfigBool(true);
+        } else {
             SharedPreferences.Editor editor = MessagesController.getGlobalNotificationsSettings().edit();
             editor.putBoolean("pushService", true).apply();
             editor.putBoolean("pushConnection", true).apply();
+            NaConfig.INSTANCE.getPushServiceType().setConfigInt(0);
+            if (Build.VERSION.SDK_INT < Build.VERSION_CODES.VANILLA_ICE_CREAM) {
+                NaConfig.INSTANCE.getPushServiceTypeInAppDialog().setConfigBool(true);
+            }
         }
     }
 
@@ -169,5 +171,15 @@ public class AndroidUtil {
         } else {
             BulletinFactory.of(fragment).createErrorBulletin(message).show();
         }
+    }
+
+    public static String getFileNameWithoutEx(String filename) {
+        if ((filename != null) && (filename.length() > 0)) {
+            int dot = filename.lastIndexOf('.');
+            if ((dot > -1) && (dot < (filename.length()))) {
+                return filename.substring(0, dot);
+            }
+        }
+        return filename;
     }
 }
