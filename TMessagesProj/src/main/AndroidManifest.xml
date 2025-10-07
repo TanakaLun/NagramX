@@ -107,13 +107,12 @@
         android:restoreAnyVersion="true"
         android:backupAgent=".BackupAgent"
         android:hardwareAccelerated="@bool/useHardwareAcceleration"
-        android:icon="@mipmap/ic_launcher_nagram_blue"
+        android:icon="@mipmap/ic_launcher_yukino"
         android:label="@string/NagramX"
         android:largeHeap="true"
         android:theme="@style/Theme.TMessages.Start"
         android:manageSpaceActivity="org.telegram.ui.ExternalActionActivity"
         android:networkSecurityConfig="@xml/network_security_config"
-        android:roundIcon="@mipmap/ic_launcher_nagram_blue_round"
         android:supportsRtl="false"
         android:requestLegacyExternalStorage="true"
         android:hasFragileUserData="true"
@@ -121,6 +120,7 @@
         android:allowAudioPlaybackCapture="true"
         tools:replace="android:supportsRtl"
         android:usesCleartextTraffic="true"
+        android:enableOnBackInvokedCallback="true"
     >
         <!-- usesCleartextTraffic for browser supporting opening http:// links -->
 
