@@ -2,15 +2,19 @@ import os
 import contextlib
 from pathlib import Path
 from sys import argv
+from asyncio import run
 
 from pyrogram import Client
-from pyrogram.types import InputMediaDocument, LinkPreviewOptions
+from pyrogram.types import InputMediaDocument
 
 api_id = os.environ.get("APP_ID")
 api_hash = os.environ.get("APP_HASH")
 artifacts_path = Path("artifacts")
 test_version = argv[3] == "test" if len(argv) > 2 else None
 metadata_chat_id = argv[4] if len(argv) > 3 else None
+
+# 新增：从命令行参数获取话题 ID
+thread_id = argv[5] if len(argv) > 4 else None
 
 def find_apk(abi: str) -> Path:
     dirs = list(artifacts_path.glob("*"))
@@ -43,17 +47,15 @@ def get_document() -> list["InputMediaDocument"]:
         if apk := find_apk(abi):
             documents.append(
                 InputMediaDocument(
-                    media = str(apk),
+                    media=str(apk),
                 )
             )
     if not documents:
         documents.append(
         InputMediaDocument(
-            media = str("TMessagesProj/src/main/" + "ic_launcher_nagram_block_round-playstore.png")
+            media=str("TMessagesProj/src/main/" + "ic_launcher_yukino-playstore.png")
         ))
     base_caption = get_caption()
-    if base_caption and len(base_caption) > 1024:
-        base_caption = base_caption[:1020] + "..."
     ai_summary = get_ai_summary()
     if ai_summary and len(base_caption + ai_summary) > 1024:
         ai_summary = ""
@@ -62,9 +64,9 @@ def get_document() -> list["InputMediaDocument"]:
     return documents
 
 def get_metadata():
-    commit_id = "<code>" + (os.environ.get("COMMIT_ID") or "unknown")[:7] + "</code>"
-    commit_message = "<code>" + (os.environ.get("COMMIT_MESSAGE") or "unknown") + "</code>"
-    build_timestamp = "<code>" + (os.environ.get("BUILD_TIMESTAMP") or "-1") + "</code>"
+    commit_id = "`" + (os.environ.get("COMMIT_ID") or "unknown")[:7] + "`"
+    commit_message = "`" + (os.environ.get("COMMIT_MESSAGE") or "unknown") + "`"
+    build_timestamp = "`" + (os.environ.get("BUILD_TIMESTAMP") or "-1") + "`"
     return build_timestamp + " " + commit_id + "\n" + commit_message
 
 def get_ai_summary():
@@ -86,21 +88,36 @@ def retry(func):
     return wrapper
 
 @retry
-async def send_to_channel(client: "Client", cid: str):
+# 修改: 接受 thread_id 参数
+async def send_to_channel(client: "Client", cid: str, thread_id: int | None):
     with contextlib.suppress(ValueError):
         cid = int(cid)
+    
+    # 转换为整数，如果参数存在
+    message_thread_id = int(thread_id) if thread_id else None
+
     await client.send_media_group(
-        cid,
-        media = get_document(),
+        chat_id=cid,
+        media=get_document(),
+        # 新增: 传入 message_thread_id
+        message_thread_id=message_thread_id,
     )
 
 @retry
-async def send_metadata(client: "Client", cid: str):
+# 修改: 接受 thread_id 参数
+async def send_metadata(client: "Client", cid: str, thread_id: int | None):
     with contextlib.suppress(ValueError):
         cid = int(cid)
+
+    # 转换为整数，如果参数存在
+    message_thread_id = int(thread_id) if thread_id else None
+
     await client.send_message(
-        chat_id = cid,
-        text = get_metadata(),
+        chat_id=cid,
+        text=get_metadata(),
+        disable_web_page_preview=True,
+        # 新增: 传入 message_thread_id
+        message_thread_id=message_thread_id,
     )
 
 def get_client(bot_token: str):
@@ -114,13 +131,20 @@ def get_client(bot_token: str):
 async def main():
     bot_token = argv[1]
     chat_id = argv[2]
+    # 使用全局变量 thread_id
+    global thread_id 
+    
     client = get_client(bot_token)
     await client.start()
-    await send_to_channel(client, chat_id)
+    
+    # 修改: 传入 thread_id
+    await send_to_channel(client, chat_id, thread_id)
+    
     if metadata_chat_id:
-        await send_metadata(client, metadata_chat_id)
+        # 修改: 传入 thread_id
+        await send_metadata(client, metadata_chat_id, thread_id)
+        
     await client.log_out()
 
 if __name__ == "__main__":
-    from asyncio import run
     run(main())

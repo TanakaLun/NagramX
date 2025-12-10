@@ -1,21 +1,21 @@
 {
   "project_info": {
-    "project_number": "986979746546",
-    "project_id": "nagram-x",
-    "storage_bucket": "nagram-x.firebasestorage.app"
+    "project_number": "89886985097",
+    "project_id": "yukinogram-2bff0",
+    "storage_bucket": "yukinogram-2bff0.firebasestorage.app"
   },
   "client": [
     {
       "client_info": {
-        "mobilesdk_app_id": "1:986979746546:android:f63a8620cbea5950dcc66b",
+        "mobilesdk_app_id": "1:89886985097:android:1616d5078fecf794ce6f58",
         "android_client_info": {
-          "package_name": "nu.gpu.nagram"
+          "package_name": "io.tl.yukinogram"
         }
       },
       "oauth_client": [],
       "api_key": [
         {
-          "current_key": "AIzaSyAzMqM8tLgsWIvmEyfZRS95ubX-TXiNB3w"
+          "current_key": "AIzaSyALYSZH-B1BM4coVlaDWn8KMjMjs9emMiQ"
         }
       ],
       "services": {

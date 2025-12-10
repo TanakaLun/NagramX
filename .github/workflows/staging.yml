@@ -69,6 +69,35 @@ jobs:
             echo "org.gradle.jvmargs=-Xmx8G -XX:MaxMetaspaceSize=2G -XX:+UseParallelGC -XX:+HeapDumpOnOutOfMemoryError -Dfile.encoding=UTF-8" >> gradle.properties
           fi
           cat gradle.properties
+      - name: Enable Optimization
+        run: |
+          sed -i 's/^-dontoptimize$/#-dontoptimize/' TMessagesProj/proguard-rules.pro
+          echo "ProGuard optimization enabled for CI build"
+          echo "Modified proguard-rules.pro:"
+          grep -n "dontoptimize" TMessagesProj/proguard-rules.pro || echo "No dontoptimize rules found"
+      - name: Yukinoization
+        run: |
+          sed -i 's/NagramX/YukinoGram/g' settings.gradle
+          sed -i 's/NagramX/YukinoGram/g' TMessagesProj/build.gradle
+          sed -i 's/nu\.gpu\.nagram/io.tl.yukinogram/g' gradle.properties
+          MANIFEST_PATH="TMessagesProj/src/main/AndroidManifest.xml"
+          sed -i 's/android:icon="@mipmap\/ic_launcher_nagram_blue"/android:icon="@mipmap\/ic_launcher_yukino"/g' "$MANIFEST_PATH"
+          sed -i 's/android:label="@string\/NagramX"/android:label="@string\/YukinoGram"/g' "$MANIFEST_PATH"
+          sed -i '/<!-- usesCleartextTraffic for browser supporting opening http:\/\/ links -->/a\
+        <activity-alias\
+            android:enabled="true"\
+            android:name="org.telegram.messenger.YukinoIcon"\
+            android:targetActivity="org.telegram.ui.LaunchActivity"\
+            android:icon="@mipmap/ic_launcher_yukino"\
+            android:exported="true">\
+\
+            <intent-filter>\
+                <action android:name="android.intent.action.MAIN" />\
+                <category android:name="android.intent.category.LAUNCHER" />\
+                <category android:name="android.intent.category.MULTIWINDOW_LAUNCHER" />\
+            </intent-filter>\
+            <meta-data android:name="android.app.shortcuts" android:resource="@xml/shortcuts" />\
+        </activity-alias>' "$MANIFEST_PATH"
       - name: Staging Build
         id: staging_build_step
         env:
@@ -107,18 +136,8 @@ jobs:
         id: prepare
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          HEAD_MSG: ${{ github.event.head_commit.message }}
         run: |
           set -e
-          AI_SUMMARY_ENABLED="${{ vars.AI_SUMMARY_ENABLED }}"
-          if [ "$AI_SUMMARY_ENABLED" != "true" ] && [ "$AI_SUMMARY_ENABLED" != "TRUE" ]; then
-            echo "AI summary is disabled; skipping."
-            echo "ai_summary<<EOF" >> $GITHUB_OUTPUT
-            echo "" >> $GITHUB_OUTPUT
-            echo "EOF" >> $GITHUB_OUTPUT
-            exit 0
-          fi
-
           if ! command -v jq >/dev/null 2>&1; then
             sudo apt-get update -y
             sudo apt-get install -y jq
@@ -127,7 +146,7 @@ jobs:
           BRANCH="${{ github.ref_name }}"
           REPO="${{ github.repository }}"
           HEAD_SHA="${{ github.sha }}"
-          # HEAD_MSG is provided through the step environment (see 'env' above)
+          HEAD_MSG="${{ github.event.head_commit.message }}"
 
           LAST_SHA=$(curl -s -H "Accept: application/vnd.github+json" \
             -H "Authorization: Bearer $GITHUB_TOKEN" \
@@ -202,9 +221,9 @@ jobs:
         env:
           APP_ID: ${{ secrets.APP_ID }}
           APP_HASH: ${{ secrets.APP_HASH }}
-          COMMIT_ID: ${{ github.event.head_commit.id }}
+          COMMIT_ID: ${{ github.sha }}
           COMMIT_URL: ${{ github.event.head_commit.url }}
-          COMMIT_MESSAGE: ${{ github.event.head_commit.message }}
+          COMMIT_MESSAGE: ${{ github.event.head_commit.message || '手动触发/无消息' }}
           BUILD_TIMESTAMP: ${{ needs.build.outputs.build_timestamp }}
           AI_SUMMARY: ${{ steps.prepare.outputs.ai_summary }}
         run: |
@@ -212,4 +231,4 @@ jobs:
           export mini64=$(find artifacts -name "*arm64-v8a.apk")
           echo $mini64
           python -m pip install -r Tools/scripts/requirements.txt
-          python Tools/scripts/upload.py ${{ secrets.HELPER_BOT_TOKEN }} ${{ secrets.HELPER_BOT_TARGET }} test ${{ secrets.HELPER_BOT_CANARY_TARGET }}
+          python Tools/scripts/upload.py ${{ secrets.HELPER_BOT_TOKEN }} ${{ secrets.HELPER_BOT_TARGET }} test ${{ secrets.HELPER_BOT_CANARY_TARGET }} ${{ secrets.HELPER_BOT_THREAD_ID }}
