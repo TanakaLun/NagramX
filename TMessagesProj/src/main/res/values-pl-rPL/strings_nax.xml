@@ -37,6 +37,7 @@
     <string name="ArticleTranslationProvider">Dostawca tłumaczeń artykułów</string>
     <string name="EnableSeparateArticleTranslator">Użyj innego dostawcy dla artykułu</string>
     <string name="DisableCrashlyticsCollection">Wyłącz Firebase rozbita analityka</string>
+    <string name="ShowStickersRowToplevel">Pokaż naklejki w ustawieniach głównych</string>
     <string name="HideShareButtonInChannel">Ukryj przycisk „Udostępnij” z boku</string>
     <string name="DeleteCloudBackup">Wyczyść dane w chmurze</string>
     <string name="DeleteCloudBackupFailed">Nie udało się wyczyścić danych w chmurze</string>
@@ -278,4 +279,5 @@
     <string name="NoBookmarks">Brak zakładek</string>
     <string name="ClearAllBookmarks">Wyczyść wszystkie zakładki</string>
     <string name="ClearAllBookmarksNotification">Wszystkie zakładki zostały usunięte.</string>
+    <string name="SortByUnread">Sortuj według nieprzeczytanych</string>
 </resources>
