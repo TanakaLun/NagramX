@@ -176,9 +176,7 @@ object NaConfig {
         addConfig(
             "CustomTitle",
             ConfigItem.configTypeString,
-            getString(
-                R.string.NagramX
-            )
+            "Nagram X"
         )
     val dateOfForwardedMsg =
         addConfig(
@@ -573,6 +571,12 @@ object NaConfig {
     val enableSaveEditsHistory =
         addConfig(
             "EnableSaveEditsHistory",
+            ConfigItem.configTypeBool,
+            false
+        )
+    val saveLocalLastSeen =
+        addConfig(
+            "SaveLocalLastSeen",
             ConfigItem.configTypeBool,
             false
         )
@@ -1003,6 +1007,12 @@ object NaConfig {
             ConfigItem.configTypeBool,
             true
         )
+    val mediaViewerMenuItemCopyFrame =
+        addConfig(
+            "MediaViewerMenuItemCopyFrame",
+            ConfigItem.configTypeBool,
+            true
+        )
     val mediaViewerMenuItemCopyPhoto =
         addConfig(
             "MediaViewerMenuItemCopyPhoto",
@@ -1384,6 +1394,12 @@ object NaConfig {
     val smoothRoundedMenu =
         addConfig(
             "SmoothRoundedMenu",
+            ConfigItem.configTypeBool,
+            false
+        )
+    val showCopyFrame =
+        addConfig(
+            "MessageMenuCopyFrame",
             ConfigItem.configTypeBool,
             false
         )

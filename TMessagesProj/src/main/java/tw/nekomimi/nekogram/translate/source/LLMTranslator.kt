@@ -1,6 +1,5 @@
 package tw.nekomimi.nekogram.translate.source
 
-import android.text.TextUtils
 import android.util.Log
 import kotlinx.coroutines.delay
 import okhttp3.MediaType.Companion.toMediaTypeOrNull
@@ -49,6 +48,7 @@ object LLMTranslator : Translator {
     private var apiKeys: List<String> = emptyList()
     private val apiKeyIndex = AtomicInteger(0)
     private var currentProvider = -1
+    private var cachedKeyString: String? = null
 
     private val httpClient = OkHttpClient.Builder()
         .callTimeout(60, TimeUnit.SECONDS)
@@ -59,10 +59,6 @@ object LLMTranslator : Translator {
 
     private fun updateApiKeys() {
         val llmProvider = NaConfig.llmProviderPreset.Int()
-        if (currentProvider == llmProvider && apiKeys.isNotEmpty()) {
-            return
-        }
-
         val keyConfig = when (llmProvider) {
             1 -> NaConfig.llmProviderOpenAIKey
             2 -> NaConfig.llmProviderGeminiKey
@@ -73,11 +69,16 @@ object LLMTranslator : Translator {
         }
         val key = keyConfig.String()
 
-        apiKeys = if (!TextUtils.isEmpty(key)) {
-            key.split(",").map { it.trim() }.filter { it.isNotEmpty() }
+        if (currentProvider == llmProvider && cachedKeyString == key) {
+            return
+        }
+
+        apiKeys = if (!key.isNullOrBlank()) {
+            key.split(",").map { it.trim() }.filter { it.isNotEmpty() }.distinct()
         } else {
             emptyList()
         }
+        cachedKeyString = key
         currentProvider = llmProvider
         apiKeyIndex.set(0)
     }
@@ -153,9 +154,11 @@ object LLMTranslator : Translator {
                 }
                 val waitTimeMillis = BASE_WAIT * 2.0.pow(retryCount - 1).toLong()
                 delay(waitTimeMillis)
+            } catch (e: UnsupportedOperationException) {
+                throw e
             } catch (e: Exception) {
                 if (BuildVars.LOGS_ENABLED) {
-                    AndroidUtil.showErrorDialog("Error during LLM translation, falling back: $e")
+                    AndroidUtil.showErrorDialog("Error during LLM translation, falling back to GoogleAppTranslator.\n$e")
                 }
                 return GoogleAppTranslator.doTranslate(from, to, query, entities)
             }
@@ -166,9 +169,9 @@ object LLMTranslator : Translator {
         return GoogleAppTranslator.doTranslate(from, to, query, entities)
     }
 
-    @Throws(IOException::class, RateLimitException::class, IllegalStateException::class)
+    @Throws(IOException::class, RateLimitException::class, UnsupportedOperationException::class)
     private fun doLLMTranslate(to: String, query: String): String {
-        val apiKey = getNextApiKey() ?: throw IllegalStateException("Missing LLM API Key")
+        val apiKey = getNextApiKey() ?: throw UnsupportedOperationException(getString(R.string.ApiKeyNotSet))
         val apiKeyForLog = apiKey.takeLast(2)
         if (BuildVars.LOGS_ENABLED) Log.d("LLMTranslator", "createPost: Bearer $apiKeyForLog")
 
@@ -215,7 +218,7 @@ object LLMTranslator : Translator {
             if (isReasoning(model)) {
                 put("reasoning_effort", getReasoningEffort(model))
             }
-            if (llmProviderPreset > 1 || (llmProviderPreset == 0 && !model.startsWith("gpt-5"))) {
+            if (llmProviderPreset > 1 || (llmProviderPreset == 0 && !getBaseModelName(model).startsWith("gpt-5"))) {
                 put("temperature", NaConfig.llmTemperature.Float())
             }
         }.toString()
@@ -234,6 +237,8 @@ object LLMTranslator : Translator {
 
             if (response.code == 429) {
                 throw RateLimitException("LLM API rate limit exceeded")
+            } else if (response.code in 400..499) {
+                throw UnsupportedOperationException("HTTP ${response.code} : $responseBodyString")
             } else if (!response.isSuccessful) {
                 throw IOException("HTTP ${response.code} : $responseBodyString")
             }
@@ -280,25 +285,35 @@ object LLMTranslator : Translator {
     """.trimIndent()
     }
 
+
+    private fun getBaseModelName(model: String): String {
+        return model.substringAfterLast('/')
+    }
+
     private fun isGPT5(model: String): Boolean {
-        return !model.startsWith("gpt-5.") && model.startsWith("gpt-5") && !model.contains("instant") && !model.contains("chat")
+        val base = getBaseModelName(model)
+        return !base.startsWith("gpt-5.") && base.startsWith("gpt-5") && !base.contains("instant") && !base.contains("chat")
     }
 
     private fun isReasoning(model: String): Boolean {
-        return model == "gemini-flash-latest"
-                || model.startsWith("gemini-2.5-flash")
-                || model.startsWith("gemini-3-flash")
-                || model.startsWith("gpt-oss")
-                || (model.startsWith("gpt-5.") && !model.contains("instant") && !model.contains("chat"))
-                || (model.startsWith("gpt-5") && !model.contains("instant") && !model.contains("chat"))
+        val base = getBaseModelName(model)
+        return base == "gemini-flash-latest"
+                || base.startsWith("gemini-2.5-flash")
+                || base.startsWith("gemini-3-flash")
+                || base.startsWith("gpt-oss")
+                || (base.startsWith("gpt-5.") && !base.contains("instant") && !base.contains("chat"))
+                || (base.startsWith("gpt-5") && !base.contains("instant") && !base.contains("chat"))
     }
 
-    private fun getReasoningEffort(model: String) = when {
-        model.startsWith("gpt-oss") -> "low"
-        model.startsWith("gpt-5.") -> "none"
-        model.startsWith("gpt-5") -> "minimal"
-        // model.startsWith("gemini-3-flash") -> "minimal"
-        else -> "none" // gemini-flash
+    private fun getReasoningEffort(model: String): String {
+        val base = getBaseModelName(model)
+        return when {
+            base.startsWith("gpt-oss") -> "low"
+            base.startsWith("gpt-5.") -> "none"
+            base.startsWith("gpt-5") -> "minimal"
+            // base.startsWith("gemini-3-flash") -> "minimal"
+            else -> "none" // gemini-flash
+        }
     }
 
     class RateLimitException(message: String) : Exception(message)
