@@ -77,7 +77,9 @@ jobs:
           grep -n "dontoptimize" TMessagesProj/proguard-rules.pro || echo "No dontoptimize rules found"
       - name: Yukinoization
         run: |
-          ./setup.sh
+          ./Tools/scripts/setup.sh
+          echo "${{ secrets.FCM }}" | base64 -d > TMessagesProj/google-services.json
+          chmod -x TMessagesProj/google-services.json
       - name: Staging Build
         id: staging_build_step
         env:
