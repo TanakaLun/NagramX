@@ -148,6 +148,7 @@ import com.radolyn.ayugram.ui.DummyView;
 import com.radolyn.ayugram.utils.AyuGhostUtils;
 import com.radolyn.ayugram.utils.AyuGhostPreferences;
 import com.radolyn.ayugram.utils.AyuState;
+import com.radolyn.ayugram.utils.LastSeenHelper;
 
 import org.telegram.PhoneFormat.PhoneFormat;
 import org.telegram.messenger.AccountInstance;
@@ -40181,7 +40182,7 @@ public class ChatActivity extends BaseFragment implements
                 Bundle args = new Bundle();
                 args.putLong("user_id", user.id);
                 args.putBoolean("expandPhoto", expandPhoto);
-                ChatsHelper.getInstance(currentAccount).updateLastSeenFromLoadedMessages(user.id, messages, chatAdapter);
+                LastSeenHelper.saveLastSeenFromLoadedMessages(user.id, getUserConfig().getClientUserId(), messages, chatAdapter);
                 ProfileActivity fragment = new ProfileActivity(args);
                 fragment.setPlayProfileAnimation(currentUser != null && currentUser.id == user.id ? 1 : 0);
                 AndroidUtilities.setAdjustResizeToNothing(getParentActivity(), classGuid);
@@ -42178,7 +42179,7 @@ public class ChatActivity extends BaseFragment implements
             if (currentEncryptedChat != null && uid == currentUser.id) {
                 args.putLong("dialog_id", dialog_id);
             }
-            ChatsHelper.getInstance(currentAccount).updateLastSeenFromLoadedMessages(uid, messages, chatAdapter);
+            LastSeenHelper.saveLastSeenFromLoadedMessages(uid, getUserConfig().getClientUserId(), messages, chatAdapter);
             ProfileActivity fragment = new ProfileActivity(args);
             fragment.setPlayProfileAnimation(currentUser != null && currentUser.id == uid ? 1 : 0);
             presentFragment(fragment);
@@ -45711,6 +45712,9 @@ public class ChatActivity extends BaseFragment implements
             views.add(chatActivityEnterView);
             views.add(sideControlsButtonsLayout);
             views.add(chatInputViewsContainer);
+            if (chatInputViewsContainer != null) {
+                views.add(chatInputViewsContainer.getFadeView());
+            }
 
             views.removeAll(Collections.singleton(null));
         }
@@ -46548,7 +46552,7 @@ public class ChatActivity extends BaseFragment implements
                     icons.add(R.drawable.msg_viewreplies);
                     items.add(LocaleController.getString(R.string.ViewInChat));
                 }
-                if (!selectedObject.isSponsored() && chatMode != MODE_SCHEDULED && ChatObject.isChannel(currentChat) && !ChatObject.isMonoForum(currentChat) && selectedObject.getDialogId() != mergeDialogId) {
+                if (!selectedObject.isSponsored() && chatMode != MODE_SCHEDULED && ChatObject.isChannel(currentChat) && !ChatObject.isMonoForum(currentChat) && selectedObject.getDialogId() != mergeDialogId && !selectedObject.isAyuDeleted()) {
                     allowCopyLink = true;
                     if (
                         (!GroupedIconsView.useGroupedIcons() && (NaConfig.INSTANCE.getShowCopyLink().Bool() || selectedObject.isAnyKindOfSticker() || selectedObject.isPoll()))
@@ -47311,8 +47315,7 @@ public class ChatActivity extends BaseFragment implements
         if (TextUtils.isEmpty(text)) {
             return false;
         }
-        boolean appendOriginal = NaConfig.INSTANCE.getTranslatorMode().Int() == MessageTransKt.TRANSLATE_MODE_APPEND;
-        DialogTransKt.startTrans(getParentActivity(), text, toLang != null ? toLang : NekoConfig.translateToLang.String(), Translator.providerLLMTranslator, appendOriginal);
+        DialogTransKt.startTrans(getParentActivity(), text, toLang != null ? toLang : NekoConfig.translateToLang.String(), Translator.providerLLMTranslator);
         return true;
     }
 
