@@ -292,9 +292,6 @@ public class MessageObject {
 
     public boolean notime;
 
-    // nekogram
-    public boolean translating;
-
     public int getChatMode() {
         if (scheduled) {
             return ChatActivity.MODE_SCHEDULED;
@@ -482,6 +479,9 @@ public class MessageObject {
 
     @Deprecated
     private static long getTopicId(int currentAccount, TLRPC.Message message, boolean sureIsForum, boolean sureIsMonoForum) {
+        if (message == null) {
+            return sureIsForum ? 1 : 0;
+        }
         final long selfId = UserConfig.getInstance(currentAccount).getClientUserId();
         if (sureIsMonoForum) {
             return getMonoForumTopicId(message);
@@ -1930,7 +1930,7 @@ public class MessageObject {
         emojiAnimatedSticker = null;
         emojiAnimatedStickerId = null;
         if (emojiOnlyCount == 1 && !(getMedia(messageOwner) instanceof TLRPC.TL_messageMediaWebPage) && !(getMedia(messageOwner) instanceof TLRPC.TL_messageMediaInvoice) && (getMedia(messageOwner) instanceof TLRPC.TL_messageMediaEmpty || getMedia(messageOwner) == null) && this.messageOwner.grouped_id == 0) {
-            if (messageOwner.entities.isEmpty()) {
+            if (messageOwner.entities == null || messageOwner.entities.isEmpty()) {
                 CharSequence emoji = messageText;
                 int index;
                 if ((index = TextUtils.indexOf(emoji, "\uD83C\uDFFB")) >= 0) {
@@ -3560,16 +3560,22 @@ public class MessageObject {
         final TLRPC.TL_textWithEntities translatedText = messageOwner != null ? (voiceTranscriptionOpen ? messageOwner.translatedVoiceTranscription : messageOwner.translatedText) : null;
         final TLRPC.TL_textWithEntities summarizedText = messageOwner != null && messageOwner.summarizedOpen ? messageOwner.summaryText : null;
         final TLRPC.TL_textWithEntities summarizeTranslatedText = messageOwner != null && messageOwner.summarizedOpen ? messageOwner.translatedSummaryText : null;
-        if (
+        final boolean showSummarizedTranslated =
             summarizeTranslatedText != null &&
             messageOwner != null &&
             messageOwner.summarizedOpen &&
             TranslateController.isSummarizable(this) &&
-            TranslateController.isTranslatable(this) &&
-            translateController.isTranslatingDialog(getDialogId()) &&
-            !translateController.isTranslateDialogHidden(getDialogId()) &&
-            TextUtils.equals(translateController.getDialogTranslateTo(getDialogId()), messageOwner.translatedSummaryLanguage)
-        ) {
+            (
+                (
+                    autoTranslated &&
+                    !translateController.isTranslateDialogHidden(getDialogId()) &&
+                    TextUtils.equals(translateController.getDialogTranslateTo(getDialogId()), messageOwner.translatedSummaryLanguage)
+                ) || (
+                    manualTranslated &&
+                    messageOwner.translatedSummaryLanguage != null
+                )
+            );
+        if (showSummarizedTranslated) {
             if (summarized && translated) {
                 return replyUpdated || false;
             }
@@ -6955,7 +6961,7 @@ public class MessageObject {
             if (messageOwner.send_state != MESSAGE_SEND_STATE_SENT) {
                 hasEntities = false;
             } else {
-                hasEntities = !entities.isEmpty();
+                hasEntities = entities != null && !entities.isEmpty();
             }
 
             boolean useManualParse = forceManualEntities || !hasEntities && (
@@ -7836,7 +7842,8 @@ public class MessageObject {
         if (messageOwner.send_state != MESSAGE_SEND_STATE_SENT) {
             hasEntities = false;
         } else {
-            hasEntities = !getEntities().isEmpty();
+            ArrayList<TLRPC.MessageEntity> entities = getEntities();
+            hasEntities = entities != null && !entities.isEmpty();
         }
 
         boolean useManualParse = !hasEntities && (

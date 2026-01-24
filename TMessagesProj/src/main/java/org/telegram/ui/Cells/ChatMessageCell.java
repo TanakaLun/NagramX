@@ -5129,7 +5129,7 @@ public class ChatMessageCell extends BaseCell implements SeekBar.SeekBarDelegate
                 if (lastTime != currentProgress) {
                     lastTime = currentProgress;
                     String timeString = AndroidUtilities.formatShortDuration(currentProgress, (int) duration);
-                    timeString = String.format("%s, %s", timeString, AndroidUtilities.formatFileSize(documentAttach.size));
+                    timeString = String.format("%s・%s", timeString, AndroidUtilities.formatFileSize(documentAttach.size));
                     int timeWidth = (int) Math.ceil(Theme.chat_audioTimePaint.measureText(timeString));
                     durationLayout = new StaticLayout(timeString, Theme.chat_audioTimePaint, timeWidth, Layout.Alignment.ALIGN_NORMAL, 1.0f, 0.0f, false);
                 }
@@ -15816,7 +15816,7 @@ public class ChatMessageCell extends BaseCell implements SeekBar.SeekBarDelegate
 
     @SuppressLint("Range")
     public void drawMessageText(float textX, float textY, Canvas canvas, ArrayList<MessageObject.TextLayoutBlock> textLayoutBlocks, float rtlOffset, boolean origin, float alpha, boolean drawAllBlocks, boolean drawOnlyText, boolean caption) {
-        if (textLayoutBlocks == null || textLayoutBlocks.isEmpty() || alpha == 0) {
+        if (textLayoutBlocks == null || textLayoutBlocks.isEmpty() || alpha == 0 || currentMessageObject == null) {
             return;
         }
         if (shouldTranslucentDeleted() && ayuDeleted && caption) {
@@ -15837,10 +15837,14 @@ public class ChatMessageCell extends BaseCell implements SeekBar.SeekBarDelegate
         }
 
         final TranslateController translateController = MessagesController.getInstance(currentAccount).getTranslateController();
-        final boolean translating = translateController.isTranslating(currentMessageObject);
-        final boolean shouldTranslate = currentMessageObject != null && TranslateController.isTranslatable(currentMessageObject) && (translateController.isTranslatingDialog(currentMessageObject.getDialogId()) || translateController.isManualTranslated(currentMessageObject));
-        final boolean shouldSummarize = currentMessageObject != null && currentMessageObject.messageOwner.summarizedOpen;
-        final boolean isFinal = shouldTranslate == (currentMessageObject != null && currentMessageObject.translated) && shouldSummarize == (currentMessageObject != null && currentMessageObject.summarized);
+        final boolean translating = (caption && currentMessagesGroup != null)
+            ? translateController.isTranslating(currentMessageObject, currentMessagesGroup)
+            : translateController.isTranslating(currentMessageObject);
+        final MessageObject messageToCheck = (caption && currentMessagesGroup != null && currentMessagesGroup.captionMessage != null)
+            ? currentMessagesGroup.captionMessage : currentMessageObject;
+        final boolean shouldTranslate = TranslateController.isTranslatable(messageToCheck) && (translateController.isTranslatingDialog(messageToCheck.getDialogId()) || translateController.isManualTranslated(messageToCheck));
+        final boolean shouldSummarize = messageToCheck.messageOwner.summarizedOpen;
+        final boolean isFinal = shouldTranslate == messageToCheck.translated && shouldSummarize == messageToCheck.summarized;
         if (origin == !isFinal) {
             if (translationLoadingFloat == null) {
                 translationLoadingFloat = new AnimatedFloat(this, 350, CubicBezierInterpolator.EASE_OUT_QUINT);
@@ -25653,7 +25657,7 @@ public class ChatMessageCell extends BaseCell implements SeekBar.SeekBarDelegate
                         sb.append(formatString("AccDescrMusicInfo", R.string.AccDescrMusicInfo, currentMessageObject.getMusicAuthor(), currentMessageObject.getMusicTitle()));
                         sb.append(", ");
                         sb.append(LocaleController.formatDuration((int) currentMessageObject.getDuration()));
-                        sb.append(", ");
+                        sb.append("・");
                         sb.append(AndroidUtilities.formatFileSize(documentAttach.size));
                     } else if (currentMessageObject.isVoice() || isRoundVideo) {
                         sb.append(", ");
