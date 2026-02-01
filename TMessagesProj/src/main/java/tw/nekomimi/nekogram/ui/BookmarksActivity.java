@@ -34,8 +34,6 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.radolyn.ayugram.database.entities.DeletedMessageFull;
 import com.radolyn.ayugram.messages.AyuMessagesController;
 import com.radolyn.ayugram.proprietary.AyuMessageUtils;
-import com.radolyn.ayugram.ui.AyuMessageCell;
-import com.radolyn.ayugram.ui.AyuMessageDelegateFragment;
 
 import org.telegram.messenger.AndroidUtilities;
 import org.telegram.messenger.ChatObject;
@@ -78,10 +76,11 @@ import java.util.Locale;
 import kotlin.Unit;
 import tw.nekomimi.nekogram.helpers.MessageHelper;
 import tw.nekomimi.nekogram.translate.Translator;
+import tw.nekomimi.nekogram.ui.cells.NekoMessageCell;
 import xyz.nextalone.nagram.NaConfig;
 import xyz.nextalone.nagram.helper.BookmarksHelper;
 
-public class BookmarksActivity extends AyuMessageDelegateFragment {
+public class BookmarksActivity extends NekoDelegateFragment {
     private static final int OPTION_SHOW_IN_CHAT = 1;
     private static final int OPTION_DELETE_BOOKMARK = 2;
     private static final int OPTION_COPY = 3;
@@ -103,6 +102,7 @@ public class BookmarksActivity extends AyuMessageDelegateFragment {
     private ActionBarPopupWindow scrimPopupWindow;
     private ChatActionCell floatingDateView;
     private TextView emptyView;
+    private Runnable showEmptyViewRunnable;
     private ActionBarMenuItem searchItem;
     private String searchQuery = "";
     private AnimatorSet floatingDateAnimation;
@@ -418,27 +418,22 @@ public class BookmarksActivity extends AyuMessageDelegateFragment {
         });
 
         listView = new RecyclerListView(context);
-        listView.setItemAnimator(null);
         listView.setLayoutAnimation(null);
 
-        LinearLayoutManager layoutManager = new LinearLayoutManager(context, LinearLayoutManager.VERTICAL, false) {
-            @Override
-            public boolean supportsPredictiveItemAnimations() {
-                return false;
-            }
-        };
+        LinearLayoutManager layoutManager = new LinearLayoutManager(context, LinearLayoutManager.VERTICAL, false);
         layoutManager.setStackFromEnd(true);
 
         listView.setLayoutManager(layoutManager);
         listView.setVerticalScrollBarEnabled(true);
         listView.setAdapter(new ListAdapter(context, getCurrentAccount()));
+        setupMessageListItemAnimator(listView);
         listView.setSelectorType(9);
         listView.setSelectorDrawableColor(0);
         listView.setClipToPadding(false);
         frameLayout.addView(listView, LayoutHelper.createFrame(LayoutHelper.MATCH_PARENT, LayoutHelper.MATCH_PARENT));
 
         listView.setOnItemClickListener((view, position, x, y) -> {
-            if (view instanceof AyuMessageCell) {
+            if (view instanceof NekoMessageCell) {
                 createMenu(view, x, y, position);
             }
         });
@@ -557,6 +552,11 @@ public class BookmarksActivity extends AyuMessageDelegateFragment {
             floatingDateAnimation = null;
         }
 
+        if (showEmptyViewRunnable != null) {
+            AndroidUtilities.cancelRunOnUIThread(showEmptyViewRunnable);
+            showEmptyViewRunnable = null;
+        }
+
         AndroidUtilities.cancelRunOnUIThread(updateFloatingDateRunnable);
 
         if (listView != null) {
@@ -669,13 +669,20 @@ public class BookmarksActivity extends AyuMessageDelegateFragment {
                 } else if (option == OPTION_DELETE_BOOKMARK) {
                     BookmarksHelper.removeBookmark(getCurrentAccount(), dialogId, msg.getId());
                     if (position >= 0 && position < filteredMessages.size()) {
-                        MessageObject toRemove = filteredMessages.get(position);
-                        filteredMessages.remove(position);
+                        MessageObject toRemove = filteredMessages.remove(position);
                         bookmarkedMessages.remove(toRemove);
                         rowCount = filteredMessages.size();
-                        notifyAdapterDataChanged();
+                        notifyMessageListItemRemoved(listView, position);
                         updateActionBarCount();
                         updateEmptyView();
+                        if (listView != null) {
+                            listView.post(() -> {
+                                updatePagedownButtonVisibility(false);
+                                updateVisibleMessageCells();
+                            });
+                        } else {
+                            updatePagedownButtonVisibility(false);
+                        }
                     } else {
                         updateBookmarks();
                     }
@@ -975,9 +982,20 @@ public class BookmarksActivity extends AyuMessageDelegateFragment {
         if (emptyView == null || listView == null) {
             return;
         }
+        if (showEmptyViewRunnable != null) {
+            AndroidUtilities.cancelRunOnUIThread(showEmptyViewRunnable);
+            showEmptyViewRunnable = null;
+        }
         if (rowCount == 0) {
-            emptyView.setVisibility(View.VISIBLE);
-            listView.setVisibility(View.GONE);
+            showEmptyViewRunnable = () -> {
+                if (emptyView != null) {
+                    emptyView.setVisibility(View.VISIBLE);
+                }
+                if (listView != null) {
+                    listView.setVisibility(View.GONE);
+                }
+            };
+            AndroidUtilities.runOnUIThread(showEmptyViewRunnable, 250);
         } else {
             emptyView.setVisibility(View.GONE);
             listView.setVisibility(View.VISIBLE);
@@ -1000,8 +1018,8 @@ public class BookmarksActivity extends AyuMessageDelegateFragment {
 
         @Override
         public void onViewRecycled(@NonNull RecyclerView.ViewHolder holder) {
-            if (holder.itemView instanceof AyuMessageCell) {
-                ((AyuMessageCell) holder.itemView).setAyuDelegate(null);
+            if (holder.itemView instanceof NekoMessageCell) {
+                ((NekoMessageCell) holder.itemView).setAyuDelegate(null);
             }
         }
 
@@ -1018,13 +1036,13 @@ public class BookmarksActivity extends AyuMessageDelegateFragment {
         @NonNull
         @Override
         public RecyclerView.ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-            return new RecyclerListView.Holder(new AyuMessageCell(context, currentAccount));
+            return new RecyclerListView.Holder(new NekoMessageCell(context, currentAccount));
         }
 
         @Override
         public void onBindViewHolder(RecyclerView.ViewHolder holder, int position) {
             if (holder.getItemViewType() == 1) {
-                var cell = (AyuMessageCell) holder.itemView;
+                var cell = (NekoMessageCell) holder.itemView;
                 var msg = filteredMessages.get(position);
                 msg.forceAvatar = true;
                 cell.setAyuDelegate(BookmarksActivity.this);

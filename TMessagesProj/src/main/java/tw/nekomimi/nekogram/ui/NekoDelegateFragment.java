@@ -1,4 +1,4 @@
-package com.radolyn.ayugram.ui;
+package tw.nekomimi.nekogram.ui;
 
 import static org.telegram.messenger.LocaleController.getString;
 import static tw.nekomimi.nekogram.parts.MessageTransKt.TRANSLATION_SEPARATOR;
@@ -18,8 +18,8 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.text.TextUtils;
 import android.view.HapticFeedbackConstants;
-import android.view.ViewGroup;
 import android.view.View;
+import android.view.ViewGroup;
 import android.view.ViewTreeObserver;
 
 import androidx.annotation.NonNull;
@@ -43,6 +43,7 @@ import org.telegram.ui.ActionBar.BottomSheet;
 import org.telegram.ui.Cells.ChatMessageCell;
 import org.telegram.ui.ChatActivity;
 import org.telegram.ui.Components.BulletinFactory;
+import org.telegram.ui.Components.RecyclerListView;
 import org.telegram.ui.Components.SizeNotifierFrameLayout;
 import org.telegram.ui.Components.StickersAlert;
 import org.telegram.ui.ContactAddActivity;
@@ -57,11 +58,12 @@ import tw.nekomimi.nekogram.NekoConfig;
 import tw.nekomimi.nekogram.helpers.MessageHelper;
 import tw.nekomimi.nekogram.translate.Translator;
 import tw.nekomimi.nekogram.translate.TranslatorKt;
+import tw.nekomimi.nekogram.ui.cells.NekoMessageCell;
 import tw.nekomimi.nekogram.utils.AlertUtil;
 import tw.nekomimi.nekogram.utils.AndroidUtil;
 import xyz.nextalone.nagram.NaConfig;
 
-public abstract class AyuMessageDelegateFragment extends BaseFragment implements NotificationCenter.NotificationCenterDelegate, AyuMessageCell.AyuMessageCellDelegate {
+public abstract class NekoDelegateFragment extends BaseFragment implements NotificationCenter.NotificationCenterDelegate, NekoMessageCell.NekoMessageCellDelegate {
 
     private final WeakHashMap<ChatMessageCell, ValueAnimator> cellChangeAnimators = new WeakHashMap<>();
     private final WeakHashMap<ChatMessageCell, ValueAnimator> cellTopClipAnimators = new WeakHashMap<>();
@@ -91,7 +93,45 @@ public abstract class AyuMessageDelegateFragment extends BaseFragment implements
         @Override
         protected void dispatchDraw(Canvas canvas) {
             super.dispatchDraw(canvas);
-            AyuMessageDelegateFragment.this.drawScrimOverlay(this, canvas);
+            NekoDelegateFragment.this.drawScrimOverlay(this, canvas);
+        }
+    }
+
+    protected void setupMessageListItemAnimator(@NonNull RecyclerListView listView) {
+        if (!MessagesController.getGlobalMainSettings().getBoolean("view_animations", true)) {
+            if (listView.getItemAnimator() != null) {
+                listView.setItemAnimator(null);
+            }
+            return;
+        }
+
+        RecyclerView.ItemAnimator currentAnimator = listView.getItemAnimator();
+        if (!(currentAnimator instanceof ChatListItemAnimator)) {
+            listView.setItemAnimator(new ChatListItemAnimator(null, listView, getResourceProvider()));
+        }
+    }
+
+    protected void notifyMessageListItemRemoved(@Nullable RecyclerListView listView, int position) {
+        if (listView == null) {
+            return;
+        }
+        RecyclerView.Adapter<?> adapter = listView.getAdapter();
+        if (adapter == null) {
+            return;
+        }
+        setupMessageListItemAnimator(listView);
+        int newCount = adapter.getItemCount();
+        if (position < 0 || position > newCount) {
+            return;
+        }
+
+        adapter.notifyItemRemoved(position);
+        if (newCount > 0) {
+            int start = Math.max(0, position - 1);
+            int end = Math.min(newCount - 1, position);
+            if (end >= start) {
+                adapter.notifyItemRangeChanged(start, end - start + 1);
+            }
         }
     }
 
@@ -104,7 +144,7 @@ public abstract class AyuMessageDelegateFragment extends BaseFragment implements
     public void onImagePressed(ChatMessageCell cell) {
         if (cell.getMessageObject() != null) {
             MessageObject messageObject = cell.getMessageObject();
-            if (messageObject.isSticker()) {
+            if (messageObject.isSticker() || messageObject.isAnimatedSticker()) {
                 var inputStickerSet = messageObject.getInputStickerSet();
                 if (inputStickerSet != null) {
                     showDialog(new StickersAlert(getParentActivity(), this, inputStickerSet, null, null, false));

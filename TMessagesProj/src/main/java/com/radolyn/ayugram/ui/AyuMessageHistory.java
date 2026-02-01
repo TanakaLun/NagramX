@@ -5,16 +5,21 @@ import static org.telegram.messenger.LocaleController.getString;
 
 import android.annotation.SuppressLint;
 import android.content.Context;
+import android.graphics.Canvas;
+import android.graphics.Paint;
 import android.media.MediaMetadataRetriever;
 import android.text.TextUtils;
+import android.util.TypedValue;
 import android.view.Gravity;
 import android.view.KeyEvent;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.WindowManager;
+import android.widget.TextView;
 
 import androidx.annotation.NonNull;
+import androidx.appcompat.widget.AppCompatTextView;
 import androidx.core.util.Pair;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
@@ -60,9 +65,11 @@ import kotlin.Unit;
 import tw.nekomimi.nekogram.helpers.MessageHelper;
 import tw.nekomimi.nekogram.translate.Translator;
 import tw.nekomimi.nekogram.ui.MessageDetailsActivity;
+import tw.nekomimi.nekogram.ui.NekoDelegateFragment;
+import tw.nekomimi.nekogram.ui.cells.NekoMessageCell;
 import xyz.nextalone.nagram.NaConfig;
 
-public class AyuMessageHistory extends AyuMessageDelegateFragment {
+public class AyuMessageHistory extends NekoDelegateFragment {
     private static final int OPTION_DELETE = 1;
     private static final int OPTION_COPY = 2;
     private static final int OPTION_COPY_PHOTO = 3;
@@ -76,6 +83,8 @@ public class AyuMessageHistory extends AyuMessageDelegateFragment {
     private final ArrayList<MessageObject> messageObjects = new ArrayList<>();
     private int rowCount;
     private RecyclerListView listView;
+    private TextView emptyView;
+    private Runnable showEmptyViewRunnable;
     private ActionBarPopupWindow scrimPopupWindow;
     private final WindowInsetsStateHolder windowInsetsStateHolder = new WindowInsetsStateHolder(this::checkInsets);
     private String[] cachedAttachmentFileNames;
@@ -93,9 +102,13 @@ public class AyuMessageHistory extends AyuMessageDelegateFragment {
 
     private void updateHistory() {
         messages = AyuMessagesController.getInstance().getRevisions(getUserConfig().clientUserId, messageObject.messageOwner.dialog_id, messageObject.messageOwner.id);
+        if (messages == null) {
+            messages = new ArrayList<>();
+        }
         rowCount = messages.size();
         cacheAttachmentFileNames();
         rebuildMessageObjects();
+        updateEmptyView();
     }
 
     private void cacheAttachmentFileNames() {
@@ -109,8 +122,8 @@ public class AyuMessageHistory extends AyuMessageDelegateFragment {
 
     @Override
     public View createView(Context context) {
-        var firstMsg = messages.get(0);
-        var peer = getMessagesController().getUserOrChat(firstMsg.dialogId);
+        long dialogId = messageObject.messageOwner.dialog_id;
+        var peer = getMessagesController().getUserOrChat(dialogId);
         int currentAccount = UserConfig.selectedAccount;
 
         String name = switch (peer) {
@@ -123,7 +136,7 @@ public class AyuMessageHistory extends AyuMessageDelegateFragment {
         actionBar.setBackButtonImage(R.drawable.ic_ab_back);
         actionBar.setAllowOverlayTitle(true);
         actionBar.setTitle(name);
-        actionBar.setSubtitle(String.valueOf(firstMsg.messageId));
+        actionBar.setSubtitle(String.valueOf(messageObject.getId()));
         actionBar.setActionBarMenuOnItemClick(new ActionBar.ActionBarMenuOnItemClick() {
             @Override
             public void onItemClick(int id) {
@@ -159,20 +172,15 @@ public class AyuMessageHistory extends AyuMessageDelegateFragment {
         });
 
         listView = new RecyclerListView(context);
-        listView.setItemAnimator(null);
         listView.setLayoutAnimation(null);
 
-        LinearLayoutManager layoutManager = new LinearLayoutManager(context, LinearLayoutManager.VERTICAL, false) {
-            @Override
-            public boolean supportsPredictiveItemAnimations() {
-                return false;
-            }
-        };
+        LinearLayoutManager layoutManager = new LinearLayoutManager(context, LinearLayoutManager.VERTICAL, false);
         layoutManager.setStackFromEnd(true);
 
         listView.setLayoutManager(layoutManager);
         listView.setVerticalScrollBarEnabled(true);
         listView.setAdapter(new ListAdapter(context, currentAccount));
+        setupMessageListItemAnimator(listView);
         listView.setSelectorType(9);
         listView.setSelectorDrawableColor(0);
         listView.setClipToPadding(false);
@@ -183,12 +191,60 @@ public class AyuMessageHistory extends AyuMessageDelegateFragment {
         }
 
         listView.setOnItemClickListener((view, position, x, y) -> {
-            if (view instanceof AyuMessageCell) {
+            if (view instanceof NekoMessageCell) {
                 createMenu(view, x, y, position);
             }
         });
 
+        emptyView = new AppCompatTextView(context) {
+            @Override
+            protected void onDraw(Canvas canvas) {
+                Theme.applyServiceShaderMatrix(getMeasuredWidth(), frameLayout.getBackgroundSizeY(), getX(), getY());
+                Paint backgroundPaint = getThemedPaint(Theme.key_paint_chatActionBackground);
+                AndroidUtilities.rectTmp.set(0, 0, getWidth(), getHeight());
+                canvas.drawRoundRect(AndroidUtilities.rectTmp, dp(30), dp(30), backgroundPaint);
+                if (Theme.hasGradientService()) {
+                    canvas.drawRoundRect(AndroidUtilities.rectTmp, dp(30), dp(30), Theme.getThemePaint(Theme.key_paint_chatActionBackgroundDarken, getResourceProvider()));
+                }
+                super.onDraw(canvas);
+            }
+        };
+        emptyView.setText(getString(R.string.NoMessages));
+        emptyView.setTextSize(TypedValue.COMPLEX_UNIT_DIP, 14);
+        emptyView.setTypeface(AndroidUtilities.bold());
+        emptyView.setTextColor(Theme.getColor(Theme.key_chat_serviceText, getResourceProvider()));
+        emptyView.setGravity(Gravity.CENTER);
+        emptyView.setVisibility(View.GONE);
+        emptyView.setPadding(dp(20), dp(4), dp(20), dp(6));
+        frameLayout.addView(emptyView, LayoutHelper.createFrame(LayoutHelper.WRAP_CONTENT, LayoutHelper.WRAP_CONTENT, Gravity.CENTER));
+
+        updateEmptyView();
+
         return fragmentView;
+    }
+
+    private void updateEmptyView() {
+        if (emptyView == null || listView == null) {
+            return;
+        }
+        if (showEmptyViewRunnable != null) {
+            AndroidUtilities.cancelRunOnUIThread(showEmptyViewRunnable);
+            showEmptyViewRunnable = null;
+        }
+        if (rowCount == 0) {
+            showEmptyViewRunnable = () -> {
+                if (emptyView != null) {
+                    emptyView.setVisibility(View.VISIBLE);
+                }
+                if (listView != null) {
+                    listView.setVisibility(View.GONE);
+                }
+            };
+            AndroidUtilities.runOnUIThread(showEmptyViewRunnable, 250);
+        } else {
+            emptyView.setVisibility(View.GONE);
+            listView.setVisibility(View.VISIBLE);
+        }
     }
 
     @Override
@@ -212,6 +268,11 @@ public class AyuMessageHistory extends AyuMessageDelegateFragment {
         if (scrimPopupWindow != null) {
             scrimPopupWindow.dismiss();
             scrimPopupWindow = null;
+        }
+
+        if (showEmptyViewRunnable != null) {
+            AndroidUtilities.cancelRunOnUIThread(showEmptyViewRunnable);
+            showEmptyViewRunnable = null;
         }
 
         if (listView != null) {
@@ -354,10 +415,8 @@ public class AyuMessageHistory extends AyuMessageDelegateFragment {
                             messageObjects.remove(pos);
                         }
                         rowCount = messages.size();
-                        var adapter = listView.getAdapter();
-                        if (adapter != null) {
-                            adapter.notifyItemRemoved(pos);
-                        }
+                        notifyMessageListItemRemoved(listView, pos);
+                        updateEmptyView();
                     }
                 } else if (option == OPTION_COPY) {
                     String text = msg.messageOwner != null ? msg.messageOwner.message : null;
@@ -524,8 +583,8 @@ public class AyuMessageHistory extends AyuMessageDelegateFragment {
 
         @Override
         public void onViewRecycled(@NonNull RecyclerView.ViewHolder holder) {
-            if (holder.itemView instanceof AyuMessageCell) {
-                ((AyuMessageCell) holder.itemView).setAyuDelegate(null);
+            if (holder.itemView instanceof NekoMessageCell) {
+                ((NekoMessageCell) holder.itemView).setAyuDelegate(null);
             }
         }
 
@@ -542,7 +601,7 @@ public class AyuMessageHistory extends AyuMessageDelegateFragment {
         @NonNull
         @Override
         public RecyclerView.ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-            AyuMessageCell cell = new AyuMessageCell(context, currentAccount);
+            NekoMessageCell cell = new NekoMessageCell(context, currentAccount);
             cell.setShowAyuDeletedMark(false);
             return new RecyclerListView.Holder(cell);
         }
@@ -550,7 +609,7 @@ public class AyuMessageHistory extends AyuMessageDelegateFragment {
         @Override
         public void onBindViewHolder(RecyclerView.ViewHolder holder, int position) {
             if (holder.getItemViewType() == 1) {
-                var ayuMessageDetailCell = (AyuMessageCell) holder.itemView;
+                var ayuMessageDetailCell = (NekoMessageCell) holder.itemView;
 
                 var editedMessage = messages.get(position);
                 MessageObject msg;

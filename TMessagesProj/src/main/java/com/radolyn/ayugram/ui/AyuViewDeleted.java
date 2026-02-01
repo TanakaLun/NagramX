@@ -80,9 +80,11 @@ import kotlin.Unit;
 import tw.nekomimi.nekogram.helpers.MessageHelper;
 import tw.nekomimi.nekogram.translate.Translator;
 import tw.nekomimi.nekogram.ui.MessageDetailsActivity;
+import tw.nekomimi.nekogram.ui.NekoDelegateFragment;
+import tw.nekomimi.nekogram.ui.cells.NekoMessageCell;
 import xyz.nextalone.nagram.NaConfig;
 
-public class AyuViewDeleted extends AyuMessageDelegateFragment {
+public class AyuViewDeleted extends NekoDelegateFragment {
     private static final int OPTION_SHOW_IN_CHAT = 1;
     private static final int OPTION_DELETE_FROM_DATABASE = 2;
     private static final int OPTION_COPY = 3;
@@ -111,6 +113,7 @@ public class AyuViewDeleted extends AyuMessageDelegateFragment {
     private ActionBarPopupWindow scrimPopupWindow;
     private ChatActionCell floatingDateView;
     private TextView emptyView;
+    private Runnable showEmptyViewRunnable;
     private ActionBarMenuItem searchItem;
     private String searchQuery = "";
     private AnimatorSet floatingDateAnimation;
@@ -327,27 +330,22 @@ public class AyuViewDeleted extends AyuMessageDelegateFragment {
         });
 
         listView = new RecyclerListView(context);
-        listView.setItemAnimator(null);
         listView.setLayoutAnimation(null);
 
-        layoutManager = new LinearLayoutManager(context, LinearLayoutManager.VERTICAL, false) {
-            @Override
-            public boolean supportsPredictiveItemAnimations() {
-                return false;
-            }
-        };
+        layoutManager = new LinearLayoutManager(context, LinearLayoutManager.VERTICAL, false);
         layoutManager.setStackFromEnd(true);
 
         listView.setLayoutManager(layoutManager);
         listView.setVerticalScrollBarEnabled(true);
         listView.setAdapter(new ListAdapter(context, UserConfig.selectedAccount));
+        setupMessageListItemAnimator(listView);
         listView.setSelectorType(9);
         listView.setSelectorDrawableColor(0);
         listView.setClipToPadding(false);
         frameLayout.addView(listView, LayoutHelper.createFrame(LayoutHelper.MATCH_PARENT, LayoutHelper.MATCH_PARENT));
 
         listView.setOnItemClickListener((view, position, x, y) -> {
-            if (view instanceof AyuMessageCell) {
+            if (view instanceof NekoMessageCell) {
                 createMenu(view, x, y, position);
             }
         });
@@ -512,6 +510,11 @@ public class AyuViewDeleted extends AyuMessageDelegateFragment {
         if (floatingDateAnimation != null) {
             floatingDateAnimation.cancel();
             floatingDateAnimation = null;
+        }
+
+        if (showEmptyViewRunnable != null) {
+            AndroidUtilities.cancelRunOnUIThread(showEmptyViewRunnable);
+            showEmptyViewRunnable = null;
         }
 
         AndroidUtilities.cancelRunOnUIThread(updateFloatingDateRunnable);
@@ -688,10 +691,33 @@ public class AyuViewDeleted extends AyuMessageDelegateFragment {
                     int messageId = msg.getId();
                     Utilities.globalQueue.postRunnable(() -> AyuMessagesController.getInstance().delete(userId, dialogId, messageId));
                     if (pos >= 0 && pos < filteredMessages.size()) {
-                        DeletedMessageFull toRemove = filteredMessages.get(pos);
+                        DeletedMessageFull toRemove = filteredMessages.remove(pos);
+                        int removedMessageId = toRemove != null && toRemove.message != null ? toRemove.message.messageId : 0;
+                        if (pos < messageObjects.size()) {
+                            messageObjects.remove(pos);
+                        }
                         deletedMessages.remove(toRemove);
-                        messageIdMap.remove(toRemove.message.messageId);
-                        applySearchFilter();
+                        if (toRemove != null && toRemove.message != null) {
+                            messageIdMap.remove(toRemove.message.messageId);
+                        }
+                        rowCount = filteredMessages.size();
+                        if (!deletedMessages.isEmpty() && deletedMessages.get(0).message != null) {
+                            oldestId = deletedMessages.get(0).message.messageId;
+                        } else {
+                            oldestId = Integer.MAX_VALUE;
+                        }
+                        notifyMessageListItemRemoved(listView, pos);
+                        invalidateCachedReplyReferences(removedMessageId);
+                        updateActionBarCount();
+                        updateEmptyView();
+                        if (listView != null) {
+                            listView.post(() -> {
+                                updatePagedownButtonVisibility(false);
+                                updateVisibleMessageCells();
+                            });
+                        } else {
+                            updatePagedownButtonVisibility(false);
+                        }
                     } else {
                         updateDeleted();
                         notifyAdapterDataChanged();
@@ -964,6 +990,32 @@ public class AyuViewDeleted extends AyuMessageDelegateFragment {
         }
     }
 
+    private void invalidateCachedReplyReferences(int removedMessageId) {
+        if (removedMessageId == 0 || messageObjects.isEmpty()) {
+            return;
+        }
+        RecyclerView.Adapter<?> adapter = listView == null ? null : listView.getAdapter();
+        for (int i = 0; i < messageObjects.size(); i++) {
+            MessageObject messageObject = messageObjects.get(i);
+            if (messageObject == null || messageObject.replyMessageObject == null || messageObject.replyMessageObject == messageObject) {
+                continue;
+            }
+            if (messageObject.replyMessageObject.getId() != removedMessageId) {
+                continue;
+            }
+            messageObject.replyMessageObject = null;
+            if (messageObject.messageOwner != null) {
+                messageObject.messageOwner.replyMessage = null;
+                if (messageObject.messageOwner.reply_to != null && messageObject.messageOwner.reply_to.reply_to_msg_id == removedMessageId) {
+                    messageObject.messageOwner.reply_to = null;
+                }
+            }
+            if (adapter != null && i < adapter.getItemCount()) {
+                adapter.notifyItemChanged(i);
+            }
+        }
+    }
+
     private void applySearchFilter() {
         filteredMessages.clear();
         if (TextUtils.isEmpty(searchQuery)) {
@@ -1004,9 +1056,20 @@ public class AyuViewDeleted extends AyuMessageDelegateFragment {
         if (emptyView == null || listView == null) {
             return;
         }
+        if (showEmptyViewRunnable != null) {
+            AndroidUtilities.cancelRunOnUIThread(showEmptyViewRunnable);
+            showEmptyViewRunnable = null;
+        }
         if (rowCount == 0) {
-            emptyView.setVisibility(View.VISIBLE);
-            listView.setVisibility(View.GONE);
+            showEmptyViewRunnable = () -> {
+                if (emptyView != null) {
+                    emptyView.setVisibility(View.VISIBLE);
+                }
+                if (listView != null) {
+                    listView.setVisibility(View.GONE);
+                }
+            };
+            AndroidUtilities.runOnUIThread(showEmptyViewRunnable, 250);
         } else {
             emptyView.setVisibility(View.GONE);
             listView.setVisibility(View.VISIBLE);
@@ -1024,8 +1087,8 @@ public class AyuViewDeleted extends AyuMessageDelegateFragment {
 
         @Override
         public void onViewRecycled(@NonNull RecyclerView.ViewHolder holder) {
-            if (holder.itemView instanceof AyuMessageCell) {
-                ((AyuMessageCell) holder.itemView).setAyuDelegate(null);
+            if (holder.itemView instanceof NekoMessageCell) {
+                ((NekoMessageCell) holder.itemView).setAyuDelegate(null);
             }
         }
 
@@ -1042,13 +1105,13 @@ public class AyuViewDeleted extends AyuMessageDelegateFragment {
         @NonNull
         @Override
         public RecyclerView.ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-            return new RecyclerListView.Holder(new AyuMessageCell(context, currentAccount));
+            return new RecyclerListView.Holder(new NekoMessageCell(context, currentAccount));
         }
 
         @Override
         public void onBindViewHolder(RecyclerView.ViewHolder holder, int position) {
             if (holder.getItemViewType() == 1) {
-                var cell = (AyuMessageCell) holder.itemView;
+                var cell = (NekoMessageCell) holder.itemView;
                 var deleted = filteredMessages.get(position);
                 MessageObject msg;
                 if (position >= 0 && position < messageObjects.size()) {

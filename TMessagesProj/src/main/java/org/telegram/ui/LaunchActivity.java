@@ -847,7 +847,7 @@ public class LaunchActivity extends BasePermissionsActivity implements INavigati
                 } else if (id == DrawerLayoutAdapter.nkbtnRestartApp) {
                     AppRestartHelper.triggerRebirth(ApplicationLoader.applicationContext, new Intent(ApplicationLoader.applicationContext, LaunchActivity.class));
                 } else if (id == DrawerLayoutAdapter.nkbtnBrowser) {
-                    BrowserUtils.openBrowserHome(() -> drawerLayoutContainer.closeDrawer(true));
+                    BrowserUtils.openBrowserHome(() -> drawerLayoutContainer.closeDrawer(true), true);
                 } else if (id == DrawerLayoutAdapter.nkbtnGhostMode) {
                     var msg = NekoConfig.isGhostModeActive()
                             ? LocaleController.getString(R.string.GhostModeDisabled)
@@ -6128,14 +6128,19 @@ public class LaunchActivity extends BasePermissionsActivity implements INavigati
         app.short_name = botAppMaybe;
         getBotApp.app = app;
         ConnectionsManager.getInstance(intentAccount).sendRequest(getBotApp, (response1, error1) -> {
-            if (progress != null) {
-                progress.end();
-            }
             if (error1 != null) {
-                AndroidUtilities.runOnUIThread(() -> runLinkRequest(intentAccount, username, group, sticker, emoji, botUser, botChat, botChannel, botChatAdminParams, message, contactToken, folderSlug, text, hasUrl, messageId, channelId, threadId, commentId, game, auth, lang, unsupportedUrl, code, loginToken, wallPaper, inputInvoiceSlug, uniqueGiftSlug, theme, voicechat, videochat, livestream, state, videoTimestamp, setAsAttachBot, attachMenuBotToOpen, attachMenuBotChoose, null, null, progress, forceNotInternalForApps, storyId, liveStory, storyAlbumId, giftCollectionId, null, isBoost, chatLinkSlug, botCompact, botFullscreen, openedTelegram, openProfile, forceRequest, referrer, null, openDirect));
+                AndroidUtilities.runOnUIThread(() -> {
+                    if (progress != null) {
+                        progress.end();
+                    }
+                    runLinkRequest(intentAccount, username, group, sticker, emoji, botUser, botChat, botChannel, botChatAdminParams, message, contactToken, folderSlug, text, hasUrl, messageId, channelId, threadId, commentId, game, auth, lang, unsupportedUrl, code, loginToken, wallPaper, inputInvoiceSlug, uniqueGiftSlug, theme, voicechat, videochat, livestream, state, videoTimestamp, setAsAttachBot, attachMenuBotToOpen, attachMenuBotChoose, null, null, progress, forceNotInternalForApps, storyId, liveStory, storyAlbumId, giftCollectionId, null, isBoost, chatLinkSlug, botCompact, botFullscreen, openedTelegram, openProfile, forceRequest, referrer, null, openDirect);
+                });
             } else {
                 TLRPC.TL_messages_botApp botApp = (TLRPC.TL_messages_botApp) response1;
                 AndroidUtilities.runOnUIThread(() -> {
+                    if (progress != null) {
+                        progress.end();
+                    }
                     dismissLoading.run();
 
                     AtomicBoolean allowWrite = new AtomicBoolean();
@@ -7443,7 +7448,10 @@ public class LaunchActivity extends BasePermissionsActivity implements INavigati
                 getOnBackInvokedDispatcher().unregisterOnBackInvokedCallback((OnBackInvokedCallback) onBackInvokedCallback);
             }
         }
-        clearFragments();
+        if (instance == this) {
+            clearFragments();
+            instance = null;
+        }
         super.onDestroy();
         onFinish();
         FloatingDebugController.onDestroy();
