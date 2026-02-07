@@ -825,7 +825,7 @@ public class ActionBarLayout extends FrameLayout implements INavigationLayout, F
         if (fragmentsStack.size() >= 2 && containerView.getMeasuredWidth() > 0) {
             float progress;
             if (newBackTransitions()) {
-                progress = Utilities.clamp01(value / (8 * dp(56)));
+                progress = Utilities.clamp01(value / (4 * dp(56)));
             } else {
                 progress = value / containerView.getMeasuredWidth();
             }
@@ -970,11 +970,11 @@ public class ActionBarLayout extends FrameLayout implements INavigationLayout, F
                     if (newBackTransitions()) {
                         final float scale;
                         if (predictiveBackInProgress) {
-                            scale = lerp(1.00f, lerp(0.90f, 0.85f, 1.0f - containerView.getAlpha()), clamp01(translationX / dpf2(56)));
+                            scale = lerp(1.00f, lerp(0.90f, 0.6f, 1.0f - containerView.getAlpha()), clamp01(translationX / dpf2(56)));
                         } else {
                             scale = 1.00f - Math.min(0.25f, 0.05f * translationX / dpf2(56));
                         }
-                        float dx = translationX > dp(56) && !animationInProgress && predictiveBackInProgress ? translationX : Utilities.clamp(translationX, dp(56), 0);
+                        float dx = translationX > dp(100) && !animationInProgress && predictiveBackInProgress ? translationX : Utilities.clamp(translationX, dp(100), 0);
                         if (!predictiveBackInProgress || predictiveBackLeft) {
                             canvas.translate(-dx, 0);
                             clipRight += dx;
@@ -1494,7 +1494,7 @@ public class ActionBarLayout extends FrameLayout implements INavigationLayout, F
 
     public void onBackProgress(float t) {
         if (!predictiveInput) return;
-        final float dx = dp(72) * t;
+        final float dx = dp(100) * t;
         predictiveBackHasProgress = t > 0;
         containerView.setTranslationX(dx);
         setInnerTranslationX(dx);
