@@ -825,7 +825,7 @@ public class ActionBarLayout extends FrameLayout implements INavigationLayout, F
         if (fragmentsStack.size() >= 2 && containerView.getMeasuredWidth() > 0) {
             float progress;
             if (newBackTransitions()) {
-                progress = Utilities.clamp01(value / (4 * dp(56)));
+                progress = Utilities.clamp01(value / (6.5 * dp(56)));
             } else {
                 progress = value / containerView.getMeasuredWidth();
             }
@@ -1379,7 +1379,7 @@ public class ActionBarLayout extends FrameLayout implements INavigationLayout, F
                         }
                         if (newBackTransitions()) {
                             containerView.setTranslationX(dx / (float) getWidth() * (5 * dp(56)));
-                            setInnerTranslationX(dx / (float) getWidth() * (5 * dp(56)));
+                            setInnerTranslationX(dx / (float) getWidth() * (6.5 * dp(56)));
                         } else {
                             containerView.setTranslationX(dx);
                             if (USE_SPRING_ANIMATION) {
@@ -1494,7 +1494,7 @@ public class ActionBarLayout extends FrameLayout implements INavigationLayout, F
 
     public void onBackProgress(float t) {
         if (!predictiveInput) return;
-        final float dx = dp(56) * t;
+        final float dx = dp(72) * t;
         predictiveBackHasProgress = t > 0;
         containerView.setTranslationX(dx);
         setInnerTranslationX(dx);
