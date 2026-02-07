@@ -825,7 +825,7 @@ public class ActionBarLayout extends FrameLayout implements INavigationLayout, F
         if (fragmentsStack.size() >= 2 && containerView.getMeasuredWidth() > 0) {
             float progress;
             if (newBackTransitions()) {
-                progress = Utilities.clamp01(value / (6 * dp(56)));
+                progress = Utilities.clamp01(value / (4 * dp(56)));
             } else {
                 progress = value / containerView.getMeasuredWidth();
             }
