@@ -970,7 +970,7 @@ public class ActionBarLayout extends FrameLayout implements INavigationLayout, F
                     if (newBackTransitions()) {
                         final float scale;
                         if (predictiveBackInProgress) {
-                            scale = lerp(1.00f, lerp(0.90f, 0.6f, 1.0f - containerView.getAlpha()), clamp01(translationX / dpf2(56)));
+                            scale = lerp(1.00f, lerp(0.90f, 0.4f, 1.0f - containerView.getAlpha()), clamp01(translationX / dpf2(30)));
                         } else {
                             scale = 1.00f - Math.min(0.25f, 0.05f * translationX / dpf2(56));
                         }
