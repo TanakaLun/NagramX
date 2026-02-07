@@ -970,11 +970,14 @@ public class ActionBarLayout extends FrameLayout implements INavigationLayout, F
                     if (newBackTransitions()) {
                         final float scale;
                         if (predictiveBackInProgress) {
-                            scale = lerp(1.00f, lerp(0.90f, 0.5f, 1.0f - containerView.getAlpha()), clamp01(translationX / dpf2(40)));
+                            float targetMinScale = 0.50f; 
+                            float scalingRange = dpf2(110); 
+                            
+                            scale = lerp(1.00f, targetMinScale, clamp01(translationX / scalingRange));
                         } else {
                             scale = 1.00f - Math.min(0.25f, 0.05f * translationX / dpf2(56));
                         }
-                        float dx = translationX > dp(600) && !animationInProgress && predictiveBackInProgress ? translationX : Utilities.clamp(translationX, dp(600), 0);
+                        float dx = translationX > dp(300) && !animationInProgress && predictiveBackInProgress ? translationX : Utilities.clamp(translationX, dp(300), 0);
                         if (!predictiveBackInProgress || predictiveBackLeft) {
                             canvas.translate(-dx, 0);
                             clipRight += dx;
@@ -1494,7 +1497,7 @@ public class ActionBarLayout extends FrameLayout implements INavigationLayout, F
 
     public void onBackProgress(float t) {
         if (!predictiveInput) return;
-        final float dx = dp(600) * t;
+        final float dx = dp(300) * t;
         predictiveBackHasProgress = t > 0;
         containerView.setTranslationX(dx);
         setInnerTranslationX(dx);
