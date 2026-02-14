@@ -75,9 +75,9 @@ import java.util.Locale;
 
 import kotlin.Unit;
 import tw.nekomimi.nekogram.helpers.MessageHelper;
+import tw.nekomimi.nekogram.llm.LlmConfig;
 import tw.nekomimi.nekogram.translate.Translator;
 import tw.nekomimi.nekogram.ui.cells.NekoMessageCell;
-import xyz.nextalone.nagram.NaConfig;
 import xyz.nextalone.nagram.helper.BookmarksHelper;
 
 public class BookmarksActivity extends NekoDelegateFragment {
@@ -488,8 +488,6 @@ public class BookmarksActivity extends NekoDelegateFragment {
 
         listView.post(updateFloatingDateRunnable);
 
-        updateEmptyView();
-
         updateBookmarks(() -> {
             if (rowCount > 0 && listView != null) {
                 listView.scrollToPosition(rowCount - 1);
@@ -629,7 +627,7 @@ public class BookmarksActivity extends NekoDelegateFragment {
         if (!TextUtils.isEmpty(textToTranslate) || msg.isPoll()) {
             boolean translated = msg.messageOwner != null && (msg.messageOwner.translated || msg.messageOwner.translatedPoll != null);
             items.add(getString(translated ? R.string.HideTranslation : R.string.Translate));
-            icons.add(NaConfig.INSTANCE.llmIsDefaultProvider() ? R.drawable.magic_stick_solar : R.drawable.ic_translate);
+            icons.add(LlmConfig.llmIsDefaultProvider() ? R.drawable.magic_stick_solar : R.drawable.ic_translate);
             options.add(OPTION_TRANSLATE);
         }
 
@@ -674,7 +672,7 @@ public class BookmarksActivity extends NekoDelegateFragment {
                         rowCount = filteredMessages.size();
                         notifyMessageListItemRemoved(listView, position);
                         updateActionBarCount();
-                        updateEmptyView();
+                        updateEmptyView(rowCount == 0);
                         if (listView != null) {
                             listView.post(() -> {
                                 updatePagedownButtonVisibility(false);
@@ -979,27 +977,11 @@ public class BookmarksActivity extends NekoDelegateFragment {
     }
 
     private void updateEmptyView() {
-        if (emptyView == null || listView == null) {
-            return;
-        }
-        if (showEmptyViewRunnable != null) {
-            AndroidUtilities.cancelRunOnUIThread(showEmptyViewRunnable);
-            showEmptyViewRunnable = null;
-        }
-        if (rowCount == 0) {
-            showEmptyViewRunnable = () -> {
-                if (emptyView != null) {
-                    emptyView.setVisibility(View.VISIBLE);
-                }
-                if (listView != null) {
-                    listView.setVisibility(View.GONE);
-                }
-            };
-            AndroidUtilities.runOnUIThread(showEmptyViewRunnable, 250);
-        } else {
-            emptyView.setVisibility(View.GONE);
-            listView.setVisibility(View.VISIBLE);
-        }
+        updateEmptyView(false);
+    }
+
+    private void updateEmptyView(boolean delayIfEmpty) {
+        showEmptyViewRunnable = updateListEmptyView(() -> emptyView, () -> listView, rowCount == 0, delayIfEmpty, showEmptyViewRunnable, () -> showEmptyViewRunnable = null);
     }
 
     @Override

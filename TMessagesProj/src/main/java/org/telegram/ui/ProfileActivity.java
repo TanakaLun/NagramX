@@ -350,6 +350,7 @@ import tw.nekomimi.nekogram.helpers.ProfileDateHelper;
 import tw.nekomimi.nekogram.helpers.SettingsHelper;
 import tw.nekomimi.nekogram.helpers.SettingsSearchResult;
 import tw.nekomimi.nekogram.helpers.remote.UpdateHelper;
+import tw.nekomimi.nekogram.llm.LlmConfig;
 import tw.nekomimi.nekogram.menu.forum.CustomForumTabsPopupWrapper;
 import tw.nekomimi.nekogram.menu.ghostmode.GhostModeExclusionPopupWrapper;
 import tw.nekomimi.nekogram.menu.saveDeleted.SaveExclusionPopupWrapper;
@@ -7951,7 +7952,7 @@ public class ProfileActivity extends BaseFragment implements NotificationCenter.
                 }
                 return Unit.INSTANCE;
             });
-            builder.addItem(getString(R.string.Translate), NaConfig.INSTANCE.llmIsDefaultProvider() ? R.drawable.magic_stick_solar : R.drawable.ic_translate, __ -> {
+            builder.addItem(getString(R.string.Translate), LlmConfig.llmIsDefaultProvider() ? R.drawable.magic_stick_solar : R.drawable.ic_translate, __ -> {
                 try {
                     if (!TextUtils.isEmpty(about)) {
                         DialogTransKt.startTrans(getParentActivity(), about);
@@ -7961,7 +7962,7 @@ public class ProfileActivity extends BaseFragment implements NotificationCenter.
                 }
                 return Unit.INSTANCE;
             });
-            if (NaConfig.INSTANCE.isLLMTranslatorAvailable() && !NaConfig.INSTANCE.llmIsDefaultProvider()) {
+            if (LlmConfig.isLLMTranslatorAvailable() && !LlmConfig.llmIsDefaultProvider()) {
                 builder.addItem(getString(R.string.TranslateMessageLLM), R.drawable.magic_stick_solar, __ -> {
                     try {
                         if (!TextUtils.isEmpty(about)) {
@@ -13965,10 +13966,10 @@ public class ProfileActivity extends BaseFragment implements NotificationCenter.
                         String text;
                         TLRPC.User user = getMessagesController().getUser(userId);
                         String phoneNumber;
-                        if (user != null && !TextUtils.isEmpty(vcardPhone)) {
+                        if (user != null && !TextUtils.isEmpty(vcardPhone) && !NekoConfig.hidePhone.Bool()) {
                             text = PhoneFormat.getInstance().format("+" + vcardPhone);
                             phoneNumber = vcardPhone;
-                        } else if (user != null && !TextUtils.isEmpty(user.phone)) {
+                        } else if (user != null && !TextUtils.isEmpty(user.phone) && !NekoConfig.hidePhone.Bool()) {
                             text = PhoneFormat.getInstance().format("+" + user.phone);
                             phoneNumber = user.phone;
                         } else {
@@ -14087,11 +14088,11 @@ public class ProfileActivity extends BaseFragment implements NotificationCenter.
                         }
                     } else if (position == numberRow) {
                         TLRPC.User user = UserConfig.getInstance(currentAccount).getCurrentUser();
-                        String value = getString(R.string.NumberUnknown);
-                        if (!NekoConfig.hidePhone.Bool()) {
-                            if (user != null && user.phone != null && user.phone.length() != 0) {
-                                value = PhoneFormat.getInstance().format("+" + user.phone);
-                            }
+                        String value;
+                        if (user != null && user.phone != null && user.phone.length() != 0 && !NekoConfig.hidePhone.Bool()) {
+                            value = PhoneFormat.getInstance().format("+" + user.phone);
+                        } else {
+                            value = LocaleController.getString(R.string.NumberUnknown);
                         }
                         detailCell.setTextAndValue(value, LocaleController.getString(R.string.TapToChangePhone), true);
                         detailCell.setContentDescriptionValueFirst(false);

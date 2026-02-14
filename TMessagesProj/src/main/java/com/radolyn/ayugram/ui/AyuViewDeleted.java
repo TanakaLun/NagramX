@@ -78,11 +78,11 @@ import java.util.Locale;
 
 import kotlin.Unit;
 import tw.nekomimi.nekogram.helpers.MessageHelper;
+import tw.nekomimi.nekogram.llm.LlmConfig;
 import tw.nekomimi.nekogram.translate.Translator;
 import tw.nekomimi.nekogram.ui.MessageDetailsActivity;
 import tw.nekomimi.nekogram.ui.NekoDelegateFragment;
 import tw.nekomimi.nekogram.ui.cells.NekoMessageCell;
-import xyz.nextalone.nagram.NaConfig;
 
 public class AyuViewDeleted extends NekoDelegateFragment {
     private static final int OPTION_SHOW_IN_CHAT = 1;
@@ -400,8 +400,6 @@ public class AyuViewDeleted extends NekoDelegateFragment {
 
         listView.post(updateFloatingDateRunnable);
 
-        updateEmptyView();
-
         updateDeleted(() -> {
             if (rowCount > 0 && listView != null) {
                 listView.scrollToPosition(rowCount - 1);
@@ -643,7 +641,7 @@ public class AyuViewDeleted extends NekoDelegateFragment {
         if (!TextUtils.isEmpty(textToTranslate) || msg.isPoll()) {
             boolean translated = msg.messageOwner != null && (msg.messageOwner.translated || msg.messageOwner.translatedPoll != null);
             items.add(getString(translated ? R.string.HideTranslation : R.string.Translate));
-            icons.add(NaConfig.INSTANCE.llmIsDefaultProvider() ? R.drawable.magic_stick_solar : R.drawable.ic_translate);
+            icons.add(LlmConfig.llmIsDefaultProvider() ? R.drawable.magic_stick_solar : R.drawable.ic_translate);
             options.add(OPTION_TRANSLATE);
         }
 
@@ -709,7 +707,7 @@ public class AyuViewDeleted extends NekoDelegateFragment {
                         notifyMessageListItemRemoved(listView, pos);
                         invalidateCachedReplyReferences(removedMessageId);
                         updateActionBarCount();
-                        updateEmptyView();
+                        updateEmptyView(rowCount == 0);
                         if (listView != null) {
                             listView.post(() -> {
                                 updatePagedownButtonVisibility(false);
@@ -1053,27 +1051,11 @@ public class AyuViewDeleted extends NekoDelegateFragment {
     }
 
     private void updateEmptyView() {
-        if (emptyView == null || listView == null) {
-            return;
-        }
-        if (showEmptyViewRunnable != null) {
-            AndroidUtilities.cancelRunOnUIThread(showEmptyViewRunnable);
-            showEmptyViewRunnable = null;
-        }
-        if (rowCount == 0) {
-            showEmptyViewRunnable = () -> {
-                if (emptyView != null) {
-                    emptyView.setVisibility(View.VISIBLE);
-                }
-                if (listView != null) {
-                    listView.setVisibility(View.GONE);
-                }
-            };
-            AndroidUtilities.runOnUIThread(showEmptyViewRunnable, 250);
-        } else {
-            emptyView.setVisibility(View.GONE);
-            listView.setVisibility(View.VISIBLE);
-        }
+        updateEmptyView(false);
+    }
+
+    private void updateEmptyView(boolean delayIfEmpty) {
+        showEmptyViewRunnable = updateListEmptyView(() -> emptyView, () -> listView, rowCount == 0, delayIfEmpty, showEmptyViewRunnable, () -> showEmptyViewRunnable = null);
     }
 
     private class ListAdapter extends RecyclerListView.SelectionAdapter {
