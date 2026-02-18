@@ -967,56 +967,79 @@ public class ActionBarLayout extends FrameLayout implements INavigationLayout, F
                 final WindowInsets insets = getRootWindowInsets();
                 if (insets != null) {
                     AndroidUtilities.rectTmp.set(translationX, 0, translationX + child.getWidth(), getHeight());
+                    // if (newBackTransitions()) {
+                        // final float scale;
+                        // if (predictiveBackInProgress) {
+                            // float targetMinScale = 0.50f; 
+                            // float scalingRange = dpf2(110); 
+                            
+                            // scale = lerp(1.00f, targetMinScale, clamp01(translationX / scalingRange));
+                        // } else {
+                            // scale = 1.00f - Math.min(0.25f, 0.05f * translationX / dpf2(56));
+                        // }
+                        // float dx = translationX > dp(300) && !animationInProgress && predictiveBackInProgress ? translationX : Utilities.clamp(translationX, dp(300), 0);
+                        // if (!predictiveBackInProgress || predictiveBackLeft) {
+                            // canvas.translate(-dx, 0);
+                            // clipRight += dx;
+                            // backOffset += dx;
+                        // } else {
+                            // canvas.translate(-dx, 0);
+                            // clipRight += dx;
+                            // AndroidUtilities.rectTmp.set(translationX, 0, translationX + child.getWidth(), getHeight());
+                        // }
+                        // canvas.scale(scale, scale, predictiveBackLeft ? AndroidUtilities.rectTmp.right - dp(82) : AndroidUtilities.rectTmp.left + dp(82), predictiveBackInProgress ? predictiveBackY : AndroidUtilities.rectTmp.centerY());
+                    // }
                     if (newBackTransitions()) {
-                        float scale = 1.0f;
-                        float translateY = 0f;
-                        float translateX = 0f;
-                    
+                        final float scale;
                         if (predictiveBackInProgress) {
-                            // 1. 计算进度：使用较大的感知范围 (400dp) 减少阻塞感
-                            float maxSwipeDistance = dpf2(400); 
-                            float progress = Utilities.clamp(translationX / maxSwipeDistance, 1.0f, 0f);
-                    
-                            // 2. 弹性缩放：建议目标 0.8 - 0.9，过小 (0.7) 会导致卡片看起来太远
-                            // 使用 progress 的平方根让初期缩放更灵敏，后期趋于平缓
-                            scale = lerp(1.00f, 0.8f, (float) Math.sqrt(progress));
-                    
-                            // 3. 垂直弹性跟随 (Y轴)
-                            float centerY = getHeight() / 2f;
-                            float deltaY = predictiveBackY - centerY;
-                            // 增加阻尼，允许最大位移为高度的 15%
-                            translateY = Utilities.clamp(deltaY * 0.15f, getHeight() * 0.15f, -getHeight() * 0.10f);
-                    
-                            // 4. 水平镜像位移 (X轴)
-                            // 关键：根据 predictiveBackLeft 决定位移正负，实现“推拉”感
-                            // 这里的 12dp 是缩放后卡片边缘与屏幕边缘的理想最小间距
-                            float sideMargin = dp(12) * progress;
-                            translateX = predictiveBackLeft ? sideMargin : -sideMargin;
-                    
+                            
+                            // 1. 缩放底限
+                            float targetMinScale = 0.76f; 
+                            // 2. 感应行程，让动画更平滑
+                            float scalingRange = dpf2(280); 
+                            
+                            // 3. 引入计算进度
+                            float rawProgress = clamp01(translationX / scalingRange);
+                            
+                            // 4. 使用减速插值器，消除线性僵硬感
+                            // 公式：progress = 1 - (1 - x)^2 (简单的二次减速)
+                            float easedProgress = 1.0f - (1.0f - rawProgress) * (1.0f - rawProgress);
+                            
+                            scale = lerp(1.00f, targetMinScale, easedProgress);
+                            
                         } else {
-                            // 回归动画：轻微缩小
-                            scale = 1.00f - Math.min(0.20f, 0.08f * translationX / dpf2(56));
+                            // 非预测性返回（快速滑动）保持原有逻辑或微调阻尼
+                            scale = 1.00f - Math.min(0.10f, 0.02f * translationX / dpf2(56));
                         }
                     
-                        // 5. 确定轴心点 (Pivot)
-                        // 如果从左拉，轴心在右边缘；如果从右拉，轴心在左边缘
-                        float pivotX = predictiveBackLeft ? getWidth() : 0f;
-                        // Y 轴轴心始终跟随手指，实现斜向拉动视觉
-                        float pivotY = predictiveBackInProgress ? predictiveBackY : getHeight() / 2f;
+                        // 一个简单的阻尼函数防止 dx 过快增长
+                        float maxDx = dp(300);
+                        float dx;
+                        if (translationX > maxDx && predictiveBackInProgress) {
+                            // 超过 maxDx 后，每移动 1dp 实际只产生 0.3dp 的位移，产生“橡皮筋”拉伸感
+                            dx = maxDx + (translationX - maxDx) * 0.3f;
+                        } else {
+                            dx = Utilities.clamp(translationX, maxDx, 0);
+                        }
                     
-                        // 6. 执行变换
-                        // 先移动，再以手指对应的边缘为中心进行缩放
-                        canvas.translate(translateX, translateY);
+                        // 绘制逻辑保持一致，但确保 rectTmp 的计算更稳健
+                        canvas.save();
+                        if (!predictiveBackInProgress || predictiveBackLeft) {
+                            canvas.translate(-dx, 0);
+                            clipRight += dx;
+                            backOffset += dx;
+                        } else {
+                            canvas.translate(-dx, 0);
+                            clipRight += dx;
+                            AndroidUtilities.rectTmp.set(translationX, 0, translationX + child.getWidth(), getHeight());
+                        }
+                    
+                        // 计算缩放中心点，避免跳变
+                        float pivotX = predictiveBackLeft ? (AndroidUtilities.rectTmp.right - dp(82)) : (AndroidUtilities.rectTmp.left + dp(82));
+                        float pivotY = predictiveBackInProgress ? predictiveBackY : AndroidUtilities.rectTmp.centerY();
+                        
                         canvas.scale(scale, scale, pivotX, pivotY);
-                    
-                        // 7. 处理阴影和裁剪偏移（防止截断）
-                        // 这里的 offset 主要是为了同步阴影绘制，不宜过大
-                        if (predictiveBackInProgress) {
-                            int touchOffset = (int) (translateX * 0.5f);
-                            backOffset += touchOffset;
-                            // 这里的裁剪修正要温和，避免卡片边缘消失
-                            clipRight = getWidth(); 
-                        }
+                        canvas.restore();
                     }
 
                     final RoundedCorner topLeft = insets.getRoundedCorner(android.view.RoundedCorner.POSITION_TOP_LEFT);
