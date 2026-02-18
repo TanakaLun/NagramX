@@ -1008,10 +1008,10 @@ public class ActionBarLayout extends FrameLayout implements INavigationLayout, F
                             float visualBackTranslation = translationX * 0.15f; 
                             if (predictiveBackLeft) {
                                 clipRight = (int) (child.getWidth() * (1.0f - scale) + margin); 
-                                backOffset = visualBackTranslation;
+                                backOffset = (int) visualBackTranslation; ;
                             } else {
                                 // 右侧滑动逻辑
-                                backOffset = visualBackTranslation;
+                                backOffset = (int) visualBackTranslation; ;
                             }
                         }
                     }
