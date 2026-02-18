@@ -968,45 +968,35 @@ public class ActionBarLayout extends FrameLayout implements INavigationLayout, F
                 if (insets != null) {
                     AndroidUtilities.rectTmp.set(translationX, 0, translationX + child.getWidth(), getHeight());
                     if (newBackTransitions()) {
-                        // 1. 获取基础参数
                         final float scale;
-                        float progress = 0;
                         if (predictiveBackInProgress) {
-                            float targetMinScale = 0.85f;
-                            float scalingRange = dpf2(200); 
-                            progress = clamp01(translationX / scalingRange);
-                            scale = lerp(1.00f, targetMinScale, progress);
+                            // 设定缩放目标
+                            float targetMinScale = 0.50f; 
+                            // 设定缩放的分母，值越大缩放所需时间越长
+                            float scalingRange = dpf2(120); 
+                            scale = lerp(1.00f, targetMinScale, clamp01(translationX / scalingRange));
                         } else {
                             scale = 1.00f - Math.min(0.25f, 0.05f * translationX / dpf2(56));
                         }
                     
-                        // 2. 计算位移
-                        // marginShift = maxMarginShift * progress * direction
-                        float maxMarginShift = dp(24);
-                        float moveDirection = predictiveBackLeft ? 1f : -1f;
-                        float dx = maxMarginShift * progress * moveDirection;
+                        // 确定水平位移 dx (此处我使用300)
+                        float dx = translationX > dp(300) && !animationInProgress && predictiveBackInProgress ? translationX : Utilities.clamp(translationX, dp(300), 0);
                     
-                        // 3. 设定缩放中心为中心点
-                        float pivotX = child.getWidth() / 2.0f;
-                        
-                        // 实现垂直呼应：在中心点的基础上，稍微向手指位置偏移 (10% 的偏移量)
-                        float centerY = child.getHeight() / 2.0f;
-                        float pivotY = lerp(centerY, predictiveBackY, 0.1f);
+                        // 计算缩放中心
+                        // X轴
+                        float pivotX = predictiveBackLeft ? child.getWidth() : 0;
+                        // Y轴: 固定终局尺寸
+                        float pivotY = child.getHeight() / 2.0f;
                     
-                        // 4. 执行 Canvas 变换
-                        canvas.save();
-                        
-                        // 应用平移
-                        canvas.translate(dx, 0);
-                        
-                        // 应用缩放 (双轴同步)
-                        canvas.scale(scale, scale, pivotX, pivotY);
-                    
-                        if (predictiveBackInProgress) {
-                            clipRight = child.getWidth(); 
-                            
-                            backOffset = (int) (translationX * 0.2f);
+                        // 应用变换
+                        if (predictiveBackInProgress || predictiveBackLeft) {
+                            canvas.translate(predictiveBackLeft ? -dx : dx, 0);
+                            clipRight += dx;
+                            backOffset += dx;
                         }
+                    
+                        // 执行缩放
+                        canvas.scale(scale, scale, pivotX, pivotY);
                     }
 
                     final RoundedCorner topLeft = insets.getRoundedCorner(android.view.RoundedCorner.POSITION_TOP_LEFT);
