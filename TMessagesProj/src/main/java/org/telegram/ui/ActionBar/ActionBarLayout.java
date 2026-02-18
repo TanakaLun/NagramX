@@ -970,24 +970,33 @@ public class ActionBarLayout extends FrameLayout implements INavigationLayout, F
                     if (newBackTransitions()) {
                         final float scale;
                         if (predictiveBackInProgress) {
+                            // 设定缩放目标
                             float targetMinScale = 0.50f; 
-                            float scalingRange = dpf2(110); 
-                            
+                            // 设定缩放的分母，值越大缩放所需时间越长
+                            float scalingRange = dpf2(120); 
                             scale = lerp(1.00f, targetMinScale, clamp01(translationX / scalingRange));
                         } else {
                             scale = 1.00f - Math.min(0.25f, 0.05f * translationX / dpf2(56));
                         }
+                    
+                        // 确定水平位移 dx (此处我使用300)
                         float dx = translationX > dp(300) && !animationInProgress && predictiveBackInProgress ? translationX : Utilities.clamp(translationX, dp(300), 0);
-                        if (!predictiveBackInProgress || predictiveBackLeft) {
-                            canvas.translate(-dx, 0);
+                    
+                        // 计算缩放中心
+                        // X轴：如果是左滑(Left)，缩放中心在左边缘(0)；右滑则在右边缘(child.getWidth())
+                        float pivotX = predictiveBackLeft ? 0 : child.getWidth();
+                        // Y轴: 固定终局尺寸
+                        float pivotY = child.getHeight() / 2.0f;
+                    
+                        // 应用变换
+                        if (predictiveBackInProgress || predictiveBackLeft) {
+                            canvas.translate(predictiveBackLeft ? -dx : dx, 0);
                             clipRight += dx;
                             backOffset += dx;
-                        } else {
-                            canvas.translate(-dx, 0);
-                            clipRight += dx;
-                            AndroidUtilities.rectTmp.set(translationX, 0, translationX + child.getWidth(), getHeight());
                         }
-                        canvas.scale(scale, scale, predictiveBackLeft ? AndroidUtilities.rectTmp.right - dp(82) : AndroidUtilities.rectTmp.left + dp(82), predictiveBackInProgress ? predictiveBackY : AndroidUtilities.rectTmp.centerY());
+                    
+                        // 执行缩放
+                        canvas.scale(scale, scale, pivotX, pivotY);
                     }
 
                     final RoundedCorner topLeft = insets.getRoundedCorner(android.view.RoundedCorner.POSITION_TOP_LEFT);
