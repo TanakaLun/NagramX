@@ -969,34 +969,51 @@ public class ActionBarLayout extends FrameLayout implements INavigationLayout, F
                     AndroidUtilities.rectTmp.set(translationX, 0, translationX + child.getWidth(), getHeight());
                     if (newBackTransitions()) {
                         final float scale;
+                        float progress = 0;
                         if (predictiveBackInProgress) {
-                            // 设定缩放目标
-                            float targetMinScale = 0.50f; 
-                            // 设定缩放的分母，值越大缩放所需时间越长
-                            float scalingRange = dpf2(120); 
-                            scale = lerp(1.00f, targetMinScale, clamp01(translationX / scalingRange));
+                            // 1. 设定缩放目标
+                            float targetMinScale = 0.70f; 
+                            // 2. 增加缩放行程。设为 200dp 可以让缩放过程随手指滑动持续进行，不会瞬间缩到底
+                            float scalingRange = dpf2(200); 
+                            progress = clamp01(translationX / scalingRange);
+                            scale = lerp(1.00f, targetMinScale, progress);
                         } else {
                             scale = 1.00f - Math.min(0.25f, 0.05f * translationX / dpf2(56));
                         }
                     
-                        // 确定水平位移 dx (此处我使用300)
-                        float dx = translationX > dp(300) && !animationInProgress && predictiveBackInProgress ? translationX : Utilities.clamp(translationX, dp(300), 0);
+                        // 如果是从左边缘滑动(predictiveBackLeft=true)，缩放中心应在右边缘(child.getWidth())
+                        // 这样左边缘缩放时会向右移动，从而自动与左侧屏幕边界产生“正值距离”，保持在可视范围内
+                        float pivotX = predictiveBackLeft ? child.getWidth() : 0;
                     
-                        // 计算缩放中心
-                        // X轴：如果是左滑(Left)，缩放中心在左边缘(0)；右滑则在右边缘(child.getWidth())
-                        float pivotX = predictiveBackLeft ? 0 : child.getWidth();
-                        // Y轴: 固定终局尺寸
-                        float pivotY = child.getHeight() / 2.0f;
+                        // 4. 实现垂直呼应：缩放中心随手指 Y 坐标移动
+                        // 这会让卡片在缩放时，上下边缘向手指高度收缩，产生极强的跟随感
+                        float pivotY = predictiveBackInProgress ? predictiveBackY : child.getHeight() / 2.0f;
                     
-                        // 应用变换
-                        if (predictiveBackInProgress || predictiveBackLeft) {
-                            canvas.translate(predictiveBackLeft ? -dx : dx, 0);
-                            clipRight += dx;
-                            backOffset += dx;
-                        }
+                        // 平移方向与边距
+                        float margin = dp(16) * progress; 
+                        float dx = predictiveBackLeft ? margin : -margin;
                     
-                        // 执行缩放
+                        canvas.save();
+                        
+                        // 应用平移（赋予卡片边距）
+                        canvas.translate(dx, 0);
+                    
+                        // 应用双轴缩放（使用动态 Pivot 响应垂直手势）
                         canvas.scale(scale, scale, pivotX, pivotY);
+                    
+                        // 5. 同步底层页面偏移（同步 backOffset 和 clipRight）
+                        // 这部分确保背景页面（前一个 fragment）能随手势正常露出
+                        if (predictiveBackInProgress) {
+                            // 计算一个合理的视觉偏移量给背景层使用
+                            float visualBackTranslation = translationX * 0.15f; 
+                            if (predictiveBackLeft) {
+                                clipRight = (int) (child.getWidth() * (1.0f - scale) + margin); 
+                                backOffset = visualBackTranslation;
+                            } else {
+                                // 右侧滑动逻辑
+                                backOffset = visualBackTranslation;
+                            }
+                        }
                     }
 
                     final RoundedCorner topLeft = insets.getRoundedCorner(android.view.RoundedCorner.POSITION_TOP_LEFT);
