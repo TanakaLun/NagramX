@@ -970,13 +970,12 @@ public class ActionBarLayout extends FrameLayout implements INavigationLayout, F
                     if (newBackTransitions()) {
                         float scale = 1.0f;
                         float translateY = 0f;
-                        float translateX = 0f;
-                        
+                        float translateX = 0f;                    
     
                         if (predictiveBackInProgress) {
                             // A. 计算手势进度 (0.0 到 1.0)
-                            // 设置滑动 120dp 达到最大缩放感，优化灵敏度
-                            float maxSwipeDistance = dpf2(120); 
+                            // 设置滑动 ndp 达到最大缩放感，优化灵敏度
+                            float maxSwipeDistance = dpf2(280); 
                             float progress = Utilities.clamp(translationX / maxSwipeDistance, 1.0f, 0f);
     
                             // B. 弹性缩放逻辑：增强至 0.7
@@ -1016,7 +1015,7 @@ public class ActionBarLayout extends FrameLayout implements INavigationLayout, F
                         // 动态更新裁剪和阴影偏移，确保视觉连贯
                         if (predictiveBackInProgress) {
                             backOffset += (int) translateX;
-                            clipRight += (int) Math.abs(translateX);
+                            // clipRight += (int) Math.abs(translateX);
                         }
                     }
 
