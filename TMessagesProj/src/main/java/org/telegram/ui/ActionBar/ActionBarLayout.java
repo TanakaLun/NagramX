@@ -970,54 +970,54 @@ public class ActionBarLayout extends FrameLayout implements INavigationLayout, F
                     if (newBackTransitions()) {
                         float scale = 1.0f;
                         float translateY = 0f;
-                        float translateX = 0f;                    
-    
+                        float translateX = 0f;
+                    
                         if (predictiveBackInProgress) {
-                            // A. 计算手势进度 (0.0 到 1.0)
-                            // 设置滑动 ndp 达到最大缩放感，优化灵敏度
-                            float maxSwipeDistance = dpf2(280); 
+                            // 1. 计算进度：增加最大距离感，避免快速触顶导致的阻塞感
+                            float maxSwipeDistance = dpf2(400);
                             float progress = Utilities.clamp(translationX / maxSwipeDistance, 1.0f, 0f);
-    
-                            // B. 弹性缩放逻辑：增强至 0.7
-                            // 使用平滑插值，避免线性缩放的生硬感
-                            scale = lerp(1.00f, 0.70f, progress);
-    
-                            // C. 垂直弹性跟随：
+                    
+                            // 2. 弹性缩放
+                            scale = lerp(1.00f, 0.7f, progress);
+                    
+                            // 3. 垂直轴运动：斜向滑动的核心
                             float centerY = getHeight() / 2f;
                             float deltaY = predictiveBackY - centerY;
-                            // 阻尼系数设为 0.2，并限制最大位移，防止卡片飞出边缘
-                            translateY = Utilities.clamp(deltaY * 0.20f, getHeight() * 0.12f, -getHeight() * 0.12f);
-    
-                            // D. 边缘保护与 Margin (12dp)
-                            // 当缩放至 0.7 时，通过 translateX 补正，确保卡片边缘距离屏幕至少有 12dp
-                            float safeMargin = dp(12);
+                            // 增加 0.15 的阻尼，让卡片跟随手指上下浮动
+                            translateY = deltaY * 0.15f;
+                    
+                            // 4. 水平轴运动：根据滑动来源方向反转位移
+                            // 这里的逻辑是：如果是左侧滑动(predictiveBackLeft)，卡片中心右移；反之左移
+                            float edgeMargin = dp(12) * progress; // 边缘留白随进度增加
                             if (predictiveBackLeft) {
-                                // 从左往右拉：卡片整体向右微移，留出左侧 Margin
-                                translateX = lerp(0, safeMargin, progress);
+                                translateX = edgeMargin; 
                             } else {
-                                // 从右往左拉：卡片整体向左微移，留出右侧 Margin
-                                translateX = lerp(0, -safeMargin, progress);
+                                translateX = -edgeMargin;
                             }
+                    
+                            // 5. 轴心点优化：防止截断
+                            // 左滑时轴心在右，右滑时轴心在左，同时加入 Y 轴实时跟随
+                            float pivotX = predictiveBackLeft ? getWidth() : 0;
+                            float pivotY = predictiveBackY;
+                    
+                            // 6. 应用变换
+                            canvas.translate(translateX, translateY);
+                            canvas.scale(scale, scale, pivotX, pivotY);
+                    
+                            // 7. 更新绘制参数（确保阴影和剪裁区跟随位移）
+                            if (predictiveBackLeft) {
+                                backOffset += (int) translateX;
+                            } else {
+                                // 右侧滑动时，通过调整 rect 确保不被截断
+                                AndroidUtilities.rectTmp.offset((int)translateX, (int)translateY);
+                            }
+                            
                         } else {
-                            // 非预测模式下的回归动画：保持平滑缩小
-                            scale = 1.00f - Math.min(0.30f, 0.10f * translationX / dpf2(56));
-                        }
-    
-                        // E. 应用画布变换
-                        // 轴心点 (Pivot) 逻辑：设置在手指滑动的反方向边缘，模拟拉动效果
-                        float pivotX = predictiveBackLeft ? AndroidUtilities.rectTmp.right : AndroidUtilities.rectTmp.left;
-                        // Y 轴轴心跟随手指，增加互动的灵动感
-                        float pivotY = predictiveBackInProgress ? predictiveBackY : AndroidUtilities.rectTmp.centerY();
-    
-                        canvas.translate(translateX, translateY);
-                        canvas.scale(scale, scale, pivotX, pivotY);
-    
-                        // 动态更新裁剪和阴影偏移，确保视觉连贯
-                        if (predictiveBackInProgress) {
-                            backOffset += (int) translateX;
-                            // clipRight += (int) Math.abs(translateX);
+                            scale = 1.00f - Math.min(0.20f, 0.10f * translationX / dpf2(56));
+                            canvas.scale(scale, scale, getWidth() / 2f, getHeight() / 2f);
                         }
                     }
+
 
                     final RoundedCorner topLeft = insets.getRoundedCorner(android.view.RoundedCorner.POSITION_TOP_LEFT);
                     final RoundedCorner topRight = insets.getRoundedCorner(android.view.RoundedCorner.POSITION_TOP_RIGHT);
