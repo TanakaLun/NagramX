@@ -967,63 +967,57 @@ public class ActionBarLayout extends FrameLayout implements INavigationLayout, F
                 final WindowInsets insets = getRootWindowInsets();
                 if (insets != null) {
                     AndroidUtilities.rectTmp.set(translationX, 0, translationX + child.getWidth(), getHeight());
-                    if (child == containerView) {
-            final WindowInsets insets = getRootWindowInsets();
-            if (insets != null) {
-                // 设置基础矩形区域
-                AndroidUtilities.rectTmp.set(translationX, 0, translationX + child.getWidth(), height);
-
-                if (newBackTransitions()) {
-                    float scale = 1.0f;
-                    float translateY = 0f;
-                    float translateX = 0f;
-
-                    if (predictiveBackInProgress) {
-                        // A. 计算手势进度 (0.0 到 1.0)
-                        // 设置滑动 280dp 达到最大缩放感，优化灵敏度
-                        float maxSwipeDistance = dpf2(280); 
-                        float progress = Utilities.clamp(translationX / maxSwipeDistance, 1.0f, 0f);
-
-                        // B. 弹性缩放逻辑：增强至 0.7
-                        // 使用平滑插值，避免线性缩放的生硬感
-                        scale = lerp(1.00f, 0.70f, progress);
-
-                        // C. 垂直弹性跟随：
-                        float centerY = height / 2f;
-                        float deltaY = predictiveBackY - centerY;
-                        // 阻尼系数设为 0.2，并限制最大位移，防止卡片飞出边缘
-                        translateY = Utilities.clamp(deltaY * 0.20f, height * 0.12f, -height * 0.12f);
-
-                        // D. 边缘保护与 Margin (12dp)
-                        // 当缩放至 0.7 时，通过 translateX 补正，确保卡片边缘距离屏幕至少有 12dp
-                        float safeMargin = dp(12);
-                        if (predictiveBackLeft) {
-                            // 从左往右拉：卡片整体向右微移，留出左侧 Margin
-                            translateX = lerp(0, safeMargin, progress);
+                    if (newBackTransitions()) {
+                        float scale = 1.0f;
+                        float translateY = 0f;
+                        float translateX = 0f;
+    
+                        if (predictiveBackInProgress) {
+                            // A. 计算手势进度 (0.0 到 1.0)
+                            // 设置滑动 120dp 达到最大缩放感，优化灵敏度
+                            float maxSwipeDistance = dpf2(120); 
+                            float progress = Utilities.clamp(translationX / maxSwipeDistance, 1.0f, 0f);
+    
+                            // B. 弹性缩放逻辑：增强至 0.7
+                            // 使用平滑插值，避免线性缩放的生硬感
+                            scale = lerp(1.00f, 0.70f, progress);
+    
+                            // C. 垂直弹性跟随：
+                            float centerY = height / 2f;
+                            float deltaY = predictiveBackY - centerY;
+                            // 阻尼系数设为 0.2，并限制最大位移，防止卡片飞出边缘
+                            translateY = Utilities.clamp(deltaY * 0.20f, height * 0.12f, -height * 0.12f);
+    
+                            // D. 边缘保护与 Margin (12dp)
+                            // 当缩放至 0.7 时，通过 translateX 补正，确保卡片边缘距离屏幕至少有 12dp
+                            float safeMargin = dp(12);
+                            if (predictiveBackLeft) {
+                                // 从左往右拉：卡片整体向右微移，留出左侧 Margin
+                                translateX = lerp(0, safeMargin, progress);
+                            } else {
+                                // 从右往左拉：卡片整体向左微移，留出右侧 Margin
+                                translateX = lerp(0, -safeMargin, progress);
+                            }
                         } else {
-                            // 从右往左拉：卡片整体向左微移，留出右侧 Margin
-                            translateX = lerp(0, -safeMargin, progress);
+                            // 非预测模式下的回归动画：保持平滑缩小
+                            scale = 1.00f - Math.min(0.30f, 0.10f * translationX / dpf2(56));
                         }
-                    } else {
-                        // 非预测模式下的回归动画：保持平滑缩小
-                        scale = 1.00f - Math.min(0.30f, 0.10f * translationX / dpf2(56));
+    
+                        // E. 应用画布变换
+                        // 轴心点 (Pivot) 逻辑：设置在手指滑动的反方向边缘，模拟拉动效果
+                        float pivotX = predictiveBackLeft ? AndroidUtilities.rectTmp.right : AndroidUtilities.rectTmp.left;
+                        // Y 轴轴心跟随手指，增加互动的灵动感
+                        float pivotY = predictiveBackInProgress ? predictiveBackY : AndroidUtilities.rectTmp.centerY();
+    
+                        canvas.translate(translateX, translateY);
+                        canvas.scale(scale, scale, pivotX, pivotY);
+    
+                        // 动态更新裁剪和阴影偏移，确保视觉连贯
+                        if (predictiveBackInProgress) {
+                            backOffset += (int) translateX;
+                            clipRight += (int) Math.abs(translateX);
+                        }
                     }
-
-                    // E. 应用画布变换
-                    // 轴心点 (Pivot) 逻辑：设置在手指滑动的反方向边缘，模拟拉动效果
-                    float pivotX = predictiveBackLeft ? AndroidUtilities.rectTmp.right : AndroidUtilities.rectTmp.left;
-                    // Y 轴轴心跟随手指，增加互动的灵动感
-                    float pivotY = predictiveBackInProgress ? predictiveBackY : AndroidUtilities.rectTmp.centerY();
-
-                    canvas.translate(translateX, translateY);
-                    canvas.scale(scale, scale, pivotX, pivotY);
-
-                    // 动态更新裁剪和阴影偏移，确保视觉连贯
-                    if (predictiveBackInProgress) {
-                        backOffset += (int) translateX;
-                        clipRight += (int) Math.abs(translateX);
-                    }
-                }
 
                     final RoundedCorner topLeft = insets.getRoundedCorner(android.view.RoundedCorner.POSITION_TOP_LEFT);
                     final RoundedCorner topRight = insets.getRoundedCorner(android.view.RoundedCorner.POSITION_TOP_RIGHT);
