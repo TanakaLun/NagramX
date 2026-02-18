@@ -971,6 +971,7 @@ public class ActionBarLayout extends FrameLayout implements INavigationLayout, F
                         float scale = 1.0f;
                         float translateY = 0f;
                         float translateX = 0f;
+                        
     
                         if (predictiveBackInProgress) {
                             // A. 计算手势进度 (0.0 到 1.0)
@@ -983,10 +984,10 @@ public class ActionBarLayout extends FrameLayout implements INavigationLayout, F
                             scale = lerp(1.00f, 0.70f, progress);
     
                             // C. 垂直弹性跟随：
-                            float centerY = height / 2f;
+                            float centerY = getHeight() / 2f;
                             float deltaY = predictiveBackY - centerY;
                             // 阻尼系数设为 0.2，并限制最大位移，防止卡片飞出边缘
-                            translateY = Utilities.clamp(deltaY * 0.20f, height * 0.12f, -height * 0.12f);
+                            translateY = Utilities.clamp(deltaY * 0.20f, getHeight() * 0.12f, -getHeight() * 0.12f);
     
                             // D. 边缘保护与 Margin (12dp)
                             // 当缩放至 0.7 时，通过 translateX 补正，确保卡片边缘距离屏幕至少有 12dp
