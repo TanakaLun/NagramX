@@ -10,6 +10,7 @@ import java.util.ArrayList;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Locale;
+import java.util.concurrent.TimeUnit;
 
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
@@ -21,6 +22,11 @@ import tw.nekomimi.nekogram.utils.HttpClient;
 public final class OpenAICompatClient {
 
     private static final OkHttpClient httpClient = HttpClient.INSTANCE.getLlmInstance();
+    private static final OkHttpClient testHttpClient = httpClient.newBuilder()
+            .readTimeout(15, TimeUnit.SECONDS)
+            .writeTimeout(15, TimeUnit.SECONDS)
+            .callTimeout(20, TimeUnit.SECONDS)
+            .build();
 
     private OpenAICompatClient() {
     }
@@ -33,15 +39,16 @@ public final class OpenAICompatClient {
     }
 
     public static LlmResponse<List<String>> fetchModels(String baseUrl, String apiKey) {
-        long start = System.currentTimeMillis();
         String requestBaseUrl = baseUrl != null ? baseUrl.trim() : "";
         if (requestBaseUrl.isEmpty()) {
-            return new LlmResponse<>(null, "Empty base URL", System.currentTimeMillis() - start, 0);
+            return new LlmResponse<>(null, "Empty base URL", 0, 0);
         }
         String key = apiKey != null ? apiKey.trim() : "";
         if (key.isEmpty()) {
-            return new LlmResponse<>(null, getString(R.string.ApiKeyNotSet), System.currentTimeMillis() - start, 0);
+            return new LlmResponse<>(null, getString(R.string.ApiKeyNotSet), 0, 0);
         }
+
+        long start = System.currentTimeMillis();
 
         Request request = new Request.Builder()
                 .url(requestBaseUrl + "/models")
@@ -76,11 +83,9 @@ public final class OpenAICompatClient {
     }
 
     public static LlmResponse<String> testChatCompletions(String baseUrl, String apiKey, String model) {
-        long start = System.currentTimeMillis();
-
         String modelName = model != null ? model.trim() : "";
         if (modelName.isEmpty()) {
-            return new LlmResponse<>(null, "Model is empty", System.currentTimeMillis() - start, 0);
+            return new LlmResponse<>(null, "Model is empty", 0, 0);
         }
 
         JSONObject requestJson;
@@ -94,29 +99,31 @@ public final class OpenAICompatClient {
                     .put("messages", messages);
             if (LlmModelUtil.isReasoning(modelName)) {
                 requestJson.put("reasoning_effort", LlmModelUtil.getReasoningEffort(modelName));
-            }
-            if (LlmModelUtil.isCerebrasGlm(baseUrl, modelName)) {
+            } else if (LlmModelUtil.isCerebrasGlm(baseUrl, modelName)) {
                 requestJson.put("disable_reasoning", true);
             }
         } catch (Exception e) {
-            long duration = System.currentTimeMillis() - start;
-            return new LlmResponse<>(null, e.toString(), duration, 0);
+            return new LlmResponse<>(null, e.toString(), 0, 0);
         }
 
-        return chatCompletions(baseUrl, apiKey, requestJson.toString());
+        return chatCompletions(baseUrl, apiKey, requestJson.toString(), testHttpClient);
     }
 
     public static LlmResponse<String> chatCompletions(String baseUrl, String apiKey, String requestJson) {
-        long start = System.currentTimeMillis();
+        return chatCompletions(baseUrl, apiKey, requestJson, httpClient);
+    }
 
+    private static LlmResponse<String> chatCompletions(String baseUrl, String apiKey, String requestJson, OkHttpClient client) {
         String requestBaseUrl = baseUrl != null ? baseUrl.trim() : "";
         if (requestBaseUrl.isEmpty()) {
-            return new LlmResponse<>(null, "Empty base URL", System.currentTimeMillis() - start, 0);
+            return new LlmResponse<>(null, "Empty base URL", 0, 0);
         }
         String key = apiKey != null ? apiKey.trim() : "";
         if (key.isEmpty()) {
-            return new LlmResponse<>(null, getString(R.string.ApiKeyNotSet), System.currentTimeMillis() - start, 0);
+            return new LlmResponse<>(null, getString(R.string.ApiKeyNotSet), 0, 0);
         }
+
+        long start = System.currentTimeMillis();
 
         RequestBody requestBody = RequestBody.create(requestJson, HttpClient.MEDIA_TYPE_JSON);
         Request request = new Request.Builder()
@@ -125,7 +132,7 @@ public final class OpenAICompatClient {
                 .post(requestBody)
                 .build();
 
-        try (Response response = httpClient.newCall(request).execute()) {
+        try (Response response = client.newCall(request).execute()) {
             String body = response.body().string();
             long duration = System.currentTimeMillis() - start;
             int code = response.code();

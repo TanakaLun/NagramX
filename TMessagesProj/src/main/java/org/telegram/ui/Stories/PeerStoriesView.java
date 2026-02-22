@@ -71,6 +71,7 @@ import androidx.recyclerview.widget.ChatListItemAnimator;
 
 import org.telegram.messenger.AccountInstance;
 import org.telegram.messenger.AndroidUtilities;
+import org.telegram.messenger.Bitmaps;
 import org.telegram.messenger.AnimationNotificationsLocker;
 import org.telegram.messenger.ApplicationLoader;
 import org.telegram.messenger.BotWebViewVibrationEffect;
@@ -218,6 +219,7 @@ import java.util.Objects;
 import java.util.concurrent.CountDownLatch;
 
 import tw.nekomimi.nekogram.NekoConfig;
+import tw.nekomimi.nekogram.helpers.MessageHelper;
 import tw.nekomimi.nekogram.ui.MessageDetailsActivity;
 import xyz.nextalone.nagram.NaConfig;
 
@@ -2062,6 +2064,22 @@ public class PeerStoriesView extends SizeNotifierFrameLayout implements Notifica
                                 }
                             });
                         }
+                        if (NaConfig.INSTANCE.getMediaViewerMenuItemCopyPhoto().Bool() && !currentStory.isLive && !currentStory.isVideo()) {
+                            ActionBarMenuItem.addItem(popupLayout, R.drawable.msg_copy_photo, getString(R.string.CopyPhoto), false, resourcesProvider).setOnClickListener(v -> {
+                                copyPhotoToClipboard();
+                                if (popupMenu != null) {
+                                    popupMenu.dismiss();
+                                }
+                            });
+                        }
+                        if (NaConfig.INSTANCE.getMediaViewerMenuItemCopyFrame().Bool() && !currentStory.isLive && currentStory.isVideo()) {
+                            ActionBarMenuItem.addItem(popupLayout, R.drawable.msg_copy_photo, getString(R.string.CopyVideoFrame), false, resourcesProvider).setOnClickListener(v -> {
+                                copyVideoFrameToClipboard();
+                                if (popupMenu != null) {
+                                    popupMenu.dismiss();
+                                }
+                            });
+                        }
                         if (allowShareLink) {
                             ActionBarMenuItem.addItem(popupLayout, R.drawable.msg_shareout, getString(R.string.BotShare), false, resourcesProvider).setOnClickListener(v -> {
                                 shareStory(false);
@@ -2422,7 +2440,7 @@ public class PeerStoriesView extends SizeNotifierFrameLayout implements Notifica
                     popupMenu.dismiss();
                 }
             });
-        } else {
+        }/* else {
             Drawable lockIcon2 = ContextCompat.getDrawable(getContext(), R.drawable.msg_gallery_locked2);
             lockIcon2.setColorFilter(new PorterDuffColorFilter(ColorUtils.blendARGB(Color.WHITE, Color.BLACK, 0.5f), PorterDuff.Mode.MULTIPLY));
             CombinedDrawable combinedDrawable2 = new CombinedDrawable(
@@ -2443,7 +2461,7 @@ public class PeerStoriesView extends SizeNotifierFrameLayout implements Notifica
                 }
             });
             item2.setIcon(combinedDrawable2);
-        }
+        }*/
     }
 
     private void createQualityItem(ActionBarPopupWindow.ActionBarPopupWindowLayout popupLayout) {
@@ -8376,5 +8394,59 @@ public class PeerStoriesView extends SizeNotifierFrameLayout implements Notifica
     public StoriesController getStoriesController() {
         return MessagesController.getInstance(currentAccount)
                 .getStoriesController();
+    }
+
+    private void copyPhotoToClipboard() {
+        if (currentStory.storyItem == null && currentStory.uploadingStory == null) {
+            return;
+        }
+        if (currentStory.storyItem instanceof TL_stories.TL_storyItemSkipped || currentStory.isLive || currentStory.isVideo()) {
+            return;
+        }
+        File file = currentStory.getPath();
+        if (file != null && file.exists()) {
+            MessageHelper.addFileToClipboard(file, () -> BulletinFactory.of(storyContainer, resourcesProvider).createCopyBulletin(getString(R.string.PhotoCopied)).show());
+        } else {
+            showDownloadAlert();
+        }
+    }
+
+    private boolean captureCurrentVideoFrameToClipboard() {
+        if (playerSharedScope != null && playerSharedScope.surfaceView != null && playerSharedScope.surfaceView.getWidth() > 0 && playerSharedScope.surfaceView.getHeight() > 0) {
+            Bitmap bitmap = Bitmaps.createBitmap(playerSharedScope.surfaceView.getWidth(), playerSharedScope.surfaceView.getHeight(), Bitmap.Config.ARGB_8888);
+            AndroidUtilities.getBitmapFromSurface(playerSharedScope.surfaceView, bitmap, () -> MessageHelper.saveFrameBitmapToClipboard(bitmap, storyContainer, resourcesProvider));
+            return true;
+        } else if (playerSharedScope != null && playerSharedScope.textureView != null && playerSharedScope.textureView.getWidth() > 0 && playerSharedScope.textureView.getHeight() > 0) {
+            Bitmap bitmap = playerSharedScope.textureView.getBitmap();
+            if (bitmap != null) {
+                MessageHelper.saveFrameBitmapToClipboard(bitmap, storyContainer, resourcesProvider);
+                return true;
+            }
+        }
+        return false;
+    }
+
+    private void copyVideoFrameToClipboard() {
+        if (currentStory.storyItem == null && currentStory.uploadingStory == null) {
+            return;
+        }
+        if (currentStory.storyItem instanceof TL_stories.TL_storyItemSkipped || currentStory.isLive || !currentStory.isVideo()) {
+            return;
+        }
+        File file = currentStory.getPath();
+        if (file != null && file.exists()) {
+            long currentPosition = 0;
+            if (playerSharedScope != null && playerSharedScope.player != null) {
+                currentPosition = playerSharedScope.player.getCurrentPosition();
+            }
+            MessageHelper.copyVideoFrameToClipboard(file, currentPosition, storyContainer, resourcesProvider, () -> {
+                if (captureCurrentVideoFrameToClipboard()) {
+                    return;
+                }
+                showDownloadAlert();
+            });
+        } else {
+            showDownloadAlert();
+        }
     }
 }
