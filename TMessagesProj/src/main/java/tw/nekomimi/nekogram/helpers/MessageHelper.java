@@ -87,6 +87,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import tw.nekomimi.nekogram.NekoConfig;
+import tw.nekomimi.nekogram.filters.AyuFilter;
 import xyz.nextalone.nagram.NaConfig;
 
 public class MessageHelper extends BaseController {
@@ -1031,7 +1032,10 @@ public class MessageHelper extends BaseController {
     }
 
     public boolean isBlockedUser(long senderId) {
-        return NekoConfig.ignoreBlocked.Bool() && getMessagesController().blockePeers.indexOfKey(senderId) >= 0;
+        if (!NekoConfig.ignoreBlocked.Bool()) {
+            return false;
+        }
+        return getMessagesController().blockePeers.indexOfKey(senderId) >= 0 || AyuFilter.isCustomFilteredPeer(senderId);
     }
 
     public boolean isBlockedOrFiltered(TLRPC.Message message) {
