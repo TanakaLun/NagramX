@@ -289,6 +289,7 @@ public class VoIPService extends Service implements SensorEventListener, AudioMa
 	private TLRPC.InputGroupCall joinConference;
 	private TLRPC.GroupCall joinConferenceCall;
 	private long[] inviteUsers;
+	private Boolean muteOnStart;
 
 	private int remoteVideoState = Instance.VIDEO_STATE_INACTIVE;
 	private TLRPC.TL_dataJSON myParams;
@@ -382,8 +383,6 @@ public class VoIPService extends Service implements SensorEventListener, AudioMa
 
 	private HashMap<String, Integer> currentStreamRequestTimestamp = new HashMap<>();
 	public boolean micSwitching;
-
-	private int currentStreamType;
 
 	private Runnable afterSoundRunnable = new Runnable() {
 		@Override
@@ -778,6 +777,9 @@ public class VoIPService extends Service implements SensorEventListener, AudioMa
 			SerializedData buffer = new SerializedData(joinConferenceBytes);
 			joinConference = TLRPC.InputGroupCall.TLdeserialize(buffer, buffer.readInt32(true), true);
 		}
+		if (intent.hasExtra("mute_on_start")) {
+			muteOnStart = intent.getBooleanExtra("mute_on_start", false);
+		}
 		byte[]
 			joinConferenceCallBytes = intent.getByteArrayExtra("joinConferenceCall");
 		if (joinConferenceCallBytes != null) {
@@ -875,13 +877,18 @@ public class VoIPService extends Service implements SensorEventListener, AudioMa
 		VoIPGroupNotification.hide(this);
 
 		if (joinConference != null) {
-			if (!PermissionRequest.hasPermission(Manifest.permission.RECORD_AUDIO)) {
+			final boolean mic = MessagesController.getGlobalMainSettings().getBoolean("callmiconstart", true);
+			if (!mic) {
 				micMute = true;
-				PermissionRequest.requestPermission(Manifest.permission.RECORD_AUDIO, granted -> {
-					if (sharedInstance == null) return;
-					if (!granted) return;
-					setMicMute(false, false, true);
-				});
+			} else {
+				if (!PermissionRequest.hasPermission(Manifest.permission.RECORD_AUDIO)) {
+					micMute = true;
+					PermissionRequest.requestPermission(Manifest.permission.RECORD_AUDIO, granted -> {
+						if (sharedInstance == null) return;
+						if (!granted) return;
+						setMicMute(false, false, true);
+					});
+				}
 			}
 			startConferenceGroupCall(false, 0, null, false);
 			if (!isBtHeadsetConnected && !isHeadsetPlugged) {
@@ -4014,8 +4021,6 @@ public class VoIPService extends Service implements SensorEventListener, AudioMa
 		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR1) {
 			builder.setShowWhen(false);
 		}
-		builder.setPriority(Notification.PRIORITY_MAX);
-		builder.setShowWhen(false);
 		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
 			builder.setColor(0xff282e31);
 			builder.setColorized(true);
@@ -4125,11 +4130,7 @@ public class VoIPService extends Service implements SensorEventListener, AudioMa
 					} else if (vibrate == 3) {
 						duration *= 2;
 					}
-					AudioAttributes audioAttributes = new AudioAttributes.Builder()
-							.setContentType(AudioAttributes.CONTENT_TYPE_SONIFICATION)
-							.setUsage(AudioAttributes.USAGE_NOTIFICATION_RINGTONE)
-							.build();
-					vibrator.vibrate(new long[]{0, duration, 500}, 0, audioAttributes);
+					vibrator.vibrate(new long[]{0, duration, 500}, 0);
 				}
 			}
 		}
@@ -4760,18 +4761,11 @@ public class VoIPService extends Service implements SensorEventListener, AudioMa
 	}
 
 	private void loadResources() {
-		if (NekoConfig.useMediaStreamInVoip.Bool()) {
-			currentStreamType = AudioManager.STREAM_MUSIC;
-			if (Build.VERSION.SDK_INT >= 21)
-				WebRtcAudioTrack.setAudioTrackUsageAttribute(AudioAttributes.USAGE_MEDIA);
-		} else {
-			currentStreamType = AudioManager.STREAM_VOICE_CALL;
-			if (Build.VERSION.SDK_INT >= 21)
-				WebRtcAudioTrack.setAudioTrackUsageAttribute(AudioAttributes.USAGE_VOICE_COMMUNICATION);
+		if (Build.VERSION.SDK_INT >= 21) {
+			WebRtcAudioTrack.setAudioTrackUsageAttribute(AudioAttributes.USAGE_VOICE_COMMUNICATION);
 		}
-		WebRtcAudioTrack.setAudioStreamType(currentStreamType);
 		Utilities.globalQueue.postRunnable(() -> {
-			soundPool = new SoundPool(1, currentStreamType, 0);
+			soundPool = new SoundPool(1, AudioManager.STREAM_VOICE_CALL, 0);
 			spConnectingId = soundPool.load(this, R.raw.voip_connecting, 1);
 			spRingbackID = soundPool.load(this, R.raw.voip_ringback, 1);
 			spFailedID = soundPool.load(this, R.raw.voip_failed, 1);
@@ -4842,9 +4836,8 @@ public class VoIPService extends Service implements SensorEventListener, AudioMa
 		AudioManager am = (AudioManager) getSystemService(AUDIO_SERVICE);
 		if (!USE_CONNECTION_SERVICE) {
 			Utilities.globalQueue.postRunnable(() -> {
-				if(currentStreamType == AudioManager.STREAM_VOICE_CALL) {
-					try {
-						if (hasRtmpStream()) {
+				try {
+					if (hasRtmpStream()) {
 						am.setMode(AudioManager.MODE_NORMAL);
 						am.setBluetoothScoOn(false);
 						AndroidUtilities.runOnUIThread(() -> {
@@ -4853,10 +4846,11 @@ public class VoIPService extends Service implements SensorEventListener, AudioMa
 							}
 						});
 						return;
-					}am.setMode(AudioManager.MODE_IN_COMMUNICATION);
-					} catch (Exception e) {
-						FileLog.e(e);
 					}
+
+					am.setMode(AudioManager.MODE_IN_COMMUNICATION);
+				} catch (Exception e) {
+					FileLog.e(e);
 				}
 				AndroidUtilities.runOnUIThread(() -> {
 					int focusResult = am.requestAudioFocus(VoIPService.this, AudioManager.STREAM_VOICE_CALL, AudioManager.AUDIOFOCUS_GAIN_TRANSIENT);

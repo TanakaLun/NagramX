@@ -1,7 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="N_Config">Налаштування N</string>
-    <string name="ForceCopy">Примусове копіювання</string>
     <string name="CombineMessage">Об\'єднати повідомлення</string>
     <string name="TextStyle">Стиль тексту</string>
     <string name="NoiseSuppressAndVoiceEnhance">Покращення звуку</string>
@@ -33,7 +32,6 @@
     <string name="ZalgoFilter">Фільтр символів «Zalgo»</string>
     <string name="ZalgoFilterNotice">Всі \"Z̷͍͌ā̸̜l̸̞̂g̷̝͘o̶̩̓\" символи в нікнеймах або повідомленнях буде видалено.</string>
     <string name="labelChannelUser">Мітка користувачів каналу</string>
-    <string name="CustomChannelLabel">Власна мітка каналу</string>
     <string name="AlwaysShowDownloadIcon">Завжди показувати значок завантаження</string>
     <string name="HideTitle">Сховати заголовок</string>
     <string name="IgnoreUnreadCount">Приховати кількість непрочитаних тек</string>
@@ -41,7 +39,6 @@
     <string name="SendAsEmoji">Відправити як смайл</string>
     <string name="CustomArtworkApi">АРІ користувацьких музичних обкладинок</string>
     <string name="CustomEditedMessage">Підпис для видалених повідомлень</string>
-    <string name="IconDecoration">Оформлення іконки</string>
     <string name="NotificationIcon">Значок сповіщень</string>
     <string name="Official">Офіційний</string>
     <string name="HalloWeen">Хелловін</string>
@@ -67,7 +64,6 @@
     <string name="ShowSmallGIF">Маленькі GIF</string>
     <string name="DisableClickCommandToSend">Запитувати перед відправленням команди бота</string>
     <string name="DisableDialogsFloatingButton">Приховати плаваючу кнопку</string>
-    <string name="DisableFlagSecure">Вимкнути FLAG_SECURE</string>
     <string name="CenterActionBarTitleType">Заголовок по центру</string>
     <string name="ShowQuickReplyInBotCommands">Показувати швидку відповідь у командах бота</string>
     <string name="PushServiceType">Служба Push-сповіщень</string>
@@ -79,7 +75,6 @@
     <string name="DisableChannelMuteButton">Приховати нижню панель у каналах</string>
     <string name="DisablePreviewVideoSoundShortcut">Вимкнути вмикання звуку відео кнопками гучності</string>
     <string name="DisablePreviewVideoSoundShortcutNotice">Не вмикати звук у прев\'ю відео кнопкою гучності.</string>
-    <string name="DisableAutoWebLogin">Вимкнути автоматичний вхід під час переходу до веб-версії</string>
     <string name="PreviewSendPhoto">Надіслати фото</string>
     <string name="PreviewSendVideo">Надіслати відео</string>
     <string name="PreviewSendFile">Надіслати файл</string>

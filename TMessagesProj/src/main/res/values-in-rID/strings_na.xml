@@ -1,7 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="N_Config">Konfig-N</string>
-    <string name="ForceCopy">Salin Paksa</string>
     <string name="CombineMessage">Gabungkan Pesan</string>
     <string name="TextStyle">Gaya Teks</string>
     <string name="NoiseSuppressAndVoiceEnhance">Peningkatan Suara</string>
@@ -33,7 +32,6 @@
     <string name="ZalgoFilter">Saring Simbol \"Zalgo\"</string>
     <string name="ZalgoFilterNotice">Semua simbol \"Z̷͍͌ā̸̜l̸̞̂g̷̝͘o̶̩̓\" pada nama panggilan atau pesan akan dihapus.</string>
     <string name="labelChannelUser">Label Pengguna Saluran</string>
-    <string name="CustomChannelLabel">Label Saluran Khusus</string>
     <string name="AlwaysShowDownloadIcon">Selalu Tampilkan Ikon Unduhan</string>
     <string name="HideTitle">Sembunyikan Judul</string>
     <string name="IgnoreUnreadCount">Sembunyikan Penghitung Belum Dibaca</string>
@@ -41,7 +39,6 @@
     <string name="SendAsEmoji">Kirim sebagai emoji</string>
     <string name="CustomArtworkApi">API Artwork Khusus</string>
     <string name="CustomEditedMessage">Tanda Disunting Khusus</string>
-    <string name="IconDecoration">Dekorasi Ikon</string>
     <string name="NotificationIcon">Ikon Pemberitahuan</string>
     <string name="Official">Resmi</string>
     <string name="HalloWeen">HalloWeen</string>
@@ -67,7 +64,6 @@
     <string name="ShowSmallGIF">Tampilkan GIF Kecil</string>
     <string name="DisableClickCommandToSend">Tanyakan Sebelum Mengirim Perintah Bot</string>
     <string name="DisableDialogsFloatingButton">Sembunyikan Tombol Mengambang</string>
-    <string name="DisableFlagSecure">Nonaktifkan FLAG_SECURE</string>
     <string name="CenterActionBarTitleType">Gunakan Judul di Tengah</string>
     <string name="ShowQuickReplyInBotCommands">Tampilkan Balasan Cepat di Perintah Bot</string>
     <string name="PushServiceType">Jenis Layanan Dorong</string>
@@ -80,7 +76,6 @@
     <string name="DisableChannelMuteButton">Sembunyikan Bilah Bawah di Saluran</string>
     <string name="DisablePreviewVideoSoundShortcut">Nonaktifkan Pengaktifan Suara Video Menggunakan Tombol Volume</string>
     <string name="DisablePreviewVideoSoundShortcutNotice">Cegah tombol volume mengaktifkan suara video pratinjau.</string>
-    <string name="DisableAutoWebLogin">Nonaktifkan Masuk Web Otomatis</string>
     <string name="PreviewSendPhoto">Kirim Foto</string>
     <string name="PreviewSendVideo">Kirim Video</string>
     <string name="PreviewSendFile">Kirim Berkas</string>

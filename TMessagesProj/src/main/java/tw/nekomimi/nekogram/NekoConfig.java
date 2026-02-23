@@ -68,7 +68,6 @@ public class NekoConfig {
     }
 
     public static final Object sync = new Object();
-    public static final String channelAliasPrefix = "channelAliasPrefix_";
 
     private static boolean configLoaded = false;
     private static final ArrayList<ConfigItem> configs = new ArrayList<>();
@@ -76,7 +75,6 @@ public class NekoConfig {
 
     // Configs
     public static ConfigItem configMigrated = addConfig("ConfigMigrated", configTypeBool, false);
-    public static ConfigItem largeAvatarInDrawer = addConfig("AvatarAsBackground", configTypeInt, DRAWER_BACKGROUND_WALLPAPER);
     public static ConfigItem unreadBadgeOnBackButton = addConfig("unreadBadgeOnBackButton", configTypeBool, false);
     public static ConfigItem useCustomEmoji = addConfig("useCustomEmoji", configTypeBool, false);
     public static ConfigItem repeatConfirm = addConfig("repeatConfirm", configTypeBool, true);
@@ -92,7 +90,6 @@ public class NekoConfig {
     public static ConfigItem typeface = addConfig("TypefaceUseDefault", configTypeBool, false);
     public static ConfigItem nameOrder = addConfig("NameOrder", configTypeInt, 1);
     public static ConfigItem mapPreviewProvider = addConfig("MapPreviewProvider", configTypeInt, 0);
-    public static ConfigItem transparentStatusBar = addConfig("TransparentStatusBar", configTypeBool, true);
     public static ConfigItem forceBlurInChat = addConfig("forceBlurInChat", configTypeBool, false);
     public static ConfigItem chatBlueAlphaValue = addConfig("forceBlurInChatAlphaValue", configTypeInt, 127);
     public static ConfigItem showAddToSavedMessages = addConfig("showAddToSavedMessages", configTypeBool, true);
@@ -108,15 +105,12 @@ public class NekoConfig {
     public static ConfigItem showMessageHide = addConfig("showMessageHide", configTypeBool, false);
 
     public static ConfigItem actionBarDecoration = addConfig("ActionBarDecoration", configTypeInt, 0);
-    public static ConfigItem newYear = addConfig("ChristmasHat", configTypeBool, false);
     public static ConfigItem stickerSize = addConfig("stickerSize", configTypeFloat, 14.0f);
     public static ConfigItem unlimitedFavedStickers = addConfig("UnlimitedFavoredStickers", configTypeBool, false);
     public static ConfigItem unlimitedPinnedDialogs = addConfig("UnlimitedPinnedDialogs", configTypeBool, false);
     public static ConfigItem disablePhotoSideAction = addConfig("DisablePhotoViewerSideAction", configTypeBool, false);
     public static ConfigItem openArchiveOnPull = addConfig("OpenArchiveOnPull", configTypeBool, false);
     public static ConfigItem hideKeyboardOnChatScroll = addConfig("HideKeyboardOnChatScroll", configTypeBool, false);
-    public static ConfigItem avatarBackgroundBlur = addConfig("BlurAvatarBackground", configTypeBool, false);
-    public static ConfigItem avatarBackgroundDarken = addConfig("DarkenAvatarBackground", configTypeBool, false);
     public static ConfigItem useSystemEmoji = addConfig("EmojiUseDefault", configTypeBool, false);
     public static ConfigItem rearVideoMessages = addConfig("RearVideoMessages", configTypeBool, false);
     public static ConfigItem hideAllTab = addConfig("HideAllTab", configTypeBool, false);
@@ -141,17 +135,14 @@ public class NekoConfig {
 
     public static ConfigItem disableNotificationBubbles = addConfig("disableNotificationBubbles", configTypeBool, false);
 
-    public static ConfigItem tabsTitleType = addConfig("TabTitleType", configTypeInt, NekoXConfig.TITLE_TYPE_MIX);
+    public static ConfigItem tabsTitleType = addConfig("TabTitleType", configTypeInt, NekoXConfig.TITLE_TYPE_TEXT);
     public static ConfigItem confirmAVMessage = addConfig("ConfirmAVMessage", configTypeBool, false);
     public static ConfigItem askBeforeCall = addConfig("AskBeforeCalling", configTypeBool, true);
     public static ConfigItem disableNumberRounding = addConfig("DisableNumberRounding", configTypeBool, false);
 
     public static ConfigItem dnsType = addConfig("DnsType", configTypeInt, DNS_TYPE_DEFAULT);
     public static ConfigItem customDoH = addConfig("CustomDoH", configTypeString, "");
-    public static ConfigItem hideProxyByDefault = addConfig("HideProxyByDefault", configTypeBool, true);
-    public static ConfigItem useProxyItem = addConfig("UseProxyItem", configTypeBool, true);
 
-    public static ConfigItem disableAppBarShadow = addConfig("DisableAppBarShadow", configTypeBool, false);
     public static ConfigItem mediaPreview = addConfig("MediaPreview", configTypeBool, true);
 
     public static ConfigItem disableVibration = addConfig("DisableVibration", configTypeBool, false);
@@ -175,12 +166,10 @@ public class NekoConfig {
     public static ConfigItem showSpoilersDirectly = addConfig("showSpoilersDirectly", configTypeBool, false);
 
     public static ConfigItem labelChannelUser = addConfig("labelChannelUser", configTypeBool, true);
-    public static ConfigItem channelAlias = addConfig("channelAlias", configTypeBool, false);
 
     public static ConfigItem disableAutoDownloadingWin32Executable = addConfig("Win32ExecutableFiles", configTypeBool, true);
     public static ConfigItem disableAutoDownloadingArchive = addConfig("ArchiveFiles", configTypeBool, true);
 
-    public static ConfigItem useMediaStreamInVoip = addConfig("UseMediaStreamInVoip", configTypeBool, false);
     public static ConfigItem customAudioBitrate = addConfig("customAudioBitrate", configTypeInt, 32);
     public static ConfigItem enhancedFileLoader = addConfig("enhancedFileLoader", configTypeBool, false);
     public static ConfigItem uploadBoost = addConfig("uploadBoost", configTypeBool, false);

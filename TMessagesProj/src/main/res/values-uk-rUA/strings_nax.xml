@@ -90,9 +90,7 @@
     <string name="ChatsOnly">Лише в чатах</string>
     <string name="InstantViewTranslation">Миттєвий перегляд</string>
     <string name="SaveDeletedMessageForBot">Зберегти у чатах бота</string>
-    <string name="DrawerElements">Елементи меню</string>
     <string name="HideArchive">Видалити \"Архівні чати\" зі Списку Чату</string>
-    <string name="HideChannelSilentBroadcast">Сховати беззвучний перемикач трансляції</string>
     <string name="ConfirmAllLinks">Запитувати перед відкриттям вбудованих посилань</string>
     <string name="ConfirmAllLinksDescription">Включаючи внутрішні посилання, такі як t.me у вбудованих ботах.</string>
     <string name="TranslatorMinimizedChannel">Для цього каналу було згорнуто панель перекладу.</string>
@@ -191,9 +189,6 @@
     <string name="EditLocalNameOverride">Редагування локального імені.</string>
     <string name="ResetChatNameOverrides">Скинути змінені назви чатів</string>
     <string name="ResetChatNameNotification">Змінені назви чатів очищені.</string>
-    <string name="TabStyle">Стиль вкладок</string>
-    <string name="TabStylePure">Прозорі</string>
-    <string name="TabStylePills">Овальні</string>
     <string name="LeftBottomButtonAction">Дія лівої кнопки</string>
     <string name="TranscribeProviderOpenAI">OpenAI-сумісний API</string>
     <string name="OpenAiApiCredentialsDialog">Налаштуйте API сумісний з OpenAI. Ви можете звернутися до цієї **документації.**\n</string>
@@ -278,7 +273,6 @@
     <string name="BlockChannelsUnavailable">Деякі канали тимчасово недоступні.</string>
     <string name="FixLinkPreview">Виправити прев’ю посилань</string>
     <string name="NoQuoteForwardShort">Без цитати</string>
-    <string name="ForceEdgeToEdge">Примусово на весь екран</string>
     <string name="ViewDeleted">Переглянути видалені</string>
     <string name="PasskeyLogin">Вхід за ключем доступу</string>
     <string name="PasskeyInfo2">Ця функція працює лише з менеджерами паролів, які дозволяють користувачу керувати налаштуваннями довіри для привілейованих програм таких як **Bitwarden** та **KeePassDX**.</string>
@@ -302,7 +296,6 @@
     <string name="CameraInVideoMessagesRear">Задня камера</string>
     <string name="CameraInVideoMessagesAsk">Запитувати</string>
     <string name="CameraSettings">Камера</string>
-    <string name="SmoothRoundedMenu">Плавне закруглене контекстне меню</string>
     <string name="SyncContactToPhone">Синхронізувати контакт з телефоном</string>
     <string name="AddViaQRCode">Додати через QR-код</string>
     <string name="ContactNotes">Нотатки</string>
@@ -316,7 +309,6 @@
     <string name="CopyVideoFrame">Копіювати кадр</string>
     <string name="SetLocalName">Встановити локальне ім\'я</string>
     <string name="DeleteChatForBothSides">Використовувати «Також видалити для» за замовчуванням</string>
-    <string name="AutoPingProxy">Автоматичний пінг проксі</string>
     <string name="BackAnimationStyle">Анімація навігації</string>
     <string name="BackAnimationClassic">Класична</string>
     <string name="BackAnimationSpring">Пружна</string>

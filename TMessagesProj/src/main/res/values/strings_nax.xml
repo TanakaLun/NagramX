@@ -104,9 +104,7 @@
     <string name="ChatsOnly">Just in chats</string>
     <string name="InstantViewTranslation">Instant View</string>
     <string name="SaveDeletedMessageForBot">Save in Bot Chats</string>
-    <string name="DrawerElements">Drawer Elements</string>
     <string name="HideArchive">Remove \"Archived Chats\" from Chat List</string>
-    <string name="HideChannelSilentBroadcast">Hide Silent Broadcast Switch</string>
     <string name="ConfirmAllLinks">Ask Before Opening Inline Links</string>
     <string name="ConfirmAllLinksDescription">Including Telegram internal links such as t.me links in bot inline buttons.</string>
     <string name="TranslatorMinimizedChannel">Translator bar has been minimized for this channel.</string>
@@ -148,7 +146,7 @@
     <string name="DisableGhostMode">Disable Ghost</string>
     <string name="GhostModeEnabled">Ghost mode turned on</string>
     <string name="GhostModeDisabled">Ghost mode turned off</string>
-    <string name="GhostModeInDrawer">Show in Drawer</string>
+    <string name="GhostModeInDrawer">Main Tab Shortcut</string>
     <string name="GhostModeStatusIndicator">Ghost Mode Indicator</string>
     <string name="DontSendReadMessagePackets">Don\'t Read Messages</string>
     <string name="DontReadStoriesPackets">Don\'t Read Stories</string>
@@ -205,9 +203,6 @@
     <string name="EditLocalNameOverride">Editing local name override.</string>
     <string name="ResetChatNameOverrides">Reset Chat Name Overrides</string>
     <string name="ResetChatNameNotification">Chat name overrides cleared.</string>
-    <string name="TabStyle">Tab Style</string>
-    <string name="TabStylePure">Pure</string>
-    <string name="TabStylePills">Pills</string>
     <string name="LeftBottomButtonAction">Left Button Action</string>
     <string name="TranscribeProviderOpenAI">OpenAI-Compatible API</string>
     <string name="OpenAiApiCredentialsDialog">Configure OpenAI-compatible API. You can refer to this **documentation**.\n</string>
@@ -293,7 +288,6 @@
     <string name="BlockChannelsUnavailable">Some channels are temporarily unavailable.</string>
     <string name="FixLinkPreview">Fix Link Preview</string>
     <string name="NoQuoteForwardShort">NoQuote</string>
-    <string name="ForceEdgeToEdge">Force edge-to-edge</string>
     <string name="ViewDeleted">View Deleted</string>
     <string name="PasskeyLogin">Passkey Login</string>
     <string name="PasskeyInfo2">This feature only works with password managers that allow the user to manage trust settings for privileged apps, such as **Bitwarden** and **KeePassDX**.</string>
@@ -317,7 +311,6 @@
     <string name="CameraInVideoMessagesRear">Rear Camera</string>
     <string name="CameraInVideoMessagesAsk">Ask</string>
     <string name="CameraSettings">Camera</string>
-    <string name="SmoothRoundedMenu">Smooth Rounded Context Menus</string>
     <string name="SyncContactToPhone">Sync Contact to Phone</string>
     <string name="AddViaQRCode">Add via QR Code</string>
     <string name="ContactNotes">Notes</string>
@@ -331,7 +324,6 @@
     <string name="CopyVideoFrame">Copy Frame</string>
     <string name="SetLocalName">Set Local Name</string>
     <string name="DeleteChatForBothSides">Use \"Also delete for\" by Default</string>
-    <string name="AutoPingProxy">Auto Ping Proxy</string>
     <string name="BackAnimationStyle">Navigation Animation</string>
     <string name="BackAnimationClassic">Classic</string>
     <string name="BackAnimationSpring">Spring</string>

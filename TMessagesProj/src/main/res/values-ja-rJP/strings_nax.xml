@@ -91,9 +91,7 @@
     <string name="ChatsOnly">チャットのみ</string>
     <string name="InstantViewTranslation">アーティクル</string>
     <string name="SaveDeletedMessageForBot">ボットチャットで保存</string>
-    <string name="DrawerElements">ドロワーメニュー</string>
     <string name="HideArchive">チャットリストで「収納したチャット」を非表示</string>
-    <string name="HideChannelSilentBroadcast">「通知せずに公開」ボタンを非表示</string>
     <string name="ConfirmAllLinks">埋め込みリンクを開く前に確認</string>
     <string name="ConfirmAllLinksDescription">有効にすると、Telegram 内部リンクを含むすべての埋め込みリンクを開く前に、確認を求めるようになります。</string>
     <string name="TranslatorMinimizedChannel">このチャンネルでは、翻訳ツールバーが最小化されました。</string>
@@ -135,7 +133,7 @@
     <string name="DisableGhostMode">ゴーストモードを無効化</string>
     <string name="GhostModeEnabled">ゴーストモードが有効です</string>
     <string name="GhostModeDisabled">ゴーストモードが無効です</string>
-    <string name="GhostModeInDrawer">ドロワーに表示</string>
+    <string name="GhostModeInDrawer">メインタブショートカット</string>
     <string name="GhostModeStatusIndicator">ゴーストモード標識</string>
     <string name="DontSendReadMessagePackets">メッセージの既読を送信しない</string>
     <string name="DontReadStoriesPackets">ストーリーの既読を送信しない</string>
@@ -192,9 +190,6 @@
     <string name="EditLocalNameOverride">ローカルチャット名の上書きを編集しています。</string>
     <string name="ResetChatNameOverrides">チャット名の上書きをリセット</string>
     <string name="ResetChatNameNotification">チャット名の上書きがクリアされました。</string>
-    <string name="TabStyle">タブスタイル</string>
-    <string name="TabStylePure">ピュア</string>
-    <string name="TabStylePills">カプセル</string>
     <string name="LeftBottomButtonAction">左ボタンの動作</string>
     <string name="TranscribeProviderOpenAI">OpenAI-Compatible API</string>
     <string name="OpenAiApiCredentialsDialog">OpenAI と互換性のある API を設定します。この**ドキュメント**を参照できます。\n</string>
@@ -279,7 +274,6 @@
     <string name="BlockChannelsUnavailable">一部のチャンネルは一時的に表示できません。</string>
     <string name="FixLinkPreview">リンクプレビューを改善</string>
     <string name="NoQuoteForwardShort">引用なし</string>
-    <string name="ForceEdgeToEdge">エッジ ツー エッジ対応</string>
     <string name="ViewDeleted">削除済みを表示</string>
     <string name="PasskeyLogin">パスキーログイン</string>
     <string name="PasskeyInfo2">この機能は、**Bitwarden** や **KeePassDX** など、特権アプリの信頼設定をユーザーが管理できるパスワードマネージャーでのみ動作します。</string>
@@ -303,7 +297,6 @@
     <string name="CameraInVideoMessagesRear">リアカメラ</string>
     <string name="CameraInVideoMessagesAsk">尋ねる</string>
     <string name="CameraSettings">カメラ</string>
-    <string name="SmoothRoundedMenu">滑らかな角丸コンテキストメニュー</string>
     <string name="SyncContactToPhone">連絡先をデバイスに同期</string>
     <string name="AddViaQRCode">QRコードで追加</string>
     <string name="ContactNotes">メモ</string>
@@ -317,7 +310,6 @@
     <string name="CopyVideoFrame">フレームをコピー</string>
     <string name="SetLocalName">表示名を変更</string>
     <string name="DeleteChatForBothSides">デフォルトで「相手側も削除」を使用</string>
-    <string name="AutoPingProxy">自動 Ping チェック</string>
     <string name="BackAnimationStyle">画面遷移アニメーション</string>
     <string name="BackAnimationClassic">クラシック</string>
     <string name="BackAnimationSpring">Spring</string>

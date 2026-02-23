@@ -1,7 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="N_Config">N-Configuração</string>
-    <string name="ForceCopy">Forçar cópia</string>
     <string name="CombineMessage">Combinar mensagens</string>
     <string name="TextStyle">Estilo de texto</string>
     <string name="NoiseSuppressAndVoiceEnhance">Supressão de ruído e melhoria de voz</string>
@@ -33,7 +32,6 @@
     <string name="ZalgoFilter">Filtrar símbolos \"Zalgo\"</string>
     <string name="ZalgoFilterNotice">Todos os símbolos \"Z̷͍͌ā̸̜l̸̞̂g̷̝͘o̶̩̓\" em nomes ou mensagens serão removidos.</string>
     <string name="labelChannelUser">Etiquetar usuários de canal</string>
-    <string name="CustomChannelLabel">Etiqueta de canal personalizada</string>
     <string name="AlwaysShowDownloadIcon">Sempre mostrar ícone de download</string>
     <string name="HideTitle">Ocultar título</string>
     <string name="IgnoreUnreadCount">Ocultar contador de não lidas</string>
@@ -41,7 +39,6 @@
     <string name="SendAsEmoji">Enviar como emoji</string>
     <string name="CustomArtworkApi">API de capas personalizadas</string>
     <string name="CustomEditedMessage">Marca de edição personalizada</string>
-    <string name="IconDecoration">Decoração do ícone</string>
     <string name="NotificationIcon">Ícone de notificação</string>
     <string name="Official">Oficial</string>
     <string name="HalloWeen">Dia das Bruxas</string>
@@ -67,7 +64,6 @@
     <string name="ShowSmallGIF">Mostrar GIF pequeno</string>
     <string name="DisableClickCommandToSend">Perguntar antes de enviar comando do bot</string>
     <string name="DisableDialogsFloatingButton">Ocultar botão flutuante</string>
-    <string name="DisableFlagSecure">Permitir capturas de tela</string>
     <string name="CenterActionBarTitleType">Usar título centralizado</string>
     <string name="ShowQuickReplyInBotCommands">Mostrar resposta rápida nos comandos do bot</string>
     <string name="PushServiceType">Tipo de serviço push</string>
@@ -79,7 +75,6 @@
     <string name="DisableChannelMuteButton">Ocultar barra inferior nos canais</string>
     <string name="DisablePreviewVideoSoundShortcut">Bloquear ativação de som com botões de volume</string>
     <string name="DisablePreviewVideoSoundShortcutNotice">Impedir que as teclas de volume ativem o som da prévia de vídeos.</string>
-    <string name="DisableAutoWebLogin">Desativar login automático na web</string>
     <string name="PreviewSendPhoto">Enviar foto</string>
     <string name="PreviewSendVideo">Enviar vídeo</string>
     <string name="PreviewSendFile">Enviar arquivo</string>
