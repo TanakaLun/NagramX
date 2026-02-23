@@ -91,9 +91,7 @@
     <string name="ChatsOnly">仅聊天</string>
     <string name="InstantViewTranslation">即时预览</string>
     <string name="SaveDeletedMessageForBot">在机器人聊天中保存</string>
-    <string name="DrawerElements">侧栏菜单</string>
     <string name="HideArchive">移除聊天列表中的\"已归档聊天\"</string>
-    <string name="HideChannelSilentBroadcast">隐藏静默广播切换按钮</string>
     <string name="ConfirmAllLinks">打开内联链接前确认</string>
     <string name="ConfirmAllLinksDescription">启用后，打开所有内联链接（包括 Telegram 内部链接，例如机器人内联按钮中的 t.me 链接）前，都会询问是否确认。</string>
     <string name="TranslatorMinimizedChannel">翻译栏已为此频道最小化。</string>
@@ -135,7 +133,7 @@
     <string name="DisableGhostMode">禁用幽灵模式</string>
     <string name="GhostModeEnabled">幽灵模式已启用</string>
     <string name="GhostModeDisabled">幽灵模式已禁用</string>
-    <string name="GhostModeInDrawer">在侧栏中显示</string>
+    <string name="GhostModeInDrawer">主标签快捷方式</string>
     <string name="GhostModeStatusIndicator">幽灵模式指示器</string>
     <string name="DontSendReadMessagePackets">不显示消息已读</string>
     <string name="DontReadStoriesPackets">不显示动态已读</string>
@@ -192,9 +190,6 @@
     <string name="EditLocalNameOverride">正在编辑本地聊天名称覆盖。</string>
     <string name="ResetChatNameOverrides">重置聊天名称覆盖</string>
     <string name="ResetChatNameNotification">聊天名称覆盖已清除。</string>
-    <string name="TabStyle">文件夹标签样式</string>
-    <string name="TabStylePure">纯净</string>
-    <string name="TabStylePills">药丸</string>
     <string name="LeftBottomButtonAction">左侧按钮操作</string>
     <string name="TranscribeProviderOpenAI">OpenAI-Compatible API</string>
     <string name="OpenAiApiCredentialsDialog">配置 OpenAI 兼容的 API。您可以参考此 **文档**。\n</string>
@@ -279,7 +274,6 @@
     <string name="BlockChannelsUnavailable">某些频道暂时无法显示。</string>
     <string name="FixLinkPreview">修复链接预览</string>
     <string name="NoQuoteForwardShort">无引用</string>
-    <string name="ForceEdgeToEdge">强制无边框显示</string>
     <string name="ViewDeleted">查看已删除消息</string>
     <string name="PasskeyLogin">Passkey 登录</string>
     <string name="PasskeyInfo2">此功能仅适用于允许用户管理特权应用的信任设置的密码管理器，例如 **Bitwarden** 和 **KeePassDX**。</string>
@@ -303,7 +297,6 @@
     <string name="CameraInVideoMessagesRear">后置摄像头</string>
     <string name="CameraInVideoMessagesAsk">询问</string>
     <string name="CameraSettings">相机</string>
-    <string name="SmoothRoundedMenu">平滑圆角上下文菜单</string>
     <string name="SyncContactToPhone">同步联系人到手机</string>
     <string name="AddViaQRCode">通过二维码添加</string>
     <string name="ContactNotes">备注</string>
@@ -317,7 +310,6 @@
     <string name="CopyVideoFrame">复制帧</string>
     <string name="SetLocalName">设置备注</string>
     <string name="DeleteChatForBothSides">默认使用“同时为对方删除”</string>
-    <string name="AutoPingProxy">自动检测 Ping</string>
     <string name="BackAnimationStyle">导航动画</string>
     <string name="BackAnimationClassic">经典</string>
     <string name="BackAnimationSpring">Spring</string>

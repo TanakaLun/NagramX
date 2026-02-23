@@ -90,9 +90,7 @@
     <string name="ChatsOnly">Solo nelle chat</string>
     <string name="InstantViewTranslation">Visualizzazione istantanea</string>
     <string name="SaveDeletedMessageForBot">Salva nelle chat dei bot</string>
-    <string name="DrawerElements">Elementi del menu laterale</string>
     <string name="HideArchive">Rimuovi \"Chat archiviate\" dall\'elenco delle chat</string>
-    <string name="HideChannelSilentBroadcast">Nascondi interruttore Live silenziose</string>
     <string name="ConfirmAllLinks">Chiedi prima di aprire i link inline</string>
     <string name="ConfirmAllLinksDescription">Includere link interni di Telegram come i link t.me nei pulsanti inline del bot.</string>
     <string name="TranslatorMinimizedChannel">Per questo canale la barra del traduttore è stata ridotta al minimo.</string>
@@ -191,9 +189,6 @@
     <string name="EditLocalNameOverride">Modifica il nome del gruppo in locale.</string>
     <string name="ResetChatNameOverrides">Reimposta i Nomi Originali dei Gruppi</string>
     <string name="ResetChatNameNotification">I nomi delle chat sono stati sostituiti.</string>
-    <string name="TabStyle">Stile cartelle</string>
-    <string name="TabStylePure">Puro</string>
-    <string name="TabStylePills">Pillole</string>
     <string name="LeftBottomButtonAction">Azione pulsante sinistro</string>
     <string name="TranscribeProviderOpenAI">API compatibile con OpenAI</string>
     <string name="OpenAiApiCredentialsDialog">Configura API compatibile con OpenAI. Puoi fare riferimento a questa **documentazione**.\n</string>
@@ -282,7 +277,6 @@ Non possiamo aiutarti in questo caso; se hai problemi di accesso, contatta il Su
     <string name="BlockChannelsUnavailable">Alcuni canali sono temporaneamente non disponibili.</string>
     <string name="FixLinkPreview">Correggi l\'anteprima link</string>
     <string name="NoQuoteForwardShort">Ness. cit.</string>
-    <string name="ForceEdgeToEdge">Forza edge-to-edge</string>
     <string name="ViewDeleted">Visualizza eliminati</string>
     <string name="PasskeyLogin">Accesso con Passkey</string>
     <string name="PasskeyInfo2">Questa funzione è compatibile solo con i gestori di password che consentono all\'utente di gestire le impostazioni di affidabilità per le app privilegiate, come **Bitwarden** e **KeePassDX**.</string>
@@ -306,7 +300,6 @@ Non possiamo aiutarti in questo caso; se hai problemi di accesso, contatta il Su
     <string name="CameraInVideoMessagesRear">Camera posteriore</string>
     <string name="CameraInVideoMessagesAsk">Chiedi</string>
     <string name="CameraSettings">Camera</string>
-    <string name="SmoothRoundedMenu">Menu contestuali arrotondati</string>
     <string name="SyncContactToPhone">Sincronizza contatto sul telefono</string>
     <string name="AddViaQRCode">Aggiungi tramite QR Code</string>
     <string name="ContactNotes">Note</string>
@@ -320,7 +313,6 @@ Non possiamo aiutarti in questo caso; se hai problemi di accesso, contatta il Su
     <string name="CopyVideoFrame">Copia Frame</string>
     <string name="SetLocalName">Imposta Nome Locale</string>
     <string name="DeleteChatForBothSides">Usa \"Elimina anche per\" di default</string>
-    <string name="AutoPingProxy">Proxy Ping Automatico</string>
     <string name="BackAnimationStyle">Animazione di navigazione</string>
     <string name="BackAnimationClassic">Classica</string>
     <string name="BackAnimationSpring">Rimbalzo</string>

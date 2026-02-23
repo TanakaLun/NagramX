@@ -89,9 +89,7 @@
     <string name="ChatsOnly">Solo en los chats</string>
     <string name="InstantViewTranslation">Vista instantánea</string>
     <string name="SaveDeletedMessageForBot">Guardar en chats de bot</string>
-    <string name="DrawerElements">Elementos del cajón</string>
     <string name="HideArchive">Eliminar \"Chats Archivados\" de la lista de chat</string>
-    <string name="HideChannelSilentBroadcast">Ocultar Interruptor de Broadcast Silencioso</string>
     <string name="ConfirmAllLinks">Preguntar antes de abrir enlaces en línea</string>
     <string name="ConfirmAllLinksDescription">Incluye enlaces internos de Telegram como enlaces t.me en los botones de línea del bot.</string>
     <string name="TranslatorMinimizedChannel">La barra del traductor se ha minimizado para este canal.</string>
@@ -189,9 +187,6 @@
     <string name="TranslateMessageLLM">Traducir con IA</string>
     <string name="ResetChatNameOverrides">Restablecer anulaciones de nombres de chat</string>
     <string name="ResetChatNameNotification">Se borraron las modificaciones del nombre del chat.</string>
-    <string name="TabStyle">Estilo de pestaña</string>
-    <string name="TabStylePure">Puro</string>
-    <string name="TabStylePills">Píldoras</string>
     <string name="LeftBottomButtonAction">Acción del botón izquierdo</string>
     <string name="TranscribeProviderOpenAI">API compatible con OpenAI</string>
     <string name="OpenAiApiCredentialsDialog">Configure la API compatible con OpenAI. Puede consultar esta **documentación**.\n</string>
@@ -276,7 +271,6 @@
     <string name="BlockChannelsUnavailable">Algunos canales no están disponibles temporalmente.</string>
     <string name="FixLinkPreview">Corregir vista previa de enlaces</string>
     <string name="NoQuoteForwardShort">Sin citar</string>
-    <string name="ForceEdgeToEdge">Forzar de extremo a extremo</string>
     <string name="ViewDeleted">Ver eliminados</string>
     <string name="PasskeyLogin">Passkey Login</string>
     <string name="PasskeyInfo2">Esta función solo funciona con administradores de contraseñas que permiten al usuario gestionar la configuración de confianza para aplicaciones privilegiadas, como **Bitwarden** y **KeePassDX**.</string>
@@ -300,7 +294,6 @@
     <string name="CameraInVideoMessagesRear">Cámara trasera</string>
     <string name="CameraInVideoMessagesAsk">Preguntar</string>
     <string name="CameraSettings">Cámara</string>
-    <string name="SmoothRoundedMenu">Menús contextuales suaves y redondeados</string>
     <string name="SyncContactToPhone">Sincronizar contacto con el teléfono</string>
     <string name="AddViaQRCode">Agregar mediante código QR</string>
     <string name="ContactNotes">Notas</string>
@@ -314,7 +307,6 @@
     <string name="CopyVideoFrame">Copiar fotograma</string>
     <string name="SetLocalName">Establecer nombre local</string>
     <string name="DeleteChatForBothSides">Utilizar «Eliminar también para» de forma predeterminada</string>
-    <string name="AutoPingProxy">Auto ping proxy</string>
     <string name="BackAnimationStyle">Animación de navegación</string>
     <string name="BackAnimationClassic">Clásico</string>
     <string name="BackAnimationSpring">Primavera</string>

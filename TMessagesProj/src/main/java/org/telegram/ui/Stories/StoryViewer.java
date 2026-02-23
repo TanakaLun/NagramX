@@ -94,7 +94,6 @@ import org.telegram.ui.Stories.recorder.LivePlayerView;
 import java.util.ArrayList;
 
 import tw.nekomimi.nekogram.NekoConfig;
-import tw.nekomimi.nekogram.NekoXConfig;
 
 public class StoryViewer implements NotificationCenter.NotificationCenterDelegate, BaseFragment.AttachedSheet, IPipSourceDelegate {
 
@@ -2644,9 +2643,9 @@ public class StoryViewer implements NotificationCenter.NotificationCenterDelegat
         MessagesController.getInstance(currentAccount).getStoriesController().stopAllPollers();
         if (ATTACH_TO_FRAGMENT) {
             lockOrientation(false);
-            if (fragment != null) {
-                fragment.removeSheet(this);
-            }
+        }
+        if (fragment != null) {
+            fragment.removeSheet(this);
         }
 
         globalInstances.remove(this);
@@ -2858,10 +2857,7 @@ public class StoryViewer implements NotificationCenter.NotificationCenterDelegat
     }
 
     public void allowScreenshots(boolean allowScreenshots) {
-        if (BuildVars.DEBUG_PRIVATE_VERSION) {
-            return;
-        }
-        if (NekoXConfig.disableFlagSecure) {
+        /*if (BuildVars.DEBUG_PRIVATE_VERSION) {
             return;
         }
         allowScreenshots = !isShowing || allowScreenshots;
@@ -2898,7 +2894,7 @@ public class StoryViewer implements NotificationCenter.NotificationCenterDelegat
                     FileLog.e(e);
                 }
             }
-        }
+        }*/
     }
 
     public void openFor(BaseFragment fragment, RecyclerListView recyclerListView, ChatActionCell cell) {

@@ -121,8 +121,6 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
-import tw.nekomimi.nekogram.NekoConfig;
-import tw.nekomimi.nekogram.helpers.ChatsHelper;
 import xyz.nextalone.nagram.NaConfig;
 
 public class AudioPlayerAlert extends BottomSheet implements NotificationCenter.NotificationCenterDelegate, DownloadController.FileDownloadProgressListener {
@@ -495,7 +493,7 @@ public class AudioPlayerAlert extends BottomSheet implements NotificationCenter.
         actionBar.setAlpha(0.0f);
 
         ActionBarMenu menu = actionBar.createMenu();
-        searchItem = menu.addItem(0, R.drawable.ic_ab_search).setIsSearchField(true).setActionBarMenuItemSearchListener(new ActionBarMenuItem.ActionBarMenuItemSearchListener() {
+        searchItem = menu.addItem(0, R.drawable.outline_header_search).setIsSearchField(true).setActionBarMenuItemSearchListener(new ActionBarMenuItem.ActionBarMenuItemSearchListener() {
             @Override
             public void onSearchCollapse() {
                 if (searching) {
@@ -862,7 +860,7 @@ public class AudioPlayerAlert extends BottomSheet implements NotificationCenter.
         buttons[0] = repeatButton = new ActionBarMenuItem(context, null, 0, 0, false, resourcesProvider);
         repeatButton.setLongClickEnabled(false);
         repeatButton.setShowSubmenuByMove(false);
-        repeatButton.setAdditionalYOffset(-dp(166));
+        repeatButton.setAdditionalYOffset(-dp(166 + 48));
         if (Build.VERSION.SDK_INT >= 21) {
             repeatButton.setBackgroundDrawable(Theme.createSelectorDrawable(getThemedColor(Theme.key_listSelector), 1, dp(18)));
         }
@@ -1393,7 +1391,7 @@ public class AudioPlayerAlert extends BottomSheet implements NotificationCenter.
         }), true, dp(1.33f), dp(1)));
         playerLayout.addView(unsaveFromProfileTextView, LayoutHelper.createFrame(LayoutHelper.MATCH_PARENT, 42, Gravity.FILL_HORIZONTAL | Gravity.BOTTOM, 12, 12, 12, 12));
 
-        saveToProfileButton = new ButtonWithCounterView(context, resourcesProvider);
+        saveToProfileButton = new ButtonWithCounterView(context, resourcesProvider).setRound();
         SpannableStringBuilder sb = new SpannableStringBuilder();
         sb.append("+ ");
         sb.setSpan(new ColoredImageSpan(R.drawable.filled_track_add), 0, 1, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
@@ -2017,7 +2015,7 @@ public class AudioPlayerAlert extends BottomSheet implements NotificationCenter.
             actionBarAnimation.setDuration(180);
             actionBarAnimation.playTogether(
                     ObjectAnimator.ofFloat(actionBar, View.ALPHA, show ? 1.0f : 0.0f),
-                    ObjectAnimator.ofFloat(actionBarShadow, View.ALPHA, show && !NekoConfig.disableAppBarShadow.Bool() ? 1.0f : 0.0f));
+                    ObjectAnimator.ofFloat(actionBarShadow, View.ALPHA, show ? 1.0f : 0.0f));
             actionBarAnimation.addListener(new AnimatorListenerAdapter() {
                 @Override
                 public void onAnimationEnd(Animator animation) {

@@ -15,7 +15,6 @@ import android.os.Parcelable;
 import android.os.SystemClock;
 import android.text.TextPaint;
 import android.text.TextUtils;
-import android.transition.TransitionManager;
 import android.view.Gravity;
 import android.view.View;
 import android.view.ViewGroup;
@@ -72,7 +71,6 @@ import tw.nekomimi.nekogram.config.cell.ConfigCellTextCheckIcon;
 import tw.nekomimi.nekogram.config.cell.ConfigCellTextDetail;
 import tw.nekomimi.nekogram.config.cell.ConfigCellTextInput;
 import tw.nekomimi.nekogram.config.cell.ConfigCellTextInput2;
-import tw.nekomimi.nekogram.ui.cells.DrawerProfilePreviewCell;
 import tw.nekomimi.nekogram.ui.cells.HeaderCell;
 import tw.nekomimi.nekogram.utils.AndroidUtil;
 import xyz.nextalone.nagram.NaConfig;
@@ -83,7 +81,6 @@ public class NekoGeneralSettingsActivity extends BaseNekoXSettingsActivity {
 
     private ListAdapter listAdapter;
     private ValueAnimator statusBarColorAnimator;
-    private DrawerProfilePreviewCell profilePreviewCell;
     private ChatBlurAlphaSeekBar chatBlurAlphaSeekbar;
     private Parcelable recyclerViewState = null;
 
@@ -92,14 +89,6 @@ public class NekoGeneralSettingsActivity extends BaseNekoXSettingsActivity {
     private float centeredMeasure = -1;
 
     private final CellGroup cellGroup = new CellGroup(this);
-
-    // Profile
-    private final AbstractConfigCell profilePreviewRow = cellGroup.appendCell(new ConfigCellDrawerProfilePreview());
-    private final AbstractConfigCell largeAvatarInDrawerRow = cellGroup.appendCell(new ConfigCellSelectBox(null, NekoConfig.largeAvatarInDrawer, getString(R.string.valuesLargeAvatarInDrawer), null));
-    private final AbstractConfigCell avatarBackgroundBlurRow = cellGroup.appendCell(new ConfigCellTextCheck(NekoConfig.avatarBackgroundBlur));
-    private final AbstractConfigCell avatarBackgroundDarkenRow = cellGroup.appendCell(new ConfigCellTextCheck(NekoConfig.avatarBackgroundDarken));
-    private final AbstractConfigCell hidePhoneRow = cellGroup.appendCell(new ConfigCellTextCheck(NekoConfig.hidePhone));
-    private final AbstractConfigCell dividerProfile = cellGroup.appendCell(new ConfigCellDivider());
 
     // Map
     private final AbstractConfigCell headerMap = cellGroup.appendCell(new ConfigCellHeader(getString(R.string.Map)));
@@ -115,8 +104,6 @@ public class NekoGeneralSettingsActivity extends BaseNekoXSettingsActivity {
     // Connections
     private final AbstractConfigCell headerConnection = cellGroup.appendCell(new ConfigCellHeader(getString(R.string.Connection)));
     private final AbstractConfigCell useIPv6Row = cellGroup.appendCell(new ConfigCellTextCheck(NekoConfig.useIPv6));
-    private final AbstractConfigCell useProxyItemRow = cellGroup.appendCell(new ConfigCellTextCheck(NekoConfig.useProxyItem));
-    private final AbstractConfigCell hideProxyByDefaultRow = cellGroup.appendCell(new ConfigCellTextCheck(NekoConfig.hideProxyByDefault));
     private final AbstractConfigCell disableProxyWhenVpnEnabledRow = cellGroup.appendCell(new ConfigCellTextCheck(NaConfig.INSTANCE.getDisableProxyWhenVpnEnabled()));
     private final AbstractConfigCell defaultHlsVideoQualityRow = cellGroup.appendCell(new ConfigCellSelectBox(null, NaConfig.INSTANCE.getDefaultHlsVideoQuality(), new String[]{
             getString(R.string.QualityAuto),
@@ -151,11 +138,6 @@ public class NekoGeneralSettingsActivity extends BaseNekoXSettingsActivity {
             getString(R.string.TabTitleTypeIcon),
             getString(R.string.TabTitleTypeMix)
     }, null));
-    private final AbstractConfigCell tabStyleRow = cellGroup.appendCell(new ConfigCellSelectBox("TabStyle", NaConfig.INSTANCE.getTabStyle(), new String[]{
-            getString(R.string.Default),
-            getString(R.string.TabStylePure),
-            getString(R.string.TabStylePills)
-    }, null));
     private final AbstractConfigCell dividerFolder = cellGroup.appendCell(new ConfigCellDivider());
 
     // Dialogs
@@ -171,9 +153,6 @@ public class NekoGeneralSettingsActivity extends BaseNekoXSettingsActivity {
     private final AbstractConfigCell headerAppearance = cellGroup.appendCell(new ConfigCellHeader(getString(R.string.Appearance)));
     private final AbstractConfigCell typefaceRow = cellGroup.appendCell(new ConfigCellTextCheck(NekoConfig.typeface));
     private final AbstractConfigCell hideDividers = cellGroup.appendCell(new ConfigCellTextCheck(NaConfig.INSTANCE.getHideDividers()));
-    private final AbstractConfigCell appBarShadowRow = cellGroup.appendCell(new ConfigCellTextCheck(NekoConfig.disableAppBarShadow));
-    private final AbstractConfigCell transparentStatusBarRow = cellGroup.appendCell(new ConfigCellTextCheck(NekoConfig.transparentStatusBar));
-    private final AbstractConfigCell newYearRow = cellGroup.appendCell(new ConfigCellTextCheck(NekoConfig.newYear));
     private final AbstractConfigCell alwaysShowDownloadIconRow = cellGroup.appendCell(new ConfigCellTextCheck(NaConfig.INSTANCE.getAlwaysShowDownloadIcon()));
     private final AbstractConfigCell showStickersInTopLevelRow = cellGroup.appendCell(new ConfigCellTextCheck(NaConfig.INSTANCE.getShowStickersRowToplevel()));
     private final AbstractConfigCell hidePremiumSectionRow = cellGroup.appendCell(new ConfigCellTextCheck(NaConfig.INSTANCE.getHidePremiumSection()));
@@ -202,13 +181,6 @@ public class NekoGeneralSettingsActivity extends BaseNekoXSettingsActivity {
             getString(R.string.Fireworks),
             getString(R.string.DecorationNone),
     }, null));
-    private final AbstractConfigCell iconDecorationRow = cellGroup.appendCell(new ConfigCellSelectBox(null, NaConfig.INSTANCE.getIconDecoration(), new String[]{
-            getString(R.string.DependsOnDate),
-            getString(R.string.Christmas),
-            getString(R.string.Valentine),
-            getString(R.string.HalloWeen),
-            getString(R.string.DecorationNone),
-    }, null));
     private final AbstractConfigCell chatDecorationRow = cellGroup.appendCell(new ConfigCellSelectBox(null, NaConfig.INSTANCE.getChatDecoration(), new String[]{
             getString(R.string.DependsOnDate),
             getString(R.string.Snowflakes),
@@ -231,29 +203,11 @@ public class NekoGeneralSettingsActivity extends BaseNekoXSettingsActivity {
             getString(R.string.SettingsOnly),
             getString(R.string.ChatsOnly)
     }, null));
-    private final AbstractConfigCell drawerElementsRow = cellGroup.appendCell(new ConfigCellTextCheckIcon(null, "DrawerElements", null, R.drawable.menu_newfilter, false, () ->
-            showDialog(showConfigMenuWithIconAlert(this, R.string.DrawerElements, new ArrayList<>() {{
-                add(new ConfigCellTextCheckIcon(NaConfig.INSTANCE.getDrawerItemMyProfile(), getString(R.string.MyProfile), R.drawable.left_status_profile));
-                add(new ConfigCellTextCheckIcon(NaConfig.INSTANCE.getDrawerItemSetEmojiStatus(), getString(R.string.SetEmojiStatus), R.drawable.msg_status_set, true));
-                add(new ConfigCellTextCheckIcon(NaConfig.INSTANCE.getDrawerItemArchivedChats(), getString(R.string.ArchivedChats), R.drawable.msg_archive, true));
-                add(new ConfigCellTextCheckIcon(NaConfig.INSTANCE.getDrawerItemNewGroup(), getString(R.string.NewGroup), R.drawable.msg_groups));
-                add(new ConfigCellTextCheckIcon(NaConfig.INSTANCE.getDrawerItemNewChannel(), getString(R.string.NewChannel), R.drawable.msg_channel));
-                add(new ConfigCellTextCheckIcon(NaConfig.INSTANCE.getDrawerItemContacts(), getString(R.string.Contacts), R.drawable.msg_contacts));
-                add(new ConfigCellTextCheckIcon(NaConfig.INSTANCE.getDrawerItemCalls(), getString(R.string.Calls), R.drawable.msg_calls));
-                add(new ConfigCellTextCheckIcon(NaConfig.INSTANCE.getDrawerItemSaved(), getString(R.string.SavedMessages), R.drawable.msg_saved));
-                add(new ConfigCellTextCheckIcon(NaConfig.INSTANCE.getDrawerItemSettings(), getString(R.string.Settings), R.drawable.msg_settings_old, true));
-                add(new ConfigCellTextCheckIcon(NaConfig.INSTANCE.getDrawerItemNSettings(), getString(R.string.NekoSettings), R.drawable.nagramx_outline));
-                add(new ConfigCellTextCheckIcon(NaConfig.INSTANCE.getDrawerItemBrowser(), getString(R.string.InappBrowser), R.drawable.web_browser));
-                add(new ConfigCellTextCheckIcon(NaConfig.INSTANCE.getDrawerItemQrLogin(), getString(R.string.ImportLogin), R.drawable.msg_qrcode));
-                add(new ConfigCellTextCheckIcon(NaConfig.INSTANCE.getDrawerItemSessions(), getString(R.string.Devices), R.drawable.msg2_devices, true));
-                add(new ConfigCellTextCheckIcon(NaConfig.INSTANCE.getDrawerItemRestartApp(), getString(R.string.RestartApp), R.drawable.msg_retry));
-            }}))
-    ));
     private final AbstractConfigCell dividerAppearance = cellGroup.appendCell(new ConfigCellDivider());
 
     // Privacy
     private final AbstractConfigCell headerPrivacy = cellGroup.appendCell(new ConfigCellHeader(getString(R.string.PrivacyTitle)));
-    private final AbstractConfigCell disableAutoWebLoginRow = cellGroup.appendCell(new ConfigCellTextCheck(NaConfig.INSTANCE.getDisableAutoWebLogin()));
+    private final AbstractConfigCell hidePhoneRow = cellGroup.appendCell(new ConfigCellTextCheck(NekoConfig.hidePhone));
     private final AbstractConfigCell disableSystemAccountRow = cellGroup.appendCell(new ConfigCellTextCheck(NekoConfig.disableSystemAccount));
     private final AbstractConfigCell disableCrashlyticsCollectionRow = cellGroup.appendCell(new ConfigCellTextCheck(NaConfig.INSTANCE.getDisableCrashlyticsCollection()));
     private final AbstractConfigCell dividerPrivacy = cellGroup.appendCell(new ConfigCellDivider());
@@ -313,7 +267,6 @@ public class NekoGeneralSettingsActivity extends BaseNekoXSettingsActivity {
         wasCentered = isCentered();
         wasCenteredAtBeginning = wasCentered;
 
-        checkProfileConfigRows();
         checkCustomDoHRows();
         checkMapDriftingFixRows();
         checkCustomTitleRows();
@@ -417,19 +370,11 @@ public class NekoGeneralSettingsActivity extends BaseNekoXSettingsActivity {
 
         // Cells: Set OnSettingChanged Callbacks
         cellGroup.callBackSettingsChanged = (key, newValue) -> {
-            if (key.equals(NekoConfig.hidePhone.getKey())) {
-                parentLayout.rebuildFragments(0);
-                getNotificationCenter().postNotificationName(NotificationCenter.mainUserInfoChanged);
-                listAdapter.notifyItemChanged(cellGroup.rows.indexOf(profilePreviewRow));
-            } else if (key.equals(NekoConfig.transparentStatusBar.getKey())) {
-                tooltip.showWithAction(0, UndoView.ACTION_NEED_RESTART, null, null);
-            } else if (key.equals(NekoConfig.actionBarDecoration.getKey())) {
+            if (key.equals(NekoConfig.actionBarDecoration.getKey())) {
                 tooltip.showWithAction(0, UndoView.ACTION_NEED_RESTART, null, null);
             } else if (key.equals(NaConfig.INSTANCE.getNotificationIcon().getKey())) {
                 tooltip.showWithAction(0, UndoView.ACTION_NEED_RESTART, null, null);
             } else if (key.equals(NekoConfig.tabletMode.getKey())) {
-                tooltip.showWithAction(0, UndoView.ACTION_NEED_RESTART, null, null);
-            } else if (key.equals(NekoConfig.newYear.getKey())) {
                 tooltip.showWithAction(0, UndoView.ACTION_NEED_RESTART, null, null);
             } else if (key.equals(NekoConfig.disableSystemAccount.getKey())) {
                 if ((boolean) newValue) {
@@ -439,19 +384,6 @@ public class NekoGeneralSettingsActivity extends BaseNekoXSettingsActivity {
                         ContactsController.getInstance(a).checkAppAccount();
                     }
                 }
-            } else if (key.equals(NekoConfig.largeAvatarInDrawer.getKey())) {
-                getNotificationCenter().postNotificationName(NotificationCenter.mainUserInfoChanged);
-                TransitionManager.beginDelayedTransition(profilePreviewCell);
-                checkProfileConfigRows();
-            } else if (key.equals(NekoConfig.avatarBackgroundBlur.getKey())) {
-                getNotificationCenter().postNotificationName(NotificationCenter.mainUserInfoChanged);
-                listAdapter.notifyItemChanged(cellGroup.rows.indexOf(profilePreviewRow));
-            } else if (key.equals(NekoConfig.avatarBackgroundDarken.getKey())) {
-                getNotificationCenter().postNotificationName(NotificationCenter.mainUserInfoChanged);
-                listAdapter.notifyItemChanged(cellGroup.rows.indexOf(profilePreviewRow));
-            } else if (key.equals(NekoConfig.disableAppBarShadow.getKey())) {
-                ActionBarLayout.headerShadowDrawable = (boolean) newValue ? null : parentLayout.getParentActivity().getResources().getDrawable(R.drawable.header_shadow).mutate();
-                parentLayout.rebuildFragments(INavigationLayout.REBUILD_FLAG_REBUILD_LAST | INavigationLayout.REBUILD_FLAG_REBUILD_ONLY_LAST);
             } else if (key.equals(NekoConfig.forceBlurInChat.getKey())) {
                 boolean enabled = (Boolean) newValue;
                 if (chatBlurAlphaSeekbar != null)
@@ -484,10 +416,6 @@ public class NekoGeneralSettingsActivity extends BaseNekoXSettingsActivity {
                 getNotificationCenter().postNotificationName(NotificationCenter.dialogsNeedReload, true);
             } else if (key.equals(NaConfig.INSTANCE.getIgnoreUnreadCount().getKey())) {
                 tooltip.showWithAction(0, UndoView.ACTION_NEED_RESTART, null, null);
-            } else if (key.equals(NekoConfig.useProxyItem.getKey())) {
-                NotificationCenter.getGlobalInstance().postNotificationName(NotificationCenter.reloadInterface);
-            } else if (key.equals(NekoConfig.hideProxyByDefault.getKey())) {
-                NotificationCenter.getGlobalInstance().postNotificationName(NotificationCenter.reloadInterface);
             } else if (key.equals(NekoConfig.hideAllTab.getKey())) {
                 tooltip.showWithAction(0, UndoView.ACTION_NEED_RESTART, null, null);
             } else if (key.equals(NaConfig.INSTANCE.getCenterActionBarTitleType().getKey())) {
@@ -517,6 +445,12 @@ public class NekoGeneralSettingsActivity extends BaseNekoXSettingsActivity {
             } else if (key.equals(NekoConfig.typeface.getKey())) {
                 tooltip.showWithAction(0, UndoView.ACTION_NEED_RESTART, null, null);
             } else if (key.equals(NaConfig.INSTANCE.getDisableDialogsFloatingButton().getKey())) {
+                tooltip.showWithAction(0, UndoView.ACTION_NEED_RESTART, null, null);
+            } else if (key.equals(NaConfig.INSTANCE.getHidePremiumSection().getKey())) {
+                tooltip.showWithAction(0, UndoView.ACTION_NEED_RESTART, null, null);
+            } else if (key.equals(NaConfig.INSTANCE.getHideHelpSection().getKey())) {
+                tooltip.showWithAction(0, UndoView.ACTION_NEED_RESTART, null, null);
+            } else if (key.equals(NaConfig.INSTANCE.getAlwaysShowDownloadIcon().getKey())) {
                 tooltip.showWithAction(0, UndoView.ACTION_NEED_RESTART, null, null);
             }
         };
@@ -550,21 +484,6 @@ public class NekoGeneralSettingsActivity extends BaseNekoXSettingsActivity {
                 .setMessage(txt)
                 .setPositiveButton(getString(R.string.OK), null)
                 .create());
-    }
-
-    private class ConfigCellDrawerProfilePreview extends AbstractConfigCell {
-        public int getType() {
-            return ConfigCellCustom.CUSTOM_ITEM_ProfilePreview;
-        }
-
-        public boolean isEnabled() {
-            return false;
-        }
-
-        public void onBindViewHolder(RecyclerView.ViewHolder holder) {
-            DrawerProfilePreviewCell cell = (DrawerProfilePreviewCell) holder.itemView;
-            cell.setUser(getUserConfig().getCurrentUser(), false);
-        }
     }
 
     @SuppressLint("NotifyDataSetChanged")
@@ -708,10 +627,7 @@ public class NekoGeneralSettingsActivity extends BaseNekoXSettingsActivity {
                 case CellGroup.ITEM_TYPE_TEXT:
                     view = new TextInfoPrivacyCell(mContext);
                     break;
-                case ConfigCellCustom.CUSTOM_ITEM_ProfilePreview:
-                    view = profilePreviewCell = new DrawerProfilePreviewCell(mContext);
-                    view.setBackground(Theme.getThemedDrawable(mContext, R.drawable.greydivider, Theme.key_windowBackgroundGrayShadow));
-                    break;
+
                 case ConfigCellCustom.CUSTOM_ITEM_CharBlurAlpha:
                     view = chatBlurAlphaSeekbar = new ChatBlurAlphaSeekBar(mContext);
                     chatBlurAlphaSeekbar.setEnabled(NekoConfig.forceBlurInChat.Bool());
@@ -782,41 +698,6 @@ public class NekoGeneralSettingsActivity extends BaseNekoXSettingsActivity {
             textPaint.setAlpha((int) ((enabled ? 1.0f : 0.3f) * 255));
             this.invalidate();
         }
-    }
-
-    private void checkProfileConfigRows() {
-        int backgroundType = NekoConfig.largeAvatarInDrawer.Int();
-        boolean useAvatar = backgroundType == NekoConfig.DRAWER_BACKGROUND_AVATAR || backgroundType == NekoConfig.DRAWER_BACKGROUND_BIG_AVATAR;
-        if (listAdapter == null) {
-            if (!useAvatar) {
-                cellGroup.rows.remove(avatarBackgroundBlurRow);
-                cellGroup.rows.remove(avatarBackgroundDarkenRow);
-            }
-            return;
-        }
-        if (useAvatar) {
-            final int index = cellGroup.rows.indexOf(largeAvatarInDrawerRow);
-            if (!cellGroup.rows.contains(avatarBackgroundBlurRow)) {
-                cellGroup.rows.add(index + 1, avatarBackgroundBlurRow);
-                listAdapter.notifyItemInserted(index + 1);
-            }
-            if (!cellGroup.rows.contains(avatarBackgroundDarkenRow)) {
-                cellGroup.rows.add(index + 2, avatarBackgroundDarkenRow);
-                listAdapter.notifyItemInserted(index + 2);
-            }
-        } else {
-            int blurRowIndex = cellGroup.rows.indexOf(avatarBackgroundBlurRow);
-            if (blurRowIndex != -1) {
-                cellGroup.rows.remove(avatarBackgroundBlurRow);
-                listAdapter.notifyItemRemoved(blurRowIndex);
-            }
-            int darkenRowIndex = cellGroup.rows.indexOf(avatarBackgroundDarkenRow);
-            if (darkenRowIndex != -1) {
-                cellGroup.rows.remove(avatarBackgroundDarkenRow);
-                listAdapter.notifyItemRemoved(darkenRowIndex);
-            }
-        }
-        listAdapter.notifyItemChanged(cellGroup.rows.indexOf(profilePreviewRow));
     }
 
     private void checkCustomDoHRows() {

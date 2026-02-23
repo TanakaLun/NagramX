@@ -90,9 +90,7 @@
     <string name="ChatsOnly">Hanya di obrolan</string>
     <string name="InstantViewTranslation">Tampilan Instan</string>
     <string name="SaveDeletedMessageForBot">Simpan di Obrolan Bot</string>
-    <string name="DrawerElements">Elemen Laci</string>
     <string name="HideArchive">Hapus \"Obrolan Diarsipkan\" dari Daftar Obrolan</string>
-    <string name="HideChannelSilentBroadcast">Sembunyikan Tombol Beralih Siaran Senyap</string>
     <string name="ConfirmAllLinks">Tanya Sebelum Membuka Tautan Inline</string>
     <string name="ConfirmAllLinksDescription">Menyertakan tautan internal Telegram seperti tautan t.me pada tombol inline bot.</string>
     <string name="TranslatorMinimizedChannel">Bar penerjemah telah diperkecil untuk saluran ini.</string>
@@ -191,9 +189,6 @@
     <string name="EditLocalNameOverride">Menyunting penggantian nama lokal.</string>
     <string name="ResetChatNameOverrides">Atur Ulang Penggantian Nama Obrolan</string>
     <string name="ResetChatNameNotification">Penggantian nama obrolan telah dihapus.</string>
-    <string name="TabStyle">Gaya Tab</string>
-    <string name="TabStylePure">Murni</string>
-    <string name="TabStylePills">Pil</string>
     <string name="LeftBottomButtonAction">Aksi Tombol Kiri</string>
     <string name="TranscribeProviderOpenAI">API yang kompatibel dengan OpenAI</string>
     <string name="OpenAiApiCredentialsDialog">Konfigurasikan API yang kompatibel dengan OpenAI. Anda dapat merujuk ke **dokumentasi** ini.\n</string>
@@ -278,7 +273,6 @@
     <string name="BlockChannelsUnavailable">Beberapa saluran sementara tidak tersedia.</string>
     <string name="FixLinkPreview">Perbaiki Pratinjau Tautan</string>
     <string name="NoQuoteForwardShort">Tanpa Kutipan</string>
-    <string name="ForceEdgeToEdge">Paksa tepi-ke-tepi</string>
     <string name="ViewDeleted">Lihat yang Dihapus</string>
     <string name="PasskeyLogin">Masuk dengan Passkey</string>
     <string name="PasskeyInfo2">Fitur ini hanya berfungsi dengan pengelola kata sandi yang mengizinkan pengguna untuk mengelola pengaturan tepercaya untuk aplikasi yang memiliki akses penuh, seperti **Bitwarden** dan **KeePassDX**.</string>
@@ -302,7 +296,6 @@
     <string name="CameraInVideoMessagesRear">Kamera Belakang</string>
     <string name="CameraInVideoMessagesAsk">Tanya</string>
     <string name="CameraSettings">Kamera</string>
-    <string name="SmoothRoundedMenu">Menu Konteks Bulat Halus</string>
     <string name="SyncContactToPhone">Sinkronkan Kontak ke Telepon</string>
     <string name="AddViaQRCode">Tambahkan melalui Kode QR</string>
     <string name="ContactNotes">Catatan</string>
@@ -316,7 +309,6 @@
     <string name="CopyVideoFrame">Salin Bingkai</string>
     <string name="SetLocalName">Atur Nama Lokal</string>
     <string name="DeleteChatForBothSides">Gunakan \"Hapus juga untuk\" secara Default</string>
-    <string name="AutoPingProxy">Ping Proksi Otomatis</string>
     <string name="BackAnimationStyle">Animasi Navigasi</string>
     <string name="BackAnimationClassic">Klasik</string>
     <string name="BackAnimationSpring">Musim Semi</string>

@@ -91,9 +91,7 @@
     <string name="ChatsOnly">Apenas no chat</string>
     <string name="InstantViewTranslation">Visualização instantânea</string>
     <string name="SaveDeletedMessageForBot">Salvar no chat do bot</string>
-    <string name="DrawerElements">Elementos do menu lateral</string>
     <string name="HideArchive">Remover \"Chats Arquivados\" da lista de chats</string>
-    <string name="HideChannelSilentBroadcast">Ocultar interruptor de transmissão silenciosa</string>
     <string name="ConfirmAllLinks">Perguntar antes de abrir links inline</string>
     <string name="ConfirmAllLinksDescription">Inclui links internos do Telegram (como links t.me) em botões de bots.</string>
     <string name="TranslatorMinimizedChannel">A barra de tradução foi minimizada para este canal.</string>
@@ -192,9 +190,6 @@
     <string name="EditLocalNameOverride">Editando substituição de nome local.</string>
     <string name="ResetChatNameOverrides">Redefinir Substituições de Nomes do Chat</string>
     <string name="ResetChatNameNotification">Substituições de nomes do chat limpas.</string>
-    <string name="TabStyle">Estilo da aba</string>
-    <string name="TabStylePure">Puro</string>
-    <string name="TabStylePills">Pílula</string>
     <string name="LeftBottomButtonAction">Ação do botão esquerdo</string>
     <string name="TranscribeProviderOpenAI">API compatível com OpenAI</string>
     <string name="OpenAiApiCredentialsDialog">Configure a API compatível com a OpenAI. Consulte esta **documentação**.\n</string>
@@ -279,7 +274,6 @@
     <string name="BlockChannelsUnavailable">Alguns canais estão indisponíveis temporariamente.</string>
     <string name="FixLinkPreview">Corrigir prévia de link</string>
     <string name="NoQuoteForwardShort">Sem autor</string>
-    <string name="ForceEdgeToEdge">Forçar exibição de ponta a ponta</string>
     <string name="ViewDeleted">Ver excluídos</string>
     <string name="PasskeyLogin">Chaves de acesso</string>
     <string name="PasskeyInfo2">Funciona apenas com gerenciadores de senhas que permitem gerenciar apps privilegiados, como o **Bitwarden** e o **KeePassDX**.</string>
@@ -303,7 +297,6 @@
     <string name="CameraInVideoMessagesRear">Câmera traseira</string>
     <string name="CameraInVideoMessagesAsk">Perguntar</string>
     <string name="CameraSettings">Câmera</string>
-    <string name="SmoothRoundedMenu">Menus de contexto arredondados e suaves</string>
     <string name="SyncContactToPhone">Sincronizar com o celular</string>
     <string name="AddViaQRCode">Adicionar via Código QR</string>
     <string name="ContactNotes">Notas</string>
@@ -317,7 +310,6 @@
     <string name="CopyVideoFrame">Copiar quadro</string>
     <string name="SetLocalName">Definir nome local</string>
     <string name="DeleteChatForBothSides">Usar \"Apagar também para\" por padrão</string>
-    <string name="AutoPingProxy">Ping automático do proxy</string>
     <string name="BackAnimationStyle">Animação de navegação</string>
     <string name="BackAnimationClassic">Clássica</string>
     <string name="BackAnimationSpring">Mola</string>

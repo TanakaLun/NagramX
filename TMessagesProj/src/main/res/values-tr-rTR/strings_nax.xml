@@ -79,9 +79,7 @@
     <string name="ChatsOnly">Sadece sohbetlerde</string>
     <string name="InstantViewTranslation">Anında Görünüm</string>
     <string name="SaveDeletedMessageForBot">Bot Sohbetlerinde Kaydet</string>
-    <string name="DrawerElements">Kenar Çubuğu Öğeleri</string>
     <string name="HideArchive">\"Arşivlenmiş Sohbetler\"i Sohbet Listesinden Kaldır</string>
-    <string name="HideChannelSilentBroadcast">Sessiz Yayın Anahtarını Gizle</string>
     <string name="ConfirmAllLinks">Satır İçi Bağlantıları Açmadan Önce Sor</string>
     <string name="ConfirmAllLinksDescription">Bot satır içi düğmelerindeki t.me bağlantıları gibi Telegram dahili bağlantıları dahil.</string>
     <string name="TranslatorMinimizedChannel">Çeviri çubuğu bu kanal için küçültüldü.</string>
@@ -177,9 +175,6 @@
     <string name="EditLocalNameOverride">Yerel ad geçersiz kılma düzenleniyor.</string>
     <string name="ResetChatNameOverrides">Sohbet Adı Değişikliklerini Sıfırla</string>
     <string name="ResetChatNameNotification">Sohbet adı değişiklikleri temizlendi.</string>
-    <string name="TabStyle">Sekme Stili</string>
-    <string name="TabStylePure">Sade</string>
-    <string name="TabStylePills">Kapsül</string>
     <string name="LeftBottomButtonAction">Sol Alt Düğme Eylemi</string>
     <string name="TranscribeProviderOpenAI">OpenAI Uyumlu API</string>
     <string name="OpenAiApiCredentialsDialog">OpenAI uyumlu API\'yi yapılandırın. Bu **belgelere** başvurabilirsiniz.\n</string>
@@ -264,7 +259,6 @@
     <string name="BlockChannelsUnavailable">Bazı kanallar geçici olarak kullanılamıyor.</string>
     <string name="FixLinkPreview">Bağlantı Önizlemesini Düzelt</string>
     <string name="NoQuoteForwardShort">Alıntı Yapma</string>
-    <string name="ForceEdgeToEdge">Uçtan Uca Zorla</string>
     <string name="ViewDeleted">Silinenleri Görüntüle</string>
     <string name="PasskeyLogin">Geçiş Anahtarı Girişi</string>
     <string name="PasskeyInfo2">Bu özellik, yalnızca kullanıcının **Bitwarden** ve **KeePassDX** gibi ayrıcalıklı uygulamalar için güven ayarlarını yönetmesine izin veren parola yöneticileriyle çalışır.</string>

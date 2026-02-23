@@ -45,12 +45,6 @@ object NaConfig {
     private val configs = ArrayList<ConfigItem>()
 
     // Configs
-    val forceCopy =
-        addConfig(
-            "ForceCopy",
-            ConfigItem.configTypeBool,
-            true
-        )
     val showTextBold =
         addConfig(
             "TextBold",
@@ -213,12 +207,6 @@ object NaConfig {
             ConfigItem.configTypeBool,
             false
         )
-    val customChannelLabel =
-        addConfig(
-            "CustomChannelLabel",
-            ConfigItem.configTypeString,
-            ""
-        )
     val alwaysShowDownloadIcon =
         addConfig(
             "AlwaysShowDownloadIcon",
@@ -242,12 +230,6 @@ object NaConfig {
             "DisableProxyWhenVpnEnabled",
             ConfigItem.configTypeBool,
             false
-        )
-    val iconDecoration =
-        addConfig(
-            "IconDecoration",
-            ConfigItem.configTypeInt,
-            0
         )
     val notificationIcon =
         addConfig(
@@ -379,12 +361,6 @@ object NaConfig {
             ConfigItem.configTypeBool,
             false
         )
-    val disableFlagSecure =
-        addConfig(
-            "DisableFlagSecure",
-            ConfigItem.configTypeBool,
-            true
-        )
     val centerActionBarTitle =
         addConfig(
             "CenterActionBarTitle",
@@ -432,12 +408,6 @@ object NaConfig {
             "DisablePreviewVideoSoundShortcut",
             ConfigItem.configTypeBool,
             true
-        )
-    val disableAutoWebLogin =
-        addConfig(
-            "DisableAutoWebLogin",
-            ConfigItem.configTypeBool,
-            false
         )
     val regexFiltersEnabled =
         addConfig(
@@ -879,99 +849,9 @@ object NaConfig {
             ConfigItem.configTypeInt,
             1 // 0: off; 1: always on; 2: settings only; 3: chats only
         )
-    val drawerItemMyProfile =
-        addConfig(
-            "DrawerItemMyProfile",
-            ConfigItem.configTypeBool,
-            true
-        )
-    val drawerItemSetEmojiStatus =
-        addConfig(
-            "DrawerItemSetEmojiStatus",
-            ConfigItem.configTypeBool,
-            true
-        )
-    val drawerItemNewGroup =
-        addConfig(
-            "DrawerItemNewGroup",
-            ConfigItem.configTypeBool,
-            true
-        )
-    val drawerItemNewChannel =
-        addConfig(
-            "DrawerItemNewChannel",
-            ConfigItem.configTypeBool,
-            false
-        )
-    val drawerItemContacts =
-        addConfig(
-            "DrawerItemContacts",
-            ConfigItem.configTypeBool,
-            true
-        )
-    val drawerItemCalls =
-        addConfig(
-            "DrawerItemCalls",
-            ConfigItem.configTypeBool,
-            true
-        )
-    val drawerItemSaved =
-        addConfig(
-            "DrawerItemSaved",
-            ConfigItem.configTypeBool,
-            true
-        )
-    val drawerItemSettings =
-        addConfig(
-            "DrawerItemSettings",
-            ConfigItem.configTypeBool,
-            true
-        )
-    val drawerItemNSettings =
-        addConfig(
-            "DrawerItemNSettings",
-            ConfigItem.configTypeBool,
-            true
-        )
-    val drawerItemQrLogin =
-        addConfig(
-            "DrawerItemQrLogin",
-            ConfigItem.configTypeBool,
-            false
-        )
-    val drawerItemArchivedChats =
-        addConfig(
-            "DrawerItemArchivedChats",
-            ConfigItem.configTypeBool,
-            false
-        )
-    val drawerItemRestartApp =
-        addConfig(
-            "DrawerItemRestartApp",
-            ConfigItem.configTypeBool,
-            false
-        )
-    val drawerItemBrowser =
-        addConfig(
-            "DrawerItemBrowser",
-            ConfigItem.configTypeBool,
-            false
-        )
-    val drawerItemSessions =
-        addConfig(
-            "DrawerItemSessions",
-            ConfigItem.configTypeBool,
-            false
-        )
     val hideArchive =
         addConfig(
             "HideArchive",
-            ConfigItem.configTypeBool,
-            false
-        )
-    val hideChannelSilentBroadcast =
-        addConfig(
-            "HideChannelSilentBroadcast",
             ConfigItem.configTypeBool,
             false
         )
@@ -1239,12 +1119,6 @@ object NaConfig {
             ConfigItem.configTypeBool,
             false
         )
-    val tabStyle =
-        addConfig(
-            "TabStyle",
-            ConfigItem.configTypeInt,
-            0
-        )
     val shortcutsAdministrators =
         addConfig(
             "ChannelAdministrators",
@@ -1309,7 +1183,7 @@ object NaConfig {
         addConfig(
             "GroupedMessageMenu",
             ConfigItem.configTypeBool,
-            false
+            true
         )
     val autoUpdateChannel =
         addConfig(
@@ -1461,12 +1335,6 @@ object NaConfig {
             ConfigItem.configTypeBool,
             true
         )
-    val forceEdgeToEdge =
-        addConfig(
-            "ForceEdgeToEdge",
-            ConfigItem.configTypeBool,
-            false
-        )
     val showAddToBookmark =
         addConfig(
             "ShowAddToBookmark",
@@ -1485,12 +1353,6 @@ object NaConfig {
             ConfigItem.configTypeInt,
             1 // 0: front; 1: rear; 2: ask
         )
-    val smoothRoundedMenu =
-        addConfig(
-            "SmoothRoundedMenu",
-            ConfigItem.configTypeBool,
-            false
-        )
     val showCopyFrame =
         addConfig(
             "MessageMenuCopyFrame",
@@ -1500,12 +1362,6 @@ object NaConfig {
     val deleteChatForBothSides =
         addConfig(
             "DeleteChatForBothSides",
-            ConfigItem.configTypeBool,
-            true
-        )
-    val autoPingProxy =
-        addConfig(
-            "AutoPingProxy",
             ConfigItem.configTypeBool,
             true
         )
