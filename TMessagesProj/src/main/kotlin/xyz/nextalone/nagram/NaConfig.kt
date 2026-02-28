@@ -189,12 +189,6 @@ object NaConfig {
             ConfigItem.configTypeBool,
             false
         )
-    val alwaysSaveChatOffset =
-        addConfig(
-            "AlwaysSaveChatOffset",
-            ConfigItem.configTypeBool,
-            false
-        )
     val autoInsertGIFCaption =
         addConfig(
             "AutoInsertGIFCaption",
@@ -212,12 +206,6 @@ object NaConfig {
             "AlwaysShowDownloadIcon",
             ConfigItem.configTypeBool,
             false
-        )
-    val customArtworkApi =
-        addConfig(
-            "CustomArtworkApi",
-            ConfigItem.configTypeString,
-            ""
         )
     val customEditedMessage =
         addConfig(
@@ -1191,12 +1179,6 @@ object NaConfig {
             ConfigItem.configTypeInt,
             1 // 0: off; 1: release; 2: beta
         )
-    val userAvatarsInMessagePreview =
-        addConfig(
-            "UserAvatarsInMessagePreview",
-            ConfigItem.configTypeBool,
-            false
-        )
     val disableAvatarTapToSwitch =
         addConfig(
             "DisableAvatarTapToSwitch",
@@ -1370,6 +1352,18 @@ object NaConfig {
             "BackAnimationStyle",
             ConfigItem.configTypeInt,
             0 // 0: Classic, 1: Spring, 2: Predictive Back
+        )
+    val mainTabsHideTitles =
+        addConfig(
+            "MainTabsHideTitles",
+            ConfigItem.configTypeBool,
+            false
+        )
+    val mainTabsHideContacts =
+        addConfig(
+            "MainTabsHideContacts",
+            ConfigItem.configTypeBool,
+            false
         )
 
     val preferredTranslateTargetLangList = ArrayList<String>()

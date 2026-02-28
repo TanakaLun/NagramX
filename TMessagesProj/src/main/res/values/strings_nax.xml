@@ -23,7 +23,7 @@
     <string name="LlmModelNameDefault" translatable="false">gemini-flash-latest</string>
     <string name="LlmProviderOpenAIModel" translatable="false">gpt-5-nano</string>
     <string name="LlmProviderGeminiModel" translatable="false">gemini-flash-lite-latest</string>
-    <string name="LlmProviderGroqModel" translatable="false">meta-llama/llama-4-maverick-17b-128e-instruct</string>
+    <string name="LlmProviderGroqModel" translatable="false">openai/gpt-oss-120b</string>
     <string name="LlmProviderDeepSeekModel" translatable="false">deepseek-chat</string>
     <string name="LlmProviderXAIModel" translatable="false">grok-4-1-fast-non-reasoning</string>
     <string name="LlmProviderCerebrasModel" translatable="false">gpt-oss-120b</string>
@@ -199,6 +199,8 @@
     <string name="DebugMenuDoNotForceForumTabs">Do Not Force Forum Tabs</string>
     <string name="DebugMenuCleanAppUpdate">Clean App Update</string>
     <string name="DebugMenuMakeMemoryDump">Make Memory Dump</string>
+    <string name="DebugMenuShowFrameMetrics">Show Frame Metrics</string>
+    <string name="DebugMenuHideFrameMetrics">Hide Frame Metrics</string>
     <string name="TranslateMessageLLM">Translate with AI</string>
     <string name="EditLocalNameOverride">Editing local name override.</string>
     <string name="ResetChatNameOverrides">Reset Chat Name Overrides</string>
@@ -230,7 +232,6 @@
     <string name="AutoCheckUpdateBeta">Beta</string>
     <string name="AutoInsertGIFCaption">Auto-Caption GIFs</string>
     <string name="AutoInsertGIFCaptionNotice">Automatically uses the text in the current input field as the GIF\'s caption.</string>
-    <string name="UserAvatarsInMessagePreview">User Avatars in Message Preview</string>
     <string name="YourVersionIsLatestNax">Your version is up to date.</string>
     <string name="PremiumElements">Premium Elements</string>
     <string name="PremiumItemBoosts">Boost Counter</string>
@@ -333,4 +334,8 @@
     <string name="UnifiedPushLastReceivedNotification">The last received notification with UnifiedPush was %1$d seconds ago.\n\nYou received %2$d notifications since Nagram X was started.</string>
     <string name="UnifiedPushCurrentEndpoint">The current UnifiedPush endpoint is: %1$s</string>
     <string name="PlayOnce">Play once</string>
+    <string name="StorageSettings">Storage</string>
+    <string name="MainTabsSettingsHeader">Main Tabs</string>
+    <string name="MainTabsHideTitles">Hide Titles</string>
+    <string name="MainTabsHideContacts">Hide Contacts Tab</string>
 </resources>

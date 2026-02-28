@@ -133,7 +133,7 @@
     <string name="DisableGhostMode">禁用幽灵模式</string>
     <string name="GhostModeEnabled">幽灵模式已启用</string>
     <string name="GhostModeDisabled">幽灵模式已禁用</string>
-    <string name="GhostModeInDrawer">主标签快捷方式</string>
+    <string name="GhostModeInDrawer">主页快捷方式</string>
     <string name="GhostModeStatusIndicator">幽灵模式指示器</string>
     <string name="DontSendReadMessagePackets">不显示消息已读</string>
     <string name="DontReadStoriesPackets">不显示动态已读</string>
@@ -186,6 +186,8 @@
     <string name="DebugMenuDoNotForceForumTabs">取消强制使话题群组采用“标签”布局</string>
     <string name="DebugMenuCleanAppUpdate">清除应用更新</string>
     <string name="DebugMenuMakeMemoryDump">内存转储</string>
+    <string name="DebugMenuShowFrameMetrics">显示帧指标</string>
+    <string name="DebugMenuHideFrameMetrics">隐藏帧指标</string>
     <string name="TranslateMessageLLM">AI 翻译</string>
     <string name="EditLocalNameOverride">正在编辑本地聊天名称覆盖。</string>
     <string name="ResetChatNameOverrides">重置聊天名称覆盖</string>
@@ -217,7 +219,6 @@
     <string name="AutoCheckUpdateBeta">测试版</string>
     <string name="AutoInsertGIFCaption">发送 GIF 时自动插入草稿</string>
     <string name="AutoInsertGIFCaptionNotice">自动将当前输入框中的内容作为 GIF 的附带文字发送。</string>
-    <string name="UserAvatarsInMessagePreview">在消息预览中显示用户头像</string>
     <string name="YourVersionIsLatestNax">已是最新版本。</string>
     <string name="PremiumElements">Premium 元素</string>
     <string name="PremiumItemBoosts">助推者标识</string>
@@ -319,4 +320,8 @@
     <string name="UnifiedPushLastReceivedNotification">最后一次通过 UnifiedPush 接收到的通知是 %1$d 秒前。\n\n自 Nagram X 启动以来，您已收到 %2$d 条通知。</string>
     <string name="UnifiedPushCurrentEndpoint">当前的 UnifiedPush 端点是：%1$s</string>
     <string name="PlayOnce">播放一次</string>
+    <string name="StorageSettings">存储</string>
+    <string name="MainTabsSettingsHeader">主标签页</string>
+    <string name="MainTabsHideTitles">隐藏标题</string>
+    <string name="MainTabsHideContacts">隐藏联系人标签</string>
 </resources>
