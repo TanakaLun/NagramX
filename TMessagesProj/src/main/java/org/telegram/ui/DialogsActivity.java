@@ -272,7 +272,9 @@ import me.vkryl.android.animator.BoolAnimator;
 import me.vkryl.android.animator.FactorAnimator;
 
 import tw.nekomimi.nekogram.NekoConfig;
+import tw.nekomimi.nekogram.helpers.MainTabsHelper;
 import tw.nekomimi.nekogram.helpers.PasscodeHelper;
+import tw.nekomimi.nekogram.helpers.TypefaceHelper;
 import xyz.nextalone.nagram.NaConfig;
 
 public class DialogsActivity extends BaseFragment implements NotificationCenter.NotificationCenterDelegate, FloatingDebugProvider, FactorAnimator.Target, MainTabsActivity.TabFragmentDelegate {
@@ -280,10 +282,10 @@ public class DialogsActivity extends BaseFragment implements NotificationCenter.
 
     private static final boolean TMP_DISABLE_TOPICS_TWO_COLUMNS = false;
 
-    public static final int MAIN_TABS_HEIGHT = 56;
-    public static final int MAIN_TABS_MARGIN = 8;
+    public static final int MAIN_TABS_HEIGHT = MainTabsHelper.MAIN_TABS_HEIGHT;
+    public static final int MAIN_TABS_MARGIN = MainTabsHelper.MAIN_TABS_MARGIN;
     public static final int MAIN_TABS_HEIGHT_WITH_MARGINS = MAIN_TABS_HEIGHT + MAIN_TABS_MARGIN * 2;
-    public static final int FILTER_TABS_HEIGHT = 36;
+    public static final int FILTER_TABS_HEIGHT = MainTabsHelper.FILTER_TABS_HEIGHT;
     public static final int SEARCH_TABS_HEIGHT = 36 + 7 + 7;
     public static final int SEARCH_FIELD_HEIGHT = 48;
 
@@ -2909,8 +2911,8 @@ public class DialogsActivity extends BaseFragment implements NotificationCenter.
         }
 
         BirthdayController.getInstance(currentAccount).check();
-        additionNavigationBarHeight = hasMainTabs ? dp(MAIN_TABS_HEIGHT_WITH_MARGINS) : 0;
-        additionFloatingButtonOffset = hasMainTabs ? dp(DialogsActivity.MAIN_TABS_HEIGHT + DialogsActivity.MAIN_TABS_MARGIN) : 0;
+        additionNavigationBarHeight = hasMainTabs ? dp(MainTabsHelper.getMainTabsHeightWithMargins()) : 0;
+        additionFloatingButtonOffset = hasMainTabs ? dp(MainTabsHelper.getMainTabsHeight() + MainTabsHelper.getMainTabsMargin()) : 0;
 
         LastSeenHelper.preload();
 
@@ -3208,7 +3210,7 @@ public class DialogsActivity extends BaseFragment implements NotificationCenter.
         }
     }
 
-    private String actionBarTitleNax;
+    private CharSequence actionBarTitleNax;
 
     @Override
     public View createView(final Context context) {
@@ -3218,6 +3220,9 @@ public class DialogsActivity extends BaseFragment implements NotificationCenter.
         pacmanAnimation = null;
         filterTabsView = null;
         selectedDialogs.clear();
+
+        additionNavigationBarHeight = hasMainTabs ? dp(MainTabsHelper.getMainTabsHeightWithMargins()) : 0;
+        additionFloatingButtonOffset = hasMainTabs ? dp(MainTabsHelper.getMainTabsHeight() + MainTabsHelper.getMainTabsMargin()) : 0;
 
         maximumVelocity = ViewConfiguration.get(context).getScaledMaximumFlingVelocity();
 
@@ -3531,21 +3536,12 @@ public class DialogsActivity extends BaseFragment implements NotificationCenter.
             if (folderId != 0) {
                 actionBar.setTitle(actionBarTitleNax = getString(R.string.ArchivedChats));
             } else {
-                String title = NaConfig.INSTANCE.getCustomTitle().String();
-                if (NaConfig.INSTANCE.getCustomTitleUserName().Bool()) {
-                    TLRPC.User self = UserConfig.getInstance(currentAccount).getCurrentUser();
-                    if (self != null && self.first_name != null) title = self.first_name;
+                if (NaConfig.INSTANCE.getCustomTitleUserName().Bool() && actionBar != null) {
                     actionBar.setTitleScrollNonFitText(true);
                 }
-                actionBarTitleNax = title;
                 statusDrawable = new AnimatedEmojiDrawable.SwapAnimatedEmojiDrawable(null, dp(26));
                 statusDrawable.center = true;
-                logoDrawable = context.getResources().getDrawable(R.drawable.telegram_logo_2).mutate();
-                logoDrawable.setBounds(0, dp(2), logoDrawable.getIntrinsicWidth(), dp(2) + logoDrawable.getIntrinsicHeight());
-                logoDrawable.setColorFilter(getThemedColor(Theme.key_telegram_color_dialogsLogo), PorterDuff.Mode.MULTIPLY);
-                SpannableStringBuilder ssb = new SpannableStringBuilder(title);
-                ssb.setSpan(new ImageSpan(logoDrawable), 0, ssb.length(), Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
-                actionBar.setTitle(ssb, statusDrawable);
+                actionBar.setTitle(actionBarTitleNax = TypefaceHelper.getTitleText(currentAccount), statusDrawable);
                 actionBar.setOnLongClickListener(v -> {
                     if (NekoConfig.hideAllTab.Bool() && filterTabsView != null && filterTabsView.getCurrentTabId() != Integer.MAX_VALUE) {
                         filterTabsView.toggleAllTabs(true);
@@ -8785,7 +8781,7 @@ public class DialogsActivity extends BaseFragment implements NotificationCenter.
             floatingButton3.setButtonVisible(isVisible, animated);
         }
         if (floatingButtonStories != null) {
-            floatingButtonStories.setButtonVisible(isVisible, animated);
+            floatingButtonStories.setButtonVisible(isVisible && !NaConfig.INSTANCE.getDisableStories().Bool(), animated);
         }
     }
 
@@ -10140,7 +10136,11 @@ public class DialogsActivity extends BaseFragment implements NotificationCenter.
         final SharedPreferences preferences = ApplicationLoader.applicationContext.getSharedPreferences("mainconfig", Activity.MODE_PRIVATE);
         boolean proxyEnabled = preferences.getBoolean("proxy_enabled", false);
         final boolean connected = currentConnectionState == ConnectionsManager.ConnectionStateConnected || currentConnectionState == ConnectionsManager.ConnectionStateUpdating;
-        proxyMenuSubItem.setSubtext(getString(connected ? R.string.MenuProxyConnected : R.string.MenuProxyConnecting));
+        if (proxyEnabled) {
+            proxyMenuSubItem.setSubtext(getString(connected ? R.string.MenuProxyConnected : R.string.MenuProxyConnecting));
+        } else {
+            proxyMenuSubItem.setSubtext(null);
+        }
         proxyDrawable.setConnected(proxyEnabled, connected, animated);
     }
 
@@ -13317,45 +13317,65 @@ public class DialogsActivity extends BaseFragment implements NotificationCenter.
                 isCurrentThemeDark = Theme.isCurrentThemeDark();
             }
             io.add(isCurrentThemeDark ? R.drawable.menu_day_mode_24 : R.drawable.menu_night_mode_24,
-                    getString(isCurrentThemeDark ? R.string.SwitchThemeToDay : R.string.SwitchThemeToNight), () -> {
-                if (switchingTheme) {
-                    return;
-                }
-                switchingTheme = true;
-                SharedPreferences preferences = ApplicationLoader.applicationContext.getSharedPreferences("themeconfig", Activity.MODE_PRIVATE);
-                String dayThemeName = preferences.getString("lastDayTheme", "Blue");
-                if (Theme.getTheme(dayThemeName) == null || Theme.getTheme(dayThemeName).isDark()) {
-                    dayThemeName = "Blue";
-                }
-                String nightThemeName = preferences.getString("lastDarkTheme", "Dark Blue");
-                if (Theme.getTheme(nightThemeName) == null || !Theme.getTheme(nightThemeName).isDark()) {
-                    nightThemeName = "Dark Blue";
-                }
-                Theme.ThemeInfo themeInfo = Theme.getActiveTheme();
-                if (dayThemeName.equals(nightThemeName)) {
-                    if (themeInfo.isDark() || dayThemeName.equals("Dark Blue") || dayThemeName.equals("Night")) {
-                        dayThemeName = "Blue";
-                    } else {
-                        nightThemeName = "Dark Blue";
-                    }
-                }
+                    getString(isCurrentThemeDark ? R.string.SwitchThemeToDay : R.string.SwitchThemeToNight),
+                    () -> presentFragment(new ThemeActivity(ThemeActivity.THEME_TYPE_BASIC)),
+                    () -> {
+                        if (switchingTheme) {
+                            return;
+                        }
+                        switchingTheme = true;
+                        SharedPreferences preferences = ApplicationLoader.applicationContext.getSharedPreferences("themeconfig", Activity.MODE_PRIVATE);
+                        String dayThemeName = preferences.getString("lastDayTheme", "Blue");
+                        if (Theme.getTheme(dayThemeName) == null || Theme.getTheme(dayThemeName).isDark()) {
+                            dayThemeName = "Blue";
+                        }
+                        String nightThemeName = preferences.getString("lastDarkTheme", "Dark Blue");
+                        if (Theme.getTheme(nightThemeName) == null || !Theme.getTheme(nightThemeName).isDark()) {
+                            nightThemeName = "Dark Blue";
+                        }
+                        Theme.ThemeInfo themeInfo = Theme.getActiveTheme();
+                        if (dayThemeName.equals(nightThemeName)) {
+                            if (themeInfo.isDark() || dayThemeName.equals("Dark Blue") || dayThemeName.equals("Night")) {
+                                dayThemeName = "Blue";
+                            } else {
+                                nightThemeName = "Dark Blue";
+                            }
+                        }
 
-                boolean toDark;
-                if (toDark = dayThemeName.equals(themeInfo.getKey())) {
-                    themeInfo = Theme.getTheme(nightThemeName);
-                } else {
-                    themeInfo = Theme.getTheme(dayThemeName);
-                }
-                switchTheme(themeInfo, toDark);
-                Theme.turnOffAutoNight(BulletinFactory.of(this), () -> {
-                    presentFragment(new ThemeActivity(ThemeActivity.THEME_TYPE_NIGHT));
-                });
-            });
+                        boolean toDark;
+                        if (toDark = dayThemeName.equals(themeInfo.getKey())) {
+                            themeInfo = Theme.getTheme(nightThemeName);
+                        } else {
+                            themeInfo = Theme.getTheme(dayThemeName);
+                        }
+                        switchTheme(themeInfo, toDark);
+                        Theme.turnOffAutoNight(BulletinFactory.of(this), () -> {
+                            presentFragment(new ThemeActivity(ThemeActivity.THEME_TYPE_NIGHT));
+                        });
+                    });
             io.addGap();
             io.add(R.drawable.outline_groups_24, getString(R.string.NewGroup), () -> {
                 Bundle args = new Bundle();
                 presentFragment(new GroupCreateActivity(args));
             });
+            io.add(R.drawable.outline_channel_24, getString(R.string.NewChannel), () -> {
+                SharedPreferences channelPrefs = MessagesController.getGlobalMainSettings();
+                if (!BuildVars.DEBUG_VERSION && channelPrefs.getBoolean("channel_intro", false)) {
+                    Bundle args = new Bundle();
+                    args.putInt("step", 0);
+                    presentFragment(new ChannelCreateActivity(args));
+                } else {
+                    presentFragment(new ActionIntroActivity(ActionIntroActivity.ACTION_TYPE_CHANNEL_CREATE));
+                    channelPrefs.edit().putBoolean("channel_intro", true).apply();
+                }
+            });
+            if (MainTabsHelper.isContactsTabHidden()) {
+                io.add(R.drawable.tabs_contacts_24, getString(R.string.Contacts), () -> {
+                    Bundle args = new Bundle();
+                    args.putBoolean("needPhonebook", true);
+                    presentFragment(new ContactsActivity(args));
+                });
+            }
             io.add(R.drawable.outline_saved_24, getString(R.string.SavedMessages), () -> {
                 Bundle args = new Bundle();
                 args.putLong("user_id", UserConfig.getInstance(currentAccount).getClientUserId());
@@ -13405,8 +13425,7 @@ public class DialogsActivity extends BaseFragment implements NotificationCenter.
 
                 final String proxyAddress = preferences.getString("proxy_ip", "");
                 final boolean proxyEnabled = preferences.getBoolean("proxy_enabled", false);
-                final boolean proxyVisible = proxyEnabled && !TextUtils.isEmpty(proxyAddress)
-                        || getMessagesController().blockedCountry && !SharedConfig.proxyList.isEmpty();
+                final boolean proxyVisible = !SharedConfig.proxyList.isEmpty();
 
                 if (proxyVisible) {
                     io.addGap();
@@ -13757,8 +13776,8 @@ public class DialogsActivity extends BaseFragment implements NotificationCenter.
         }
 
         final int additionalList = dp(48);
-        final int mainTabBottom = fragmentView.getMeasuredHeight() - navigationBarHeight - dp(DialogsActivity.MAIN_TABS_MARGIN);
-        final int mainTabTop = mainTabBottom - dp(DialogsActivity.MAIN_TABS_HEIGHT);
+        final int mainTabBottom = fragmentView.getMeasuredHeight() - navigationBarHeight - dp(MainTabsHelper.getMainTabsMargin());
+        final int mainTabTop = mainTabBottom - dp(MainTabsHelper.getMainTabsHeight());
 
         final int actionBarHeight = actionBar.getMeasuredHeight()
             + dp(DialogsActivity.SEARCH_FIELD_HEIGHT)

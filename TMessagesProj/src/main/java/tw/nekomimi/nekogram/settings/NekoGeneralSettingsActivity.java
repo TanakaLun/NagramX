@@ -11,6 +11,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.graphics.Canvas;
 import android.graphics.Paint;
+import android.os.Environment;
 import android.os.Parcelable;
 import android.os.SystemClock;
 import android.text.TextPaint;
@@ -34,7 +35,6 @@ import org.telegram.messenger.SharedConfig;
 import org.telegram.messenger.UnifiedPushService;
 import org.telegram.messenger.UserConfig;
 import org.telegram.ui.ActionBar.ActionBar;
-import org.telegram.ui.ActionBar.ActionBarLayout;
 import org.telegram.ui.ActionBar.AlertDialog;
 import org.telegram.ui.ActionBar.INavigationLayout;
 import org.telegram.ui.ActionBar.SimpleTextView;
@@ -55,6 +55,7 @@ import org.telegram.ui.Components.SeekBarView;
 import org.telegram.ui.Components.UndoView;
 import org.telegram.ui.LaunchActivity;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.Locale;
 
@@ -90,16 +91,40 @@ public class NekoGeneralSettingsActivity extends BaseNekoXSettingsActivity {
 
     private final CellGroup cellGroup = new CellGroup(this);
 
-    // Map
-    private final AbstractConfigCell headerMap = cellGroup.appendCell(new ConfigCellHeader(getString(R.string.Map)));
-    private final AbstractConfigCell useOSMDroidMapRow = cellGroup.appendCell(new ConfigCellTextCheck(NekoConfig.useOSMDroidMap));
-    private final AbstractConfigCell mapDriftingFixForGoogleMapsRow = cellGroup.appendCell(new ConfigCellTextCheck(NekoConfig.mapDriftingFixForGoogleMaps));
-    private final AbstractConfigCell mapPreviewRow = cellGroup.appendCell(new ConfigCellSelectBox(null, NekoConfig.mapPreviewProvider, new String[]{
-            getString(R.string.MapPreviewProviderTelegram),
-            getString(R.string.MapPreviewProviderYandexNax),
-            getString(R.string.MapPreviewProviderNobody)
+    // General
+    private final AbstractConfigCell headerGeneral = cellGroup.appendCell(new ConfigCellHeader(getString(R.string.General)));
+    private final AbstractConfigCell customTitleRow = cellGroup.appendCell(new ConfigCellTextInput(null, NaConfig.INSTANCE.getCustomTitle(),
+        getString(R.string.CustomTitleHint), null,
+        (input) -> input.isEmpty() ? (String) NaConfig.INSTANCE.getCustomTitle().defaultValue : input));
+    private final AbstractConfigCell folderNameAsTitleRow = cellGroup.appendCell(new ConfigCellTextCheck(NaConfig.INSTANCE.getFolderNameAsTitle()));
+    private final AbstractConfigCell customTitleUserNameRow = cellGroup.appendCell(new ConfigCellTextCheck(NaConfig.INSTANCE.getCustomTitleUserName()));
+    private final AbstractConfigCell disableNumberRoundingRow = cellGroup.appendCell(new ConfigCellTextCheck(NekoConfig.disableNumberRounding, "4.8K -> 4777"));
+    private final AbstractConfigCell preferCommonGroupsTabRow = cellGroup.appendCell(new ConfigCellTextCheck(NaConfig.INSTANCE.getPreferCommonGroupsTab(), getString(R.string.PreferCommonGroupsTabNotice)));
+    private final AbstractConfigCell usePersianCalendarRow = cellGroup.appendCell(new ConfigCellTextCheck(NekoConfig.usePersianCalendar, getString(R.string.UsePersianCalendarInfo)));
+    private final AbstractConfigCell displayPersianCalendarByLatinRow = cellGroup.appendCell(new ConfigCellTextCheck(NekoConfig.displayPersianCalendarByLatin));
+    private final AbstractConfigCell showIdAndDcRow = cellGroup.appendCell(new ConfigCellSelectBox("ShowIdAndDc", NaConfig.INSTANCE.getIdDcType(), new String[]{
+            getString(R.string.Disable),
+            "Telegram API",
+            "Bot API"
     }, null));
-    private final AbstractConfigCell dividerMap = cellGroup.appendCell(new ConfigCellDivider());
+    private final AbstractConfigCell nameOrderRow = cellGroup.appendCell(new ConfigCellSelectBox(null, NekoConfig.nameOrder, new String[]{
+            getString(R.string.LastFirst),
+            getString(R.string.FirstLast)
+    }, null));
+    private final AbstractConfigCell dividerGeneral = cellGroup.appendCell(new ConfigCellDivider());
+
+    // Storage
+    private final AbstractConfigCell headerStorage = cellGroup.appendCell(new ConfigCellHeader(getString(R.string.StorageSettings)));
+    private final AbstractConfigCell saveToChatSubfolderRow = cellGroup.appendCell(new ConfigCellTextCheck(NaConfig.INSTANCE.getSaveToChatSubfolder()));
+    private final AbstractConfigCell customSavePathRow = cellGroup.appendCell(new ConfigCellTextDetail(
+            NekoConfig.customSavePath,
+            getString(R.string.customSavePath),
+            getString(R.string.customSavePathHint),
+            this::sanitizeCustomSavePath,
+            this::shouldShowCustomSavePathInputError,
+            this::formatCustomSavePathDetail));
+
+    private final AbstractConfigCell dividerStorage = cellGroup.appendCell(new ConfigCellDivider());
 
     // Connections
     private final AbstractConfigCell headerConnection = cellGroup.appendCell(new ConfigCellHeader(getString(R.string.Connection)));
@@ -121,6 +146,17 @@ public class NekoGeneralSettingsActivity extends BaseNekoXSettingsActivity {
     }, null));
     private final AbstractConfigCell customDoHRow = cellGroup.appendCell(new ConfigCellTextInput2(null, NekoConfig.customDoH, "https://1.0.0.1/dns-query, https://...", null));
     private final AbstractConfigCell dividerConnection = cellGroup.appendCell(new ConfigCellDivider());
+
+    // Map
+    private final AbstractConfigCell headerMap = cellGroup.appendCell(new ConfigCellHeader(getString(R.string.Map)));
+    private final AbstractConfigCell useOSMDroidMapRow = cellGroup.appendCell(new ConfigCellTextCheck(NekoConfig.useOSMDroidMap));
+    private final AbstractConfigCell mapDriftingFixForGoogleMapsRow = cellGroup.appendCell(new ConfigCellTextCheck(NekoConfig.mapDriftingFixForGoogleMaps));
+    private final AbstractConfigCell mapPreviewRow = cellGroup.appendCell(new ConfigCellSelectBox(null, NekoConfig.mapPreviewProvider, new String[]{
+            getString(R.string.MapPreviewProviderTelegram),
+            getString(R.string.MapPreviewProviderYandexNax),
+            getString(R.string.MapPreviewProviderNobody)
+    }, null));
+    private final AbstractConfigCell dividerMap = cellGroup.appendCell(new ConfigCellDivider());
 
     // Folder
     private final AbstractConfigCell headerFolder = cellGroup.appendCell(new ConfigCellHeader(getString(R.string.Folder)));
@@ -146,7 +182,6 @@ public class NekoGeneralSettingsActivity extends BaseNekoXSettingsActivity {
     private final AbstractConfigCell disableDialogsFloatingButtonRow = cellGroup.appendCell(new ConfigCellTextCheck(NaConfig.INSTANCE.getDisableDialogsFloatingButton()));
     private final AbstractConfigCell disableBotOpenButtonRow = cellGroup.appendCell(new ConfigCellTextCheck(NaConfig.INSTANCE.getDisableBotOpenButton()));
     private final AbstractConfigCell mediaPreviewRow = cellGroup.appendCell(new ConfigCellTextCheck(NekoConfig.mediaPreview));
-    private final AbstractConfigCell userAvatarsInMessagePreviewRow = cellGroup.appendCell(new ConfigCellTextCheck(NaConfig.INSTANCE.getUserAvatarsInMessagePreview()));
     private final AbstractConfigCell dividerDialogs = cellGroup.appendCell(new ConfigCellDivider());
 
     // Appearance
@@ -205,37 +240,18 @@ public class NekoGeneralSettingsActivity extends BaseNekoXSettingsActivity {
     }, null));
     private final AbstractConfigCell dividerAppearance = cellGroup.appendCell(new ConfigCellDivider());
 
+    // Main Tabs
+    private final AbstractConfigCell headerMainTabs = cellGroup.appendCell(new ConfigCellHeader(getString(R.string.MainTabsSettingsHeader)));
+    private final AbstractConfigCell hideTitlesRow = cellGroup.appendCell(new ConfigCellTextCheck(NaConfig.INSTANCE.getMainTabsHideTitles()));
+    private final AbstractConfigCell hideContactsRow = cellGroup.appendCell(new ConfigCellTextCheck(NaConfig.INSTANCE.getMainTabsHideContacts()));
+    private final AbstractConfigCell dividerMainTabs = cellGroup.appendCell(new ConfigCellDivider());
+
     // Privacy
     private final AbstractConfigCell headerPrivacy = cellGroup.appendCell(new ConfigCellHeader(getString(R.string.PrivacyTitle)));
     private final AbstractConfigCell hidePhoneRow = cellGroup.appendCell(new ConfigCellTextCheck(NekoConfig.hidePhone));
     private final AbstractConfigCell disableSystemAccountRow = cellGroup.appendCell(new ConfigCellTextCheck(NekoConfig.disableSystemAccount));
     private final AbstractConfigCell disableCrashlyticsCollectionRow = cellGroup.appendCell(new ConfigCellTextCheck(NaConfig.INSTANCE.getDisableCrashlyticsCollection()));
     private final AbstractConfigCell dividerPrivacy = cellGroup.appendCell(new ConfigCellDivider());
-
-    // General
-    private final AbstractConfigCell headerGeneral = cellGroup.appendCell(new ConfigCellHeader(getString(R.string.General)));
-    private final AbstractConfigCell customTitleRow = cellGroup.appendCell(new ConfigCellTextInput(null, NaConfig.INSTANCE.getCustomTitle(),
-            getString(R.string.CustomTitleHint), null,
-            (input) -> input.isEmpty() ? (String) NaConfig.INSTANCE.getCustomTitle().defaultValue : input));
-    private final AbstractConfigCell customSavePathRow = cellGroup.appendCell(new ConfigCellTextInput(null, NekoConfig.customSavePath,
-            getString(R.string.customSavePathHint), null,
-            (input) -> input.matches("^[A-za-z0-9.]{1,255}$") || input.isEmpty() ? input : (String) NekoConfig.customSavePath.defaultValue));
-    private final AbstractConfigCell folderNameAsTitleRow = cellGroup.appendCell(new ConfigCellTextCheck(NaConfig.INSTANCE.getFolderNameAsTitle()));
-    private final AbstractConfigCell customTitleUserNameRow = cellGroup.appendCell(new ConfigCellTextCheck(NaConfig.INSTANCE.getCustomTitleUserName()));
-    private final AbstractConfigCell disableNumberRoundingRow = cellGroup.appendCell(new ConfigCellTextCheck(NekoConfig.disableNumberRounding, "4.8K -> 4777"));
-    private final AbstractConfigCell preferCommonGroupsTabRow = cellGroup.appendCell(new ConfigCellTextCheck(NaConfig.INSTANCE.getPreferCommonGroupsTab(), getString(R.string.PreferCommonGroupsTabNotice)));
-    private final AbstractConfigCell usePersianCalendarRow = cellGroup.appendCell(new ConfigCellTextCheck(NekoConfig.usePersianCalendar, getString(R.string.UsePersianCalendarInfo)));
-    private final AbstractConfigCell displayPersianCalendarByLatinRow = cellGroup.appendCell(new ConfigCellTextCheck(NekoConfig.displayPersianCalendarByLatin));
-    private final AbstractConfigCell showIdAndDcRow = cellGroup.appendCell(new ConfigCellSelectBox("ShowIdAndDc", NaConfig.INSTANCE.getIdDcType(), new String[]{
-            getString(R.string.Disable),
-            "Telegram API",
-            "Bot API"
-    }, null));
-    private final AbstractConfigCell nameOrderRow = cellGroup.appendCell(new ConfigCellSelectBox(null, NekoConfig.nameOrder, new String[]{
-            getString(R.string.LastFirst),
-            getString(R.string.FirstLast)
-    }, null));
-    private final AbstractConfigCell dividerGeneral = cellGroup.appendCell(new ConfigCellDivider());
 
     // Notifications
     private final AbstractConfigCell headerNotifications = cellGroup.appendCell(new ConfigCellHeader(getString(R.string.Notifications)));
@@ -314,13 +330,7 @@ public class NekoGeneralSettingsActivity extends BaseNekoXSettingsActivity {
             } else if (a instanceof ConfigCellTextInput2) {
                 ((ConfigCellTextInput2) a).onClick();
             } else if (a instanceof ConfigCellTextDetail) {
-                RecyclerListView.OnItemClickListener o = ((ConfigCellTextDetail) a).onItemClickListener;
-                if (o != null) {
-                    try {
-                        o.onItemClick(view, position);
-                    } catch (Exception ignored) {
-                    }
-                }
+                ((ConfigCellTextDetail) a).onClick(view, position);
             } else if (a instanceof ConfigCellCustom) { // Custom OnClick
                 if (position == cellGroup.rows.indexOf(nameOrderRow)) {
                     LocaleController.getInstance().recreateFormatters();
@@ -452,6 +462,14 @@ public class NekoGeneralSettingsActivity extends BaseNekoXSettingsActivity {
                 tooltip.showWithAction(0, UndoView.ACTION_NEED_RESTART, null, null);
             } else if (key.equals(NaConfig.INSTANCE.getAlwaysShowDownloadIcon().getKey())) {
                 tooltip.showWithAction(0, UndoView.ACTION_NEED_RESTART, null, null);
+            } else if (key.equals(NaConfig.INSTANCE.getShowStickersRowToplevel().getKey())) {
+                tooltip.showWithAction(0, UndoView.ACTION_NEED_RESTART, null, null);
+            } else if (key.equals(NaConfig.INSTANCE.getSaveToChatSubfolder().getKey())) {
+                listAdapter.notifyItemChanged(cellGroup.rows.indexOf(customSavePathRow));
+            } else if (key.equals(NaConfig.INSTANCE.getMainTabsHideTitles().getKey())) {
+                parentLayout.rebuildAllFragmentViews(false, false);
+            } else if (key.equals(NaConfig.INSTANCE.getMainTabsHideContacts().getKey())) {
+                parentLayout.rebuildAllFragmentViews(false, false);
             }
         };
 
@@ -879,4 +897,44 @@ public class NekoGeneralSettingsActivity extends BaseNekoXSettingsActivity {
         }
     }
 
+    private String formatCustomSavePathDetail(String rawValue) {
+        String folderName = rawValue == null ? "" : rawValue.trim();
+        if (NaConfig.INSTANCE.getSaveToChatSubfolder().Bool()) {
+            folderName = TextUtils.isEmpty(folderName) ? "<chat_name>" : folderName + File.separator + "<chat_name>";
+        }
+        return buildCustomSaveAbsolutePath(Environment.DIRECTORY_DOWNLOADS, folderName);
+    }
+
+    private String buildCustomSaveAbsolutePath(String directory, String folderName) {
+        File root = Environment.getExternalStoragePublicDirectory(directory);
+        if (TextUtils.isEmpty(folderName)) {
+            return root.getAbsolutePath();
+        }
+        return new File(root, folderName).getAbsolutePath();
+    }
+
+    private boolean shouldShowCustomSavePathInputError(String input, String output) {
+        if (TextUtils.isEmpty(input)) {
+            return false;
+        }
+        String normalized = input.trim();
+        if (normalized.isEmpty()) {
+            return false;
+        }
+        return !normalized.equals(output);
+    }
+
+    private String sanitizeCustomSavePath(String input) {
+        if (TextUtils.isEmpty(input)) {
+            return "";
+        }
+        String normalized = input.trim();
+        if (normalized.isEmpty()) {
+            return "";
+        }
+        if (normalized.matches("^(?!\\.{1,2}$)[A-Za-z0-9._ -]{1,255}$")) {
+            return normalized;
+        }
+        return (String) NekoConfig.customSavePath.defaultValue;
+    }
 }

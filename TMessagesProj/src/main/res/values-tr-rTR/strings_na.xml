@@ -19,7 +19,6 @@
     <string name="ShowMessageID">Mesaj ID\'sini Göster</string>
     <string name="ShowRPCError">RPC Hatalarını Bildir</string>
     <string name="ShowPremiumStickersAnimation">Premium Çıkartma Animasyonunu Göster</string>
-    <string name="AlwaysSaveChatOffset">Sohbet Konumunu Her Zaman Kaydet</string>
     <string name="AppIconColorful">Renkli</string>
     <string name="AppIconDarkGreen">Koyu Yeşil</string>
     <string name="AppIconNeon">Neon</string>
@@ -31,13 +30,11 @@
     <string name="ToTheMessage">Git</string>
     <string name="ZalgoFilter">\"Zalgo\" Sembollerini Filtrele</string>
     <string name="ZalgoFilterNotice">Takma adlardaki veya mesajlardaki tüm \"Z̷͍͌ā̸̜l̸̞̂g̷̝͘o̶̩̓\" sembolleri kaldırılacaktır.</string>
-    <string name="labelChannelUser">Kanal Kullanıcılarını Etiketle</string>
     <string name="AlwaysShowDownloadIcon">İndirme Simgesini Her Zaman Göster</string>
     <string name="HideTitle">Başlığı Gizle</string>
     <string name="IgnoreUnreadCount">Okunmamış Sayacını Gizle</string>
     <string name="SendWithoutMarkdown">Biçimlendirmesiz gönder</string>
     <string name="SendAsEmoji">Emoji olarak gönder</string>
-    <string name="CustomArtworkApi">Özel Sanat Eseri API\'si</string>
     <string name="CustomEditedMessage">Özel Düzenlendi İşareti</string>
     <string name="NotificationIcon">Bildirim Simgesi</string>
     <string name="Official">Resmi</string>

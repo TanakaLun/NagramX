@@ -98,7 +98,6 @@ public class NekoExperimentalSettingsActivity extends BaseNekoXSettingsActivity 
                     getString(R.string.BackAnimationSpring),
             }, null));
     private final AbstractConfigCell springAnimationCrossfadeRow = cellGroup.appendCell(new ConfigCellTextCheck(NaConfig.INSTANCE.getSpringAnimationCrossfade()));
-    private final AbstractConfigCell saveToChatSubfolderRow = cellGroup.appendCell(new ConfigCellTextCheck(NaConfig.INSTANCE.getSaveToChatSubfolder()));
     private final AbstractConfigCell localPremiumRow = cellGroup.appendCell(new ConfigCellTextCheck(NekoConfig.localPremium));
     private final AbstractConfigCell unlimitedPinnedDialogsRow = cellGroup.appendCell(new ConfigCellTextCheck(NekoConfig.unlimitedPinnedDialogs, getString(R.string.UnlimitedPinnedDialogsAbout)));
     private final AbstractConfigCell unlimitedFavedStickersRow = cellGroup.appendCell(new ConfigCellTextCheck(NekoConfig.unlimitedFavedStickers, getString(R.string.UnlimitedFavoredStickersAbout)));
@@ -168,7 +167,6 @@ public class NekoExperimentalSettingsActivity extends BaseNekoXSettingsActivity 
             getString(R.string.PerformanceClassAverage),
             getString(R.string.PerformanceClassLow),
     }, null));
-    private final AbstractConfigCell customArtworkApiRow = cellGroup.appendCell(new ConfigCellTextInput(null, NaConfig.INSTANCE.getCustomArtworkApi(), "", null));
     private final AbstractConfigCell dividerNConfig = cellGroup.appendCell(new ConfigCellDivider());
 
     // Story
