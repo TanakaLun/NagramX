@@ -1015,39 +1015,39 @@ public class ActionBarLayout extends FrameLayout implements INavigationLayout, F
                 if (insets != null) {
                     AndroidUtilities.rectTmp.set(translationX, 0, translationX + child.getWidth(), getHeight());
                     if (newBackTransitions()) {
-                        float scale;
+                        float scale = 1.0f;
                         float translateY = 0f;
                         float translateX = 0f;
                     
-                        if (predictiveBackInProgress) {
-                            float rawProgress = Utilities.clamp(translationX / dpf2(280), 1.0f, 0f);
-                            float easedProgress = 1.0f - (1.0f * (1.0f - rawProgress) * (1.0f - rawProgress));
+                        float maxSwipeDistance = dpf2(400);
+                        float progress = Utilities.clamp(translationX / maxSwipeDistance, 1.0f, 0f);
                     
-                            scale = lerp(1.00f, 0.75f, easedProgress);
+                        if (predictiveBackInProgress) {
+                            scale = lerp(1.00f, 0.88f, (float) Math.sqrt(progress));
                     
                             float centerY = getHeight() / 2f;
                             float deltaY = predictiveBackY - centerY;
-                            translateY = Utilities.clamp(deltaY * 0.15f * easedProgress, getHeight() * 0.12f, -getHeight() * 0.12f);
+                            translateY = deltaY * 0.20f * progress;
                     
-                            float maxMargin = dp(16);
-                            float sideMargin = maxMargin * easedProgress;
-                            
+                            float sideMargin = dp(16) * progress; 
                             translateX = predictiveBackLeft ? sideMargin : -sideMargin;
                     
                         } else {
-                            scale = 1.00f - Math.min(0.12f, 0.04f * translationX / dpf2(56));
+                            scale = 1.00f - Math.min(0.20f, 0.08f * translationX / dpf2(56));
                         }
                     
                         float pivotX = predictiveBackLeft ? getWidth() : 0f;
                         float pivotY = predictiveBackInProgress ? predictiveBackY : getHeight() / 2f;
                     
                         canvas.save();
+                        
+                        clipRight = getWidth(); 
+                        
                         canvas.translate(translateX, translateY);
                         canvas.scale(scale, scale, pivotX, pivotY);
                     
                         if (predictiveBackInProgress) {
-                            backOffset += (int) (translateX * 0.8f);
-                            clipRight = getWidth(); 
+                            backOffset += (int) (translateX * 0.5f);
                         }
                     }
 
