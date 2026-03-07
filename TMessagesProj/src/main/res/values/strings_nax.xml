@@ -79,6 +79,7 @@
     <string name="RegexFiltersUserHeader">User Filters</string>
     <string name="RegexFiltersUserFilterHint">Enter User ID</string>
     <string name="RegexFiltersGlobalHeader">Global Filters</string>
+    <string name="RegexFiltersTextSelectionAddtoShared">Add to shared filters</string>
     <string name="ShadowBan">Shadow Ban</string>
     <string name="UnshadowBan">Unshadow Ban</string>
     <string name="ShadowBanAdded">Added to **user filters**.</string>
@@ -243,7 +244,6 @@
     <string name="PremiumItemVideoAvatar">Animated Avatars</string>
     <string name="PremiumItemCustomWallpaper">Custom Wallpapers</string>
     <string name="TranslationTargetApp">Follow App</string>
-    <string name="DisableAvatarTapToSwitch">Disable Cycling Avatars by Tapping</string>
     <string name="SwitchStyle">Switch Style</string>
     <string name="SliderStyle">Slider Style</string>
     <string name="StyleModern">Modern</string>

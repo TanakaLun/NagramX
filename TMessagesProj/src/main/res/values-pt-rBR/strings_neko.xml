@@ -49,7 +49,6 @@
     <string name="TranslateApiUnsupported">O provedor de tradução que você selecionou não suporta seu idioma.</string>
     <string name="ProviderLingocloud">LingoCloud Tradutor</string>
     <string name="UndoTranslate">Ocultar tradução</string>
-    <string name="DisablePhotoViewerSideAction">Desativar toque lateral para trocar fotos</string>
     <string name="BotToken">Token</string>
     <string name="UnlimitedPinnedDialogs">Diálogos fixados ilimitados</string>
     <string name="UnlimitedPinnedDialogsAbout">Fixar diálogos ilimitados ao desativar a sincronização deles.</string>
@@ -114,7 +113,7 @@
     <string name="mapDriftingFixForGoogleMaps">Corrigir desvio do Google Maps na China</string>
     <string name="useOSMDroidMap">Usar mapa OSMDroid</string>
     <string name="UnknownNekoSettingsOption">Não existe esta opção nas N-Configurações.</string>
-    <string name="PasscodeNeeded">​Você precisa ativar a senha de bloqueio primeiro</string>
+    <string name="PasscodeNeeded">​Você precisa ativar a Senha de Bloqueio primeiro</string>
     <string name="PasscodeNeko">Senha de acesso</string>
     <string name="PasscodeShowInSettings">Mostrar nas N-Configurações</string>
     <string name="PasscodeShowInSettingsAbout">Após ocultar, você poderá abrir esta página **APENAS** por este link:</string>

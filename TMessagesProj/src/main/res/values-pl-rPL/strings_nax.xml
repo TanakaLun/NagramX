@@ -230,7 +230,6 @@
     <string name="PremiumItemVideoAvatar">Animowane awatary</string>
     <string name="PremiumItemCustomWallpaper">Niestandardowe tapety</string>
     <string name="TranslationTargetApp">Śledź aplikację</string>
-    <string name="DisableAvatarTapToSwitch">Wyłącz awatary rowerowe, dotykając</string>
     <string name="SwitchStyle">Zmień styl</string>
     <string name="SliderStyle">Styl suwaka</string>
     <string name="StyleModern">Nowoczesny</string>
@@ -320,4 +319,8 @@
     <string name="UnifiedPushLastReceivedNotification">Ostatnie powiadomienie otrzymane za pomocą UnifiedPush zostało otrzymane %1$d sekund temu.\n\nOtrzymałeś %2$d powiadomień od momentu uruchomienia Nagram X.</string>
     <string name="UnifiedPushCurrentEndpoint">Aktualny punkt końcowy UnifiedPush to: %1$s</string>
     <string name="PlayOnce">Zagraj raz</string>
+    <string name="StorageSettings">Pamięć</string>
+    <string name="MainTabsSettingsHeader">Główne zakładki</string>
+    <string name="MainTabsHideTitles">Ukryj tytuły</string>
+    <string name="MainTabsHideContacts">Ukryj kartę kontaktów</string>
 </resources>

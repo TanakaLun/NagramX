@@ -13630,10 +13630,11 @@ public class ProfileActivity extends BaseFragment implements NotificationCenter.
                         String text;
                         TLRPC.User user = getMessagesController().getUser(userId);
                         String phoneNumber;
-                        if (user != null && !TextUtils.isEmpty(vcardPhone) && !NekoConfig.hidePhone.Bool()) {
+                        boolean shouldHide = NekoConfig.hidePhone.Bool() && (myProfile || (user != null && user.self));
+                        if (!shouldHide && user != null && !TextUtils.isEmpty(vcardPhone)) {
                             text = PhoneFormat.getInstance().format("+" + vcardPhone);
                             phoneNumber = vcardPhone;
-                        } else if (user != null && !TextUtils.isEmpty(user.phone) && !NekoConfig.hidePhone.Bool()) {
+                        } else if (!shouldHide && user != null && !TextUtils.isEmpty(user.phone)) {
                             text = PhoneFormat.getInstance().format("+" + user.phone);
                             phoneNumber = user.phone;
                         } else {
@@ -17185,6 +17186,7 @@ public class ProfileActivity extends BaseFragment implements NotificationCenter.
             return;
         }
         final boolean[] restoringServerName = {false};
+        final String[] restoredServerName = {null};
         AlertDialog.Builder builder = new AlertDialog.Builder(getParentActivity());
         builder.setTitle(getString(R.string.SetLocalName));
         final EditTextBoldCursor editText = new EditTextBoldCursor(getParentActivity()) {
@@ -17211,7 +17213,10 @@ public class ProfileActivity extends BaseFragment implements NotificationCenter.
         builder.setPositiveButton(getString(R.string.OK),
                 (dialogInterface, i) -> {
                     String newName = editText.getText().toString().trim();
-                    if (existingOverride != null) {
+                    if (restoredServerName[0] != null && newName.equals(restoredServerName[0])) {
+                        LocalNameHelper.clearUserNameOverride(userId);
+                        getMessagesController().loadFullUser(user, 0, true);
+                    } else if (existingOverride != null) {
                         if (newName.equals(existingOverride)) {
                             return;
                         }
@@ -17286,6 +17291,7 @@ public class ProfileActivity extends BaseFragment implements NotificationCenter.
                             AlertUtil.showToast(getString(R.string.UnknownError));
                             return;
                         }
+                        restoredServerName[0] = name;
                         editText.setText(name);
                         editText.setSelection(0, editText.getText().length());
                         editText.requestFocus();
