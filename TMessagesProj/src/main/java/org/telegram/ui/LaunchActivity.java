@@ -788,18 +788,18 @@ public class LaunchActivity extends BasePermissionsActivity implements INavigati
                     @Override
                     public void onBackProgressed(@NonNull BackEvent backEvent) {
                         if (started && invoked) return;
-
+                    
                         final float progress = backEvent.getProgress();
                         if (!predictiveBackStarted && progress > LAZY_START) {
                             predictiveBackStarted = true;
                             onBackStartedInternal(backEvent);
                         }
-
+                    
                         final float fixedProgress = Math.max(0, progress - LAZY_START) / (1 - LAZY_START);
-
+                    
                         if (AndroidUtilities.isTablet()) return;
                         if (actionBarLayout != null) {
-                            actionBarLayout.onBackProgress(fixedProgress);
+                            actionBarLayout.onBackProgress(fixedProgress, backEvent.getTouchY());
                         }
                     }
 
