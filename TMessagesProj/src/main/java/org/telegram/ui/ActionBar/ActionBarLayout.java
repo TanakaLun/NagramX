@@ -1015,40 +1015,38 @@ public class ActionBarLayout extends FrameLayout implements INavigationLayout, F
                 if (insets != null) {
                     AndroidUtilities.rectTmp.set(translationX, 0, translationX + child.getWidth(), getHeight());
                     if (newBackTransitions()) {
-                        float scale = 1.0f;
-                        float translateY = 0f;
-                        float translateX = 0f;
-                    
-                        float maxSwipeDistance = dpf2(400);
-                        float progress = Utilities.clamp(translationX / maxSwipeDistance, 1.0f, 0f);
-                    
+                        final float scale;
+                        float scalingRange = dpf2(120);
+                        float progress = Utilities.clamp(translationX / scalingRange, 1.0f, 0f);
+                        
                         if (predictiveBackInProgress) {
                             scale = lerp(1.00f, 0.88f, (float) Math.sqrt(progress));
-                    
-                            float centerY = getHeight() / 2f;
-                            float deltaY = predictiveBackY - centerY;
-                            translateY = deltaY * 0.20f * progress;
-                    
-                            float sideMargin = dp(16) * progress; 
-                            translateX = predictiveBackLeft ? sideMargin : -sideMargin;
-                    
                         } else {
-                            scale = 1.00f - Math.min(0.20f, 0.08f * translationX / dpf2(56));
+                            scale = 1.00f - Math.min(0.20f, 0.05f * translationX / dpf2(56));
                         }
                     
-                        float pivotX = predictiveBackLeft ? getWidth() : 0f;
-                        float pivotY = predictiveBackInProgress ? predictiveBackY : getHeight() / 2f;
+                        float centerY = getHeight() / 2f;
+                        float deltaY = predictiveBackY - centerY;
+                        float translateY = deltaY * 0.20f * (float) Math.sqrt(progress);
                     
+                        float dx = (translationX > dp(56) && !animationInProgress && predictiveBackInProgress) ? translationX : Utilities.clamp(translationX, dp(56), 0);
+                        
                         canvas.save();
                         
-                        clipRight = getWidth(); 
-                        
-                        canvas.translate(translateX, translateY);
-                        canvas.scale(scale, scale, pivotX, pivotY);
-                    
-                        if (predictiveBackInProgress) {
-                            backOffset += (int) (translateX * 0.5f);
+                        if (!predictiveBackInProgress || predictiveBackLeft) {
+                            canvas.translate(-dx, translateY);
+                            clipRight += dx;
+                            backOffset += dx;
+                        } else {
+                            canvas.translate(-dx, translateY);
+                            clipRight += dx;
+                            AndroidUtilities.rectTmp.set(translationX, 0, translationX + child.getWidth(), getHeight());
                         }
+                    
+                        float pivotX = predictiveBackLeft ? (AndroidUtilities.rectTmp.right - dp(82)) : (AndroidUtilities.rectTmp.left + dp(82));
+                        float pivotY = predictiveBackInProgress ? predictiveBackY : AndroidUtilities.rectTmp.centerY();
+                        
+                        canvas.scale(scale, scale, pivotX, pivotY);
                     }
 
                     final RoundedCorner topLeft = insets.getRoundedCorner(android.view.RoundedCorner.POSITION_TOP_LEFT);
