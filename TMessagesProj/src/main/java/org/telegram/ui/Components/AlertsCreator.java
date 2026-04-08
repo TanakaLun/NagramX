@@ -741,8 +741,12 @@ public class AlertsCreator {
                             localeInfo.pathToFile = "unofficial";
                         }
                     }
-                    LocaleController.getInstance().applyLanguage(localeInfo, true, false, false, true, UserConfig.selectedAccount, null);
-                    activity.rebuildAllFragments(true);
+                    LocaleController.getInstance().applyLanguage(localeInfo, true, false, false, true, UserConfig.selectedAccount, () -> {
+                        activity.rebuildAllFragments(true);
+                        if (callback != null) {
+                            callback.run();
+                        }
+                    });
                 });
                 builder.setNegativeButton(LocaleController.getString(R.string.Cancel), null);
             }
