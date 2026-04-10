@@ -1,11 +1,13 @@
 package xyz.nextalone.nagram
 
+import android.content.Context
 import android.content.SharedPreferences
 import android.util.Base64
 import androidx.core.content.edit
 import org.telegram.messenger.AndroidUtilities
 import org.telegram.messenger.ApplicationLoader
 import org.telegram.messenger.BuildVars
+import org.telegram.messenger.SharedConfig
 import tw.nekomimi.nekogram.NekoConfig
 import tw.nekomimi.nekogram.config.ConfigItem
 import tw.nekomimi.nekogram.config.ConfigItemKeyLinked
@@ -1440,6 +1442,15 @@ object NaConfig {
                 backAnimationStyle.setConfigInt(1) // SPRING
             }
             getPreferences().edit { remove("SpringAnimation") }
+        }
+
+        val mainPreferences = ApplicationLoader.applicationContext.getSharedPreferences("mainconfig", Context.MODE_PRIVATE)
+        if (!mainPreferences.contains("photoHighQualityDefault") && getPreferences().contains("SendHighQualityPhoto")) {
+            val highQuality = getPreferences().getBoolean("SendHighQualityPhoto", true)
+            mainPreferences.edit {
+                putBoolean("photoHighQualityDefault", highQuality)
+            }
+            SharedConfig.photoHighQualityDefault = highQuality
         }
 
         val currentLlmApiUrl = llmApiUrl.String()
