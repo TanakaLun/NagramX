@@ -40,8 +40,6 @@ import org.telegram.messenger.MediaController;
 import org.telegram.messenger.MessageObject;
 import org.telegram.messenger.MessagesController;
 import org.telegram.messenger.NotificationCenter;
-import org.telegram.messenger.MessagesController;
-import org.telegram.messenger.NotificationCenter;
 import org.telegram.messenger.R;
 import org.telegram.messenger.SendMessagesHelper;
 import org.telegram.messenger.SharedConfig;
@@ -65,9 +63,6 @@ import org.telegram.ui.ProfileActivity;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.HashMap;
-
-import kotlin.Unit;
-import tw.nekomimi.nekogram.ui.BottomBuilder;
 
 public class ImageUpdater implements NotificationCenter.NotificationCenterDelegate, PhotoCropActivity.PhotoEditActivityDelegate {
     private final static int ID_TAKE_PHOTO = 0,
@@ -261,7 +256,6 @@ public class ImageUpdater implements NotificationCenter.NotificationCenterDelega
         if (parentFragment == null || parentFragment.getParentActivity() == null) {
             return;
         }
-
         canceled = false;
         this.type = type;
         if (useAttachMenu) {
@@ -274,6 +268,8 @@ public class ImageUpdater implements NotificationCenter.NotificationCenterDelega
             builder.setTitle(LocaleController.formatString("SetPhotoFor", R.string.SetPhotoFor, user.first_name), true);
         } else if (type == TYPE_SUGGEST_PHOTO_FOR_USER) {
             builder.setTitle(LocaleController.formatString("SuggestPhotoFor", R.string.SuggestPhotoFor, user.first_name), true);
+        } else if (parentFragment instanceof ProfileActivity) {
+            builder.setTitle(LocaleController.getString(R.string.ProfileActionsEditPhoto2), true);
         } else {
             builder.setTitle(LocaleController.getString(R.string.ChoosePhoto), true);
         }
@@ -290,10 +286,6 @@ public class ImageUpdater implements NotificationCenter.NotificationCenterDelega
 
         items.add(LocaleController.getString(R.string.ChooseFromGallery));
         icons.add(R.drawable.msg_photos);
-        ids.add(ID_UPLOAD_FROM_GALLERY);
-
-        items.add(LocaleController.getString(R.string.ChooseFromGallery));
-        icons.add(R.drawable.msg_photos);
         ids.add(ID_OPEN_ATTACH);
 
         items.add(LocaleController.getString(R.string.ChooseTakePhoto));
@@ -302,8 +294,14 @@ public class ImageUpdater implements NotificationCenter.NotificationCenterDelega
 
         if (canSelectVideo) {
             items.add(LocaleController.getString(R.string.ChooseRecordVideo));
-            icons.add(R.drawable.msg_videocall);
+            icons.add(R.drawable.msg_video);
             ids.add(ID_RECORD_VIDEO);
+        }
+
+        if (!(parentFragment instanceof ProfileActivity)) {
+            items.add(LocaleController.getString(R.string.ChooseFromGallery));
+            icons.add(R.drawable.msg_photos);
+            ids.add(ID_UPLOAD_FROM_GALLERY);
         }
 
         if (searchAvailable) {
