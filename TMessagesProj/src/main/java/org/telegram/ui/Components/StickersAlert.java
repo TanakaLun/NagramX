@@ -1678,7 +1678,7 @@ public class StickersAlert extends BottomSheet implements NotificationCenter.Not
                         } else {
                             enableEditMode();
                         }
-                    }, text, Theme.key_featuredStickers_buttonText, Theme.key_featuredStickers_addButton, Theme.key_featuredStickers_addButtonPressed);
+                    }, text, Theme.key_featuredStickers_buttonText, Theme.key_featuredStickers_addButton, Theme.key_featuredStickers_addButtonPressed, true);
                 } else if (stickerSet.set.official) {
                     setButton(v -> {
                         if (installDelegate != null) {
