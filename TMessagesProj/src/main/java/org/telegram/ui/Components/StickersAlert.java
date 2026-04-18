@@ -2178,7 +2178,7 @@ public class StickersAlert extends BottomSheet implements NotificationCenter.Not
         }
         pickerBottomLayout.setText(title, false);
         pickerBottomLayout.setOnClickListener(onClickListener);
-        if (Theme.getActiveTheme() != null && Theme.getActiveTheme().isMonet() && enableMonetScale) {
+        if (enableMonetScale) {
             ScaleStateListAnimator.apply(pickerBottomLayout, .02f, 1.2f);
         }
 
