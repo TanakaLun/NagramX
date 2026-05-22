@@ -1,11 +1,11 @@
-name: Staging build
+name: Staging build - Yuki
 
 on:
   push:
     paths-ignore:
       - '**.md'
       - '.github/**'
-      - '!.github/workflows/staging.yml'
+      - '!.github/workflows/yuki.yml'
   workflow_dispatch:
     inputs:
       upload:
@@ -76,6 +76,7 @@ jobs:
           grep -n "dontoptimize" TMessagesProj/proguard-rules.pro || echo "No dontoptimize rules found"
       - name: Yukinoization
         run: |
+          chmod -x Tools/scripts/setup.sh
           ./Tools/scripts/setup.sh
           echo "${{ secrets.FCM }}" | base64 -d > TMessagesProj/google-services.json
           chmod -x TMessagesProj/google-services.json
