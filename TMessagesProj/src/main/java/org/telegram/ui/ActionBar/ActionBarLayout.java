@@ -75,11 +75,9 @@ import org.telegram.messenger.MessagesController;
 import org.telegram.messenger.R;
 import org.telegram.messenger.SharedConfig;
 import org.telegram.messenger.Utilities;
-import org.telegram.messenger.utils.ViewOutlineProviderImpl;
 import org.telegram.ui.Components.AnimatedFloat;
 import org.telegram.ui.Components.BackButtonMenu;
 import org.telegram.ui.EmptyBaseFragment;
-import org.telegram.ui.GradientHeaderActivity;
 import org.telegram.ui.MainTabsActivity;
 import org.telegram.ui.bots.BotWebViewSheet;
 import org.telegram.ui.Components.Bulletin;
@@ -134,47 +132,6 @@ public class ActionBarLayout extends FrameLayout implements INavigationLayout, F
         public LayoutContainer(Context context) {
             super(context);
             setWillNotDraw(false);
-        }
-
-        @Override
-        public void onViewAdded(View child) {
-            super.onViewAdded(child);
-            updateChildrenAccessibilityImportance();
-        }
-
-        @Override
-        public void onViewRemoved(View child) {
-            super.onViewRemoved(child);
-            updateChildrenAccessibilityImportance();
-        }
-
-        private void updateChildrenAccessibilityImportance() {
-            try {
-                int topSheetIndex = -1;
-                final int count = getChildCount();
-                for (int i = count - 1; i >= 0; i--) {
-                    View v = getChildAt(i);
-                    if (v instanceof BaseFragment.AttachedSheetWindow && v.getVisibility() == VISIBLE) {
-                        topSheetIndex = i;
-                        break;
-                    }
-                }
-                for (int i = 0; i < count; i++) {
-                    View v = getChildAt(i);
-                    if (v == null) continue;
-                    int desired;
-                    if (topSheetIndex == -1 || i == topSheetIndex) {
-                        desired = IMPORTANT_FOR_ACCESSIBILITY_AUTO;
-                    } else {
-                        desired = IMPORTANT_FOR_ACCESSIBILITY_NO_HIDE_DESCENDANTS;
-                    }
-                    if (v.getImportantForAccessibility() != desired) {
-                        v.setImportantForAccessibility(desired);
-                    }
-                }
-            } catch (Exception e) {
-                FileLog.e(e);
-            }
         }
 
         @Override
@@ -296,11 +253,15 @@ public class ActionBarLayout extends FrameLayout implements INavigationLayout, F
             int count = getChildCount();
             int actionBarHeight = 0;
 
+            View rootView = getRootView();
             getWindowVisibleDisplayFrame(rect);
+            int usableViewHeight = rootView.getHeight() - (rect.top != 0 ? AndroidUtilities.statusBarHeight : 0) - AndroidUtilities.getViewInset(rootView);
+            boolean isKeyboardVisible = usableViewHeight - (rect.bottom - rect.top) > 0;
 
             if (bottomSheetTabs != null) {
                 bottomSheetTabs.updateCurrentAccount();
             }
+            int bottomTabsHeight = 0; // isKeyboardVisible ? 0 : getBottomTabsHeight(false);
 
             for (int a = 0; a < count; a++) {
                 View child = getChildAt(a);
@@ -313,13 +274,11 @@ public class ActionBarLayout extends FrameLayout implements INavigationLayout, F
             for (int a = 0; a < count; a++) {
                 View child = getChildAt(a);
                 if (!(child instanceof ActionBar)) {
-                    if (child instanceof BaseFragment.AttachedSheetWindow) {
-                        measureChildWithMargins(child, widthMeasureSpec, 0, heightMeasureSpec, getBottomTabsHeight(false) > 0 || !isSupportEdgeToEdge ? 0 : navigationBarInsetHeight);
-                    } else if (child.getTag(0xFF112233) != null || child.getFitsSystemWindows()) {
+                    if (child.getTag(0xFF112233) != null || child.getFitsSystemWindows() || child instanceof BaseFragment.AttachedSheetWindow) {
                         int addHeight = isSupportEdgeToEdge ? navigationBarInsetHeight : 0;
-                        measureChildWithMargins(child, widthMeasureSpec, 0, heightMeasureSpec, addHeight);
+                        measureChildWithMargins(child, widthMeasureSpec, 0, heightMeasureSpec, bottomTabsHeight + addHeight);
                     } else {
-                        measureChildWithMargins(child, widthMeasureSpec, 0, heightMeasureSpec, actionBarHeight);
+                        measureChildWithMargins(child, widthMeasureSpec, 0, heightMeasureSpec, actionBarHeight + bottomTabsHeight);
                     }
                 }
             }
@@ -913,7 +872,7 @@ public class ActionBarLayout extends FrameLayout implements INavigationLayout, F
         if (fragmentsStack.size() >= 2 && containerView.getMeasuredWidth() > 0) {
             float progress;
             if (newBackTransitions()) {
-                progress = Utilities.clamp01(value / (6 * dp(56)));
+                progress = Utilities.clamp01(value / (4 * dp(56)));
             } else {
                 progress = value / containerView.getMeasuredWidth();
             }
@@ -1055,14 +1014,63 @@ public class ActionBarLayout extends FrameLayout implements INavigationLayout, F
                 final WindowInsets insets = getRootWindowInsets();
                 if (insets != null) {
                     AndroidUtilities.rectTmp.set(translationX, 0, translationX + child.getWidth(), getHeight());
+                    // if (newBackTransitions()) {
+                        // final float scale;
+                        // if (predictiveBackInProgress) {
+                            // float targetMinScale = 0.50f; 
+                            // float scalingRange = dpf2(110); 
+                            
+                            // scale = lerp(1.00f, targetMinScale, clamp01(translationX / scalingRange));
+                        // } else {
+                            // scale = 1.00f - Math.min(0.25f, 0.05f * translationX / dpf2(56));
+                        // }
+                        // float dx = translationX > dp(300) && !animationInProgress && predictiveBackInProgress ? translationX : Utilities.clamp(translationX, dp(300), 0);
+                        // if (!predictiveBackInProgress || predictiveBackLeft) {
+                            // canvas.translate(-dx, 0);
+                            // clipRight += dx;
+                            // backOffset += dx;
+                        // } else {
+                            // canvas.translate(-dx, 0);
+                            // clipRight += dx;
+                            // AndroidUtilities.rectTmp.set(translationX, 0, translationX + child.getWidth(), getHeight());
+                        // }
+                        // canvas.scale(scale, scale, predictiveBackLeft ? AndroidUtilities.rectTmp.right - dp(82) : AndroidUtilities.rectTmp.left + dp(82), predictiveBackInProgress ? predictiveBackY : AndroidUtilities.rectTmp.centerY());
+                    // }
                     if (newBackTransitions()) {
                         final float scale;
                         if (predictiveBackInProgress) {
-                            scale = lerp(1.00f, lerp(0.90f, 0.85f, 1.0f - containerView.getAlpha()), clamp01(translationX / dpf2(56)));
+                            
+                            // 1. 缩放底限
+                            float targetMinScale = 0.76f; 
+                            // 2. 感应行程，让动画更平滑
+                            float scalingRange = dpf2(280); 
+                            
+                            // 3. 引入计算进度
+                            float rawProgress = clamp01(translationX / scalingRange);
+                            
+                            // 4. 使用减速插值器，消除线性僵硬感
+                            // 公式：progress = 1 - (1 - x)^2 (简单的二次减速)
+                            float easedProgress = 1.0f - (1.0f - rawProgress) * (1.0f - rawProgress);
+                            
+                            scale = lerp(1.00f, targetMinScale, easedProgress);
+                            
                         } else {
-                            scale = 1.00f - Math.min(0.25f, 0.05f * translationX / dpf2(56));
+                            // 非预测性返回（快速滑动）保持原有逻辑或微调阻尼
+                            scale = 1.00f - Math.min(0.10f, 0.02f * translationX / dpf2(56));
                         }
-                        float dx = translationX > dp(56) && !animationInProgress && predictiveBackInProgress ? translationX : Utilities.clamp(translationX, dp(56), 0);
+                    
+                        // 一个简单的阻尼函数防止 dx 过快增长
+                        float maxDx = dp(300);
+                        float dx;
+                        if (translationX > maxDx && predictiveBackInProgress) {
+                            // 超过 maxDx 后，每移动 1dp 实际只产生 0.3dp 的位移，产生“橡皮筋”拉伸感
+                            dx = maxDx + (translationX - maxDx) * 0.3f;
+                        } else {
+                            dx = Utilities.clamp(translationX, maxDx, 0);
+                        }
+                    
+                        // 绘制逻辑保持一致，但确保 rectTmp 的计算更稳健
+                        canvas.save();
                         if (!predictiveBackInProgress || predictiveBackLeft) {
                             canvas.translate(-dx, 0);
                             clipRight += dx;
@@ -1072,7 +1080,13 @@ public class ActionBarLayout extends FrameLayout implements INavigationLayout, F
                             clipRight += dx;
                             AndroidUtilities.rectTmp.set(translationX, 0, translationX + child.getWidth(), getHeight());
                         }
-                        canvas.scale(scale, scale, predictiveBackLeft ? AndroidUtilities.rectTmp.right - dp(82) : AndroidUtilities.rectTmp.left + dp(82), predictiveBackInProgress ? predictiveBackY : AndroidUtilities.rectTmp.centerY());
+                    
+                        // 计算缩放中心点，避免跳变
+                        float pivotX = predictiveBackLeft ? (AndroidUtilities.rectTmp.right - dp(82)) : (AndroidUtilities.rectTmp.left + dp(82));
+                        float pivotY = predictiveBackInProgress ? predictiveBackY : AndroidUtilities.rectTmp.centerY();
+                        
+                        canvas.scale(scale, scale, pivotX, pivotY);
+                        canvas.restore();
                     }
 
                     final RoundedCorner topLeft = insets.getRoundedCorner(android.view.RoundedCorner.POSITION_TOP_LEFT);
@@ -1461,7 +1475,7 @@ public class ActionBarLayout extends FrameLayout implements INavigationLayout, F
                         }
                         if (newBackTransitions()) {
                             containerView.setTranslationX(dx / (float) getWidth() * (5 * dp(56)));
-                            setInnerTranslationX(dx / (float) getWidth() * (5 * dp(56)));
+                            setInnerTranslationX(dx / (float) getWidth() * (8 * dp(56)));
                         } else {
                             containerView.setTranslationX(dx);
                             if (USE_SPRING_ANIMATION) {
@@ -1535,34 +1549,34 @@ public class ActionBarLayout extends FrameLayout implements INavigationLayout, F
     private boolean predictiveBackHasProgress;
     private float predictiveBackY;
     private boolean predictiveBackLeft;
-    public boolean onBackStarted(float touchX, float touchY) {
+    public void onBackStarted(float touchX, float touchY) {
         if (animationInProgress) {
             if (backAnimator != null) {
                 backAnimator.end();
                 backAnimator = null;
             } else {
-                return false;
+                return;
             }
-            if (animationInProgress) return false;
+            if (animationInProgress) return;
         }
         if (predictiveBackInProgress || predictiveInput) {
-            return false;
+            return;
         }
         if (transitionAnimationPreviewMode || startedTracking || checkTransitionAnimation() || fragmentsStack.size() <= 1) {
-            return false;
+            return;
         }
         if (isInPreviewMode()) {
-            return false;
+            return;
         }
         if (sheetFragment != null && sheetFragment.hasShownSheet()) {
-            return false;
+            return;
         }
         final BaseFragment currentFragment = fragmentsStack.get(fragmentsStack.size() - 1);
         if (!currentFragment.onBackPressed(false)) {
-            return false;
+            return;
         }
         if (currentFragment.hasShownSheet() || !currentFragment.canBeginSlide()) {
-            return false;
+            return;
         }
         predictiveBackHasProgress = false;
         predictiveBackInProgress = true;
@@ -1574,12 +1588,11 @@ public class ActionBarLayout extends FrameLayout implements INavigationLayout, F
             AndroidUtilities.hideKeyboard(parentActivity.getCurrentFocus());
         }
         currentFragment.onBeginSlide();
-        return true;
     }
 
     public void onBackProgress(float t) {
         if (!predictiveInput) return;
-        final float dx = dp(56) * CubicBezierInterpolator.StandardDecelerate.getInterpolation(t);
+        final float dx = dp(300) * t;
         predictiveBackHasProgress = t > 0;
         containerView.setTranslationX(dx);
         setInnerTranslationX(dx);
@@ -2246,13 +2259,16 @@ public class ActionBarLayout extends FrameLayout implements INavigationLayout, F
         containerView.setTranslationY(0);
 
         if (preview) {
-            fragmentView.setOutlineProvider(ViewOutlineProviderImpl.boundsWithPaddingRoundRect(0, dp(menu == null ? 24 : 12)));
+            fragmentView.setOutlineProvider(new ViewOutlineProvider() {
+                @Override
+                public void getOutline(View view, Outline outline) {
+                    outline.setRoundRect(0,
+                        isSupportEdgeToEdge ? 0 : AndroidUtilities.statusBarHeight,
+                        view.getMeasuredWidth(), view.getMeasuredHeight(), dp(6));
+                }
+            });
             fragmentView.setClipToOutline(true);
             fragmentView.setElevation(dp(4));
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
-                 fragmentView.setOutlineSpotShadowColor(0xB0000000);
-                 fragmentView.setOutlineAmbientShadowColor(0xB0000000);
-            }
             if (previewBackgroundDrawable == null) {
                 previewBackgroundDrawable = new ColorDrawable(0x2e000000);
             }
@@ -3617,7 +3633,7 @@ public class ActionBarLayout extends FrameLayout implements INavigationLayout, F
     private boolean tabsEvents;
     @Override
     public boolean dispatchTouchEvent(MotionEvent ev) {
-        final boolean tabs = ev.getY() > getHeight() - getBottomTabsHeight(true) - navigationBarInsetHeight;
+        final boolean tabs = false; // ev.getY() > getHeight() - getBottomTabsHeight(true);
 
         BaseFragment.AttachedSheet lastSheet = null;
         if (lastSheet == null && sheetFragment != null && sheetFragment.getLastSheet() != null) {
@@ -3704,9 +3720,6 @@ public class ActionBarLayout extends FrameLayout implements INavigationLayout, F
         super.addView(child, index, params);
         if (lastWindowInsetsCompat != null) {
             dispatchApplyWindowInsetsInternal(child, lastWindowInsetsCompat);
-        }
-        if (bottomSheetTabs != null && indexOfChild(bottomSheetTabs) < getChildCount() - 1) {
-            bottomSheetTabs.bringToFront();
         }
     }
 
