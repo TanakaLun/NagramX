@@ -1549,34 +1549,34 @@ public class ActionBarLayout extends FrameLayout implements INavigationLayout, F
     private boolean predictiveBackHasProgress;
     private float predictiveBackY;
     private boolean predictiveBackLeft;
-    public void onBackStarted(float touchX, float touchY) {
+    public boolean onBackStarted(float touchX, float touchY) {
         if (animationInProgress) {
             if (backAnimator != null) {
                 backAnimator.end();
                 backAnimator = null;
             } else {
-                return;
+                return false;
             }
-            if (animationInProgress) return;
+            if (animationInProgress) return false;
         }
         if (predictiveBackInProgress || predictiveInput) {
-            return;
+            return false;
         }
         if (transitionAnimationPreviewMode || startedTracking || checkTransitionAnimation() || fragmentsStack.size() <= 1) {
-            return;
+            return false;
         }
         if (isInPreviewMode()) {
-            return;
+            return false;
         }
         if (sheetFragment != null && sheetFragment.hasShownSheet()) {
-            return;
+            return false;
         }
         final BaseFragment currentFragment = fragmentsStack.get(fragmentsStack.size() - 1);
         if (!currentFragment.onBackPressed(false)) {
-            return;
+            return false;
         }
         if (currentFragment.hasShownSheet() || !currentFragment.canBeginSlide()) {
-            return;
+            return false;
         }
         predictiveBackHasProgress = false;
         predictiveBackInProgress = true;
@@ -1588,6 +1588,7 @@ public class ActionBarLayout extends FrameLayout implements INavigationLayout, F
             AndroidUtilities.hideKeyboard(parentActivity.getCurrentFocus());
         }
         currentFragment.onBeginSlide();
+        return true;
     }
 
     public void onBackProgress(float t) {
