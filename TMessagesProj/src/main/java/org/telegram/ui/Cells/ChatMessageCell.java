@@ -20992,7 +20992,6 @@ public class ChatMessageCell extends BaseCell implements SeekBar.SeekBarDelegate
             (!transitionParams.transitionBotButtons.isEmpty() && transitionParams.animateBotButtonsChanged) ||
             !botButtons.isEmpty() ||
             drawSideButton != 0 ||
-            drawSummarizeButton ||
             drawNameLayout && nameLayout != null && currentNameEmojiStatusDrawable != null && !currentNameEmojiStatusDrawable.isEmpty() ||
             animatedEmojiStack != null && !animatedEmojiStack.holders.isEmpty() ||
             currentNameStatusDrawable != null && !currentNameStatusDrawable.isEmpty() ||
@@ -21544,7 +21543,7 @@ public class ChatMessageCell extends BaseCell implements SeekBar.SeekBarDelegate
     }
 
     public void drawSideButton(Canvas canvas, boolean fromQuickShare) {
-        if (hideSideButtonByQuickShare && !fromQuickShare || drawSideButton == 0 && !drawSummarizeButton) {
+        if (hideSideButtonByQuickShare && !fromQuickShare || drawSideButton == 0) {
             return;
         }
 
@@ -21613,7 +21612,7 @@ public class ChatMessageCell extends BaseCell implements SeekBar.SeekBarDelegate
             if (!(enterTransitionInProgress && !currentMessageObject.isVoice())) {
                 drawCommentButton(canvas, 1f);
             }
-        } else if (drawSideButton != 0) {
+        } else {
             if (SizeNotifierFrameLayout.drawingBlur) {
                 return;
             }
