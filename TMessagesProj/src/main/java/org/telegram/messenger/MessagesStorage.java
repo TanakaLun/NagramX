@@ -15537,11 +15537,13 @@ public class MessagesStorage extends BaseController {
                                         message = oldMessage;
                                     } else {
                                         // --- AyuGram hook
-                                        if (message.from_id != null && (!oldMessage.message.equals(message.message) || !sameMedia)) {
-                                            if (NaConfig.INSTANCE.getEnableSaveEditsHistory().Bool()) {
-                                                var prefs = new AyuSavePreferences(oldMessage, currentAccount);
-                                                prefs.setDialogId(dialogId);
-                                                AyuMessagesController.getInstance().onMessageEdited(prefs, message);
+                                        if (message.from_id != null) {
+                                            if (!oldMessage.message.equals(message.message) || !sameMedia) {
+                                                if (NaConfig.INSTANCE.getEnableSaveEditsHistory().Bool()) {
+                                                    var prefs = new AyuSavePreferences(oldMessage, currentAccount);
+                                                    prefs.setDialogId(dialogId);
+                                                    AyuMessagesController.getInstance().onMessageEdited(prefs, message);
+                                                }
                                             }
                                             if (NaConfig.INSTANCE.getRegexFiltersEnabled().Bool()) {
                                                 AyuFilter.onMessageEdited(message.id, dialogId);
