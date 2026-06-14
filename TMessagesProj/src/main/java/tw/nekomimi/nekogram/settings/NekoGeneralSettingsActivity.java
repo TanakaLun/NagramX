@@ -225,7 +225,8 @@ public class NekoGeneralSettingsActivity extends BaseNekoXSettingsActivity {
             getString(R.string.MapPreviewProviderTelegram),
             getString(R.string.NagramX),
             getString(R.string.Nagram),
-            getString(R.string.NekoX)
+            getString(R.string.NekoX),
+            getString(R.string.YukinoGram)
     }, null));
     private final AbstractConfigCell tabletModeRow = cellGroup.appendCell(new ConfigCellSelectBox(null, NekoConfig.tabletMode, new String[]{
             getString(R.string.TabletModeDefault),

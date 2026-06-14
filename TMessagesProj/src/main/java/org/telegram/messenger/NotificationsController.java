@@ -6249,6 +6249,8 @@ public class NotificationsController extends BaseController {
                 return R.drawable.nagram_notification;
             case 3:
                 return R.drawable.neko_notification;
+            case 4:
+                return R.drawable.yukino_notification;
         }
 
         return R.drawable.notification;
