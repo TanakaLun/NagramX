@@ -42765,10 +42765,10 @@ public class ChatActivity extends BaseFragment implements
                         handled = true;
                     }
                     if (MarkdownParser.isMarkdown(message)) {
-                    parseMarkdownAsync(message);
-                    handled = true;
-                }
-                if (!handled) {
+                        parseMarkdownAsync(message);
+                        handled = true;
+                    }
+                    if (!handled) {
                         try {
                             AndroidUtilities.openForView(message, getParentActivity(), themeDelegate, false);
                         } catch (Exception e) {
