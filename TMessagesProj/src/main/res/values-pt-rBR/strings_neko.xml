@@ -103,8 +103,6 @@
     <string name="customSavePath">Caminho de armazenamento personalizado</string>
     <string name="customSavePathHint">Deixe em branco para salvar diretamente</string>
     <string name="channelLabel">canal</string>
-    <string name="forceBlurInChat">Forçar desfoque no chat</string>
-    <string name="ChatBlurAlphaValue">Opacidade do desfoque do chat</string>
     <string name="MutualContact">Contato comum</string>
     <string name="MutualContactDescription">Este é um contato em comum.</string>
     <string name="DatacenterStatusAbout">Verifique o status dos **datacenters** do Telegram.</string>
@@ -206,7 +204,6 @@
     <string name="AddProxySocks5">Adicionar proxy SOCKS5</string>
     <string name="AddProxyTelegram">Adicionar proxy MTProto</string>
     <string name="RetestPing">Refazer teste de ping para todos os servidores</string>
-    <string name="ImportProxyList">Importar servidores proxy</string>
     <string name="ExportStickers">Exportar stickers</string>
     <string name="ImportStickersX">Importar stickers de arquivo</string>
     <string name="ImportStickersList">Importar stickers</string>
