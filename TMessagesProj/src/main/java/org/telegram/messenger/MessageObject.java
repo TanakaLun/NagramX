@@ -128,7 +128,6 @@ import me.vkryl.core.BitwiseUtils;
 
 import tw.nekomimi.nekogram.NekoConfig;
 import tw.nekomimi.nekogram.filters.ReactionFilter;
-import tw.nekomimi.nekogram.helpers.EntitiesHelper;
 import xyz.nextalone.nagram.NaConfig;
 import tw.nekomimi.nekogram.helpers.MessageHelper;
 import tw.nekomimi.nekogram.syntaxhighlight.SyntaxHighlight;
@@ -8713,7 +8712,7 @@ public class MessageObject {
             paint = Theme.chat_msgTextPaint;
         }
 
-        CharSequence text = EntitiesHelper.parseTables(messageText, maxWidth);
+        CharSequence text = messageText;
         try {
             textLayoutOriginalWidth = maxWidth;
             textLayout = makeStaticLayout(text, paint, maxWidth, 1f, totalAnimatedEmojiCount >= 4 ? -1 : 0, emojiOnlyCount > 0);
