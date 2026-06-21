@@ -1856,10 +1856,10 @@ public class ChannelAdminLogActivity extends BaseFragment implements Notificatio
                 return;
             }
 
-            ActionBarPopupWindow.ActionBarPopupWindowLayout popupLayout = new ActionBarPopupWindow.ActionBarPopupWindowLayout(getParentActivity(), R.drawable.popup_fixed_alert, getResourceProvider(), 0);
+            ActionBarPopupWindow.ActionBarPopupWindowLayout popupLayout = new ActionBarPopupWindow.ActionBarPopupWindowLayout(getParentActivity(), R.drawable.popup_fixed_alert4, getResourceProvider(), 0);
             popupLayout.setMinimumWidth(dp(200));
             Rect backgroundPaddings = new Rect();
-            Drawable shadowDrawable = getParentActivity().getResources().getDrawable(R.drawable.popup_fixed_alert).mutate();
+            Drawable shadowDrawable = getParentActivity().getResources().getDrawable(R.drawable.popup_fixed_alert4).mutate();
             shadowDrawable.getPadding(backgroundPaddings);
             popupLayout.setBackgroundColor(getThemedColor(Theme.key_actionBarDefaultSubmenuBackground));
 
@@ -2937,6 +2937,18 @@ public class ChannelAdminLogActivity extends BaseFragment implements Notificatio
                     @Override
                     public boolean canDrawOutboundsContent() {
                         return true;
+                    }
+
+                    @Override
+                    public void forceUpdate(ChatMessageCell cell, boolean anchorScroll) {
+                        MessageObject messageObject = cell.getPrimaryMessageObject();
+                        if (messageObject == null) {
+                            return;
+                        }
+                        messageObject.forceUpdate = true;
+                        cell.setMessageObject(messageObject, cell.getCurrentMessagesGroup(), cell.isPinnedBottom(), cell.isPinnedTop(), cell.isFirstInChat(), cell.isLastInChatList());
+                        messageObject.forceUpdate = false;
+                        cell.relayout();
                     }
 
                     @Override

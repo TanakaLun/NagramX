@@ -94,14 +94,9 @@ public class AyuMessageHistory extends NekoDelegateFragment {
         updateHistory();
     }
 
-    @Override
-    protected RecyclerListView getMessageListView() {
-        return listView;
-    }
-
     private void checkInsets() {
         if (listView != null) {
-            listView.setPadding(0, 0, 0, windowInsetsStateHolder.getCurrentNavigationBarInset() + dp(8));
+            applyMessageListNavigationBarInset(listView, windowInsetsStateHolder.getCurrentNavigationBarInset());
         }
     }
 
@@ -188,8 +183,8 @@ public class AyuMessageHistory extends NekoDelegateFragment {
         setupMessageListItemAnimator(listView);
         listView.setSelectorType(9);
         listView.setSelectorDrawableColor(0);
-        listView.setClipToPadding(false);
-        frameLayout.addView(listView, LayoutHelper.createFrame(LayoutHelper.MATCH_PARENT, LayoutHelper.MATCH_PARENT));
+        applyGlassMessageListPadding(listView, 0);
+        frameLayout.addView(listView, LayoutHelper.createFrame(LayoutHelper.MATCH_PARENT, LayoutHelper.MATCH_PARENT, Gravity.TOP | Gravity.LEFT));
 
         if (rowCount > 0) {
             listView.scrollToPosition(rowCount - 1);
@@ -225,6 +220,8 @@ public class AyuMessageHistory extends NekoDelegateFragment {
 
         updateEmptyView();
 
+        setupGlassActionBar(frameLayout, listView);
+
         return fragmentView;
     }
 
@@ -252,8 +249,6 @@ public class AyuMessageHistory extends NekoDelegateFragment {
 
         NotificationCenter.getInstance(UserConfig.selectedAccount).removeObserver(this, AyuConstants.MESSAGE_EDITED_NOTIFICATION);
         NotificationCenter.getInstance(UserConfig.selectedAccount).removeObserver(this, NotificationCenter.voiceTranscriptionUpdate);
-        Bulletin.removeDelegate(this);
-
         if (scrimPopupWindow != null) {
             scrimPopupWindow.dismiss();
             scrimPopupWindow = null;
@@ -296,13 +291,6 @@ public class AyuMessageHistory extends NekoDelegateFragment {
         if (fragmentView instanceof SizeNotifierFrameLayout) {
             ((SizeNotifierFrameLayout) fragmentView).onResume();
         }
-
-        Bulletin.addDelegate(this, new Bulletin.Delegate() {
-            @Override
-            public int getBottomOffset(int tag) {
-                return windowInsetsStateHolder.getCurrentNavigationBarInset();
-            }
-        });
     }
 
     @Override
@@ -312,8 +300,6 @@ public class AyuMessageHistory extends NekoDelegateFragment {
         if (fragmentView instanceof SizeNotifierFrameLayout) {
             ((SizeNotifierFrameLayout) fragmentView).onPause();
         }
-
-        Bulletin.removeDelegate(this);
 
         if (scrimPopupWindow != null) {
             scrimPopupWindow.dismiss();
@@ -543,16 +529,17 @@ public class AyuMessageHistory extends NekoDelegateFragment {
 
         int height = scrimPopupContainerLayout.getMeasuredHeight();
         int totalHeight = fragmentView.getHeight();
+        int popupTopBound = getGlassActionBarBottomInWindow() + dp(8);
         int popupY;
         if (height < totalHeight) {
             popupY = listLocation[1] + v.getTop() + (int) y - height - dp(8);
-            if (popupY < dp(24)) {
-                popupY = dp(24);
+            if (popupY < popupTopBound) {
+                popupY = popupTopBound;
             } else if (popupY > totalHeight - height - dp(8)) {
                 popupY = totalHeight - height - dp(8);
             }
         } else {
-            popupY = AndroidUtilities.getStatusBarHeight(getContext());
+            popupY = popupTopBound;
         }
 
         scrimPopupContainerLayout.setMaxHeight(totalHeight - popupY);

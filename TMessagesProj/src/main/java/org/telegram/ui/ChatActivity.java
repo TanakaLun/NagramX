@@ -2367,8 +2367,8 @@ public class ChatActivity extends BaseFragment implements
                     editTextItem.setTag(1);
 
                     if (editTextItem.getVisibility() != View.VISIBLE) {
-                        if (chatMode == MODE_SAVED && getSavedDialogId() == getUserConfig().getClientUserId() || chatMode == 0 && (threadMessageId == 0 || isTopic) && !UserObject.isReplyUser(currentUser) && !isReport()) {
-                            editTextItem.setVisibility(View.VISIBLE);
+                        if (isTitleCentered() || chatMode == MODE_SAVED && getSavedDialogId() == getUserConfig().getClientUserId() || chatMode == 0 && (threadMessageId == 0 || isTopic) && !UserObject.isReplyUser(currentUser) && !isReport()) {
+                            editTextItem.setVisibility(isTitleCentered() ? View.GONE : View.VISIBLE);
                             checkEditTextItemMenu();
                             if (headerItem != null) {
                                 headerItem.setVisibility(View.GONE);
@@ -2407,19 +2407,20 @@ public class ChatActivity extends BaseFragment implements
             } else {
                 if (editTextItem.getTag() != null) {
                     editTextItem.setTag(null);
-                    if (editTextItem.getVisibility() != View.GONE) {
-                        if (chatMode == MODE_SAVED && getSavedDialogId() == getUserConfig().getClientUserId() || chatMode == 0 && (threadMessageId == 0 || isTopic) && !UserObject.isReplyUser(currentUser) && !isReport()) {
+                    if (editTextItem.getVisibility() != View.GONE || isTitleCentered()) {
+                        if (isTitleCentered() || chatMode == MODE_SAVED && getSavedDialogId() == getUserConfig().getClientUserId() || chatMode == 0 && (threadMessageId == 0 || isTopic) && !UserObject.isReplyUser(currentUser) && !isReport()) {
                             editTextItem.setVisibility(View.GONE);
 
                             if (chatActivityEnterView.hasText() && TextUtils.isEmpty(chatActivityEnterView.getSlowModeTimer())) {
+                                boolean showAttachItem = !isTitleCentered();
                                 if (headerItem != null) {
-                                    headerItem.setVisibility(View.GONE);
+                                    headerItem.setVisibility(showAttachItem ? View.GONE : View.VISIBLE);
                                 }
                                 if (attachItem != null) {
-                                    attachItem.setVisibility(View.VISIBLE);
+                                    attachItem.setVisibility(showAttachItem ? View.VISIBLE : View.GONE);
                                 }
                                 if (otherIcon != null) {
-                                    otherIcon.setIconVisible(!isTitleCentered());
+                                    otherIcon.setIconVisible(showAttachItem);
                                 }
                             } else {
                                 if (headerItem != null) {
@@ -2521,14 +2522,15 @@ public class ChatActivity extends BaseFragment implements
                 editTextItem.setVisibility(View.GONE);
             }
             if (TextUtils.isEmpty(chatActivityEnterView.getSlowModeTimer())) {
+                boolean showAttachItem = !isTitleCentered();
                 if (headerItem != null) {
-                    headerItem.setVisibility(View.GONE);
+                    headerItem.setVisibility(showAttachItem ? View.GONE : View.VISIBLE);
                 }
                 if (attachItem != null) {
-                    attachItem.setVisibility(View.VISIBLE);
+                    attachItem.setVisibility(showAttachItem ? View.VISIBLE : View.GONE);
                 }
                 if (otherIcon != null) {
-                    otherIcon.setIconVisible(!isTitleCentered());
+                    otherIcon.setIconVisible(showAttachItem);
                 }
             }
         }
@@ -4548,22 +4550,20 @@ public class ChatActivity extends BaseFragment implements
             @Override
             protected boolean onAvatarClick() {
                 if (isTitleCentered()) {
-                    if (editTextItem != null && editTextItem.getView() != null && editTextItem.getView().getVisibility() == VISIBLE) {
-                        editTextItem.getView().performClick();
+                    if (editTextItem != null && editTextItem.getTag() != null) {
+                        checkEditTextItemMenu();
+                        editTextItem.createView().performClick();
                         return true;
                     }
-
-                    if (attachItem != null && attachItem.getView() != null && attachItem.getView().getVisibility() == VISIBLE) {
-                        attachItem.getView().performClick();
-                        return true;
-                    }
-
                     if (headerItem != null) {
+                        if (attachItem != null && chatActivityEnterView.hasText() && TextUtils.isEmpty(chatActivityEnterView.getSlowModeTimer()) && (currentChat == null || ChatObject.canSendPlain(currentChat))) {
+                            attachItem.createView().performClick();
+                            return true;
+                        }
                         headerItem.performClick();
                         return true;
                     }
                 }
-
                 return super.onAvatarClick();
             }
 
@@ -11580,8 +11580,11 @@ public class ChatActivity extends BaseFragment implements
 
     private void updatePagedownButtonsPosition(boolean hideBottomForGesture) {
         if (sideControlsButtonsLayout != null) {
+            final float bottomOffset = hideBottomForGesture
+                ? chatInputViewsContainer.getInputBubbleHeight() * bottomViewsVisibilityController.getVisibility(MESSAGE_ACTION_CONTAINER)
+                : chatInputViewsContainer.getInputBubbleHeight();
             float baseTranslationY2 = -windowInsetsStateHolder.getAnimatedMaxBottomInset()
-                - (hideBottomForGesture ? 0 : chatInputViewsContainer.getInputBubbleHeight())
+                - bottomOffset
                 - getTopicTabsSideSize(TopicsTabsView.Position.BOTTOM)
                 - dp(ChatInputViewsContainer.INPUT_BUBBLE_BOTTOM + 4);
             sideControlsButtonsLayout.setTranslationY(baseTranslationY2);
@@ -28907,9 +28910,6 @@ public class ChatActivity extends BaseFragment implements
         if (bottomOverlayLinksText != null && bottomOverlayLinksText.getVisibility() == View.VISIBLE) {
             return false;
         }
-        if (actionBar != null && actionBar.isActionModeShowed()) {
-            return false;
-        }
         if (searchItem != null && searchItemVisible) {
             return false;
         }
@@ -40201,7 +40201,7 @@ public class ChatActivity extends BaseFragment implements
                     headerItem.setVisibility(View.GONE);
                 }
                 if (editTextItem != null) {
-                    editTextItem.setVisibility(View.VISIBLE);
+                    editTextItem.setVisibility(isTitleCentered() ? View.GONE : View.VISIBLE);
                     checkEditTextItemMenu();
                 }
                 if (attachItem != null) {
@@ -40220,17 +40220,18 @@ public class ChatActivity extends BaseFragment implements
                     topicCreateItem.setVisibility(View.GONE);
                 }
             } else if (chatActivityEnterView.hasText() && TextUtils.isEmpty(chatActivityEnterView.getSlowModeTimer()) && (currentChat == null || ChatObject.canSendPlain(currentChat))) {
+                boolean showAttachItem = !isTitleCentered();
                 if (headerItem != null) {
-                    headerItem.setVisibility(View.GONE);
+                    headerItem.setVisibility(showAttachItem ? View.GONE : View.VISIBLE);
                 }
                 if (editTextItem != null) {
                     editTextItem.setVisibility(View.GONE);
                 }
                 if (attachItem != null) {
-                    attachItem.setVisibility(View.VISIBLE);
+                    attachItem.setVisibility(showAttachItem ? View.VISIBLE : View.GONE);
                 }
                 if (otherIcon != null) {
-                    otherIcon.setIconVisible(!isTitleCentered());
+                    otherIcon.setIconVisible(showAttachItem);
                 }
                 if (searchIconItem != null && showSearchAsIcon) {
                     searchIconItem.setVisibility(View.GONE);

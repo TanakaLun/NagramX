@@ -115,14 +115,9 @@ public class BookmarksActivity extends NekoDelegateFragment {
         this.dialogId = dialogId;
     }
 
-    @Override
-    protected RecyclerListView getMessageListView() {
-        return listView;
-    }
-
     private void checkInsets() {
         if (listView != null) {
-            listView.setPadding(0, 0, 0, windowInsetsStateHolder.getCurrentNavigationBarInset() + dp(8));
+            applyMessageListNavigationBarInset(listView, windowInsetsStateHolder.getCurrentNavigationBarInset());
         }
         updatePagedownButtonPosition();
     }
@@ -367,7 +362,8 @@ public class BookmarksActivity extends NekoDelegateFragment {
         });
 
         ActionBarMenu menu = actionBar.createMenu();
-        searchItem = menu.addItem(0, R.drawable.ic_ab_search_solar).setIsSearchField(true);
+        searchItem = menu.addItem(0, R.drawable.outline_header_search).setIsSearchField(true);
+        searchItem.setSearchPaddingStart(12);
         searchItem.setSearchFieldHint(getString(R.string.Search));
         searchItem.setActionBarMenuItemSearchListener(new ActionBarMenuItem.ActionBarMenuItemSearchListener() {
             @Override
@@ -422,6 +418,7 @@ public class BookmarksActivity extends NekoDelegateFragment {
             windowInsetsStateHolder.setInsets(insets);
             return WindowInsetsCompat.CONSUMED;
         });
+        int actionBarOffset = getGlassActionBarOffset();
 
         listView = new RecyclerListView(context);
         listView.setLayoutAnimation(null);
@@ -435,8 +432,8 @@ public class BookmarksActivity extends NekoDelegateFragment {
         setupMessageListItemAnimator(listView);
         listView.setSelectorType(9);
         listView.setSelectorDrawableColor(0);
-        listView.setClipToPadding(false);
-        frameLayout.addView(listView, LayoutHelper.createFrame(LayoutHelper.MATCH_PARENT, LayoutHelper.MATCH_PARENT));
+        applyGlassMessageListPadding(listView, 0);
+        frameLayout.addView(listView, LayoutHelper.createFrame(LayoutHelper.MATCH_PARENT, LayoutHelper.MATCH_PARENT, Gravity.TOP | Gravity.LEFT));
 
         listView.setOnItemClickListener((view, position, x, y) -> {
             if (view instanceof NekoMessageCell) {
@@ -455,7 +452,7 @@ public class BookmarksActivity extends NekoDelegateFragment {
         floatingDateView.setAlpha(0.0f);
         floatingDateView.setImportantForAccessibility(View.IMPORTANT_FOR_ACCESSIBILITY_NO);
         floatingDateView.setInvalidateColors(true);
-        frameLayout.addView(floatingDateView, LayoutHelper.createFrame(LayoutHelper.WRAP_CONTENT, LayoutHelper.WRAP_CONTENT, Gravity.TOP | Gravity.CENTER_HORIZONTAL, 0, 4, 0, 0));
+        frameLayout.addView(floatingDateView, LayoutHelper.createFrameMarginPx(LayoutHelper.WRAP_CONTENT, LayoutHelper.WRAP_CONTENT, Gravity.TOP | Gravity.CENTER_HORIZONTAL, 0, actionBarOffset + dp(4), 0, 0));
 
         emptyView = new AppCompatTextView(context) {
             @Override
@@ -502,6 +499,7 @@ public class BookmarksActivity extends NekoDelegateFragment {
             updatePagedownButtonVisibility(false);
         });
 
+        setupGlassActionBar(frameLayout, listView);
         return fragmentView;
     }
 
@@ -512,13 +510,6 @@ public class BookmarksActivity extends NekoDelegateFragment {
         if (fragmentView instanceof SizeNotifierFrameLayout) {
             ((SizeNotifierFrameLayout) fragmentView).onResume();
         }
-
-        Bulletin.addDelegate(this, new Bulletin.Delegate() {
-            @Override
-            public int getBottomOffset(int tag) {
-                return windowInsetsStateHolder.getCurrentNavigationBarInset();
-            }
-        });
 
         updateActionBarCount();
         updateBookmarks();
@@ -532,8 +523,6 @@ public class BookmarksActivity extends NekoDelegateFragment {
             ((SizeNotifierFrameLayout) fragmentView).onPause();
         }
 
-        Bulletin.removeDelegate(this);
-
         if (scrimPopupWindow != null) {
             scrimPopupWindow.dismiss();
             scrimPopupWindow = null;
@@ -543,8 +532,6 @@ public class BookmarksActivity extends NekoDelegateFragment {
     @Override
     public void onFragmentDestroy() {
         super.onFragmentDestroy();
-
-        Bulletin.removeDelegate(this);
 
         if (scrimPopupWindow != null) {
             scrimPopupWindow.dismiss();
@@ -827,16 +814,17 @@ public class BookmarksActivity extends NekoDelegateFragment {
 
         int height = scrimPopupContainerLayout.getMeasuredHeight();
         int totalHeight = fragmentView.getHeight();
+        int popupTopBound = getGlassActionBarBottomInWindow() + dp(8);
         int popupY;
         if (height < totalHeight) {
             popupY = listLocation[1] + v.getTop() + (int) y - height - dp(8);
-            if (popupY < dp(24)) {
-                popupY = dp(24);
+            if (popupY < popupTopBound) {
+                popupY = popupTopBound;
             } else if (popupY > totalHeight - height - dp(8)) {
                 popupY = totalHeight - height - dp(8);
             }
         } else {
-            popupY = AndroidUtilities.getStatusBarHeight(getContext());
+            popupY = popupTopBound;
         }
 
         scrimPopupContainerLayout.setMaxHeight(totalHeight - popupY);
